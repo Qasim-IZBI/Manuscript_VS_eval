@@ -1,0 +1,401 @@
+% ============================================================
+%  Section 5: Models
+%  H&E to Sirius Red Virtual Staining Paper
+% ============================================================
+
+\section{Models}
+\label{sec:models}
+
+We evaluate six unsupervised image-to-image translation architectures spanning four
+distinct methodological families: cycle-consistent GANs, shared-latent-space GANs,
+content--style disentanglement, contrastive learning, hybrid
+Vision-Transformer GANs, and score-based diffusion.
+All GAN-based models share a common set of building blocks described below; the
+diffusion model uses a separate UNet backbone.
+For each model, generator capacity is scaled across three sizes by adjusting the base
+channel width and depth, yielding parameter counts of approximately 10\,M, 50\,M, and
+100\,M for the single A\,$\to$\,B generator (Table~\ref{tab:model_sizes}).
+
+% -------------------------------------------------------
+\subsection{Shared Building Blocks}
+\label{sec:shared_blocks}
+% -------------------------------------------------------
+
+\paragraph{ResNet generator.}
+The encoder begins with a $7{\times}7$ convolution (with reflection padding) mapping the
+input to $n_{gf}$ feature channels, followed by $n_{down}{=}2$ stride-2 convolutional
+downsampling layers that double the channel count at each step, producing a bottleneck
+of $4\,n_{gf}$ channels at one-quarter the input resolution.
+The bottleneck consists of a stack of $n_{blocks}$ residual blocks (each: $3{\times}3$
+reflected conv + Instance Normalisation + ReLU, applied twice with a skip
+connection), after which a symmetric decoder of $n_{up}{=}2$ transposed-convolutional
+layers restores the spatial resolution and reduces the channel count back to
+$n_{gf}$, before a final $7{\times}7$ convolution and Tanh activation produce the
+translated image in $[-1,\,1]$.
+
+\paragraph{PatchGAN discriminator.}
+All GAN-based models use a $70{\times}70$ PatchGAN discriminator~\cite{isola2017image}:
+an initial $4{\times}4$ stride-2 convolution, three further strided blocks with Instance
+Normalisation and Leaky-ReLU ($\alpha{=}0.2$), and a final convolution to a single-channel
+score map.
+The discriminator is trained with a Least-Squares GAN~(LSGAN) objective~\cite{mao2017lsgan}
+throughout.
+
+\paragraph{Image replay buffer.}
+A pool of 50 previously generated images is maintained for each discriminator following
+Shrivastava~\etal~\cite{shrivastava2017learning}.
+At each training step, each presented image is returned to the discriminator with
+probability 0.5; otherwise a randomly selected image from the pool is substituted,
+improving training stability by reducing discriminator overfitting to the current
+generator.
+
+% -------------------------------------------------------
+\subsection{CycleGAN}
+\label{sec:cyclegan}
+% -------------------------------------------------------
+
+CycleGAN~\cite{zhu2017unpaired} learns two independent generators $G_{A \to B}$ and
+$G_{B \to A}$, each instantiated as the ResNet generator described above.
+Two PatchGAN discriminators $D_A$ and $D_B$ distinguish real from generated images in
+each domain.
+Beyond adversarial training, a cycle-consistency loss enforces that translating an image
+to the other domain and back recovers the original:
+\begin{equation}
+  \mathcal{L}_{\text{cyc}} =
+    \bigl\| G_{B \to A}(G_{A \to B}(x_A)) - x_A \bigr\|_1 +
+    \bigl\| G_{A \to B}(G_{B \to A}(x_B)) - x_B \bigr\|_1,
+\end{equation}
+weighted by $\lambda_{\text{cyc}}{=}10$.
+An optional identity loss ($\lambda_{\text{id}}{=}0.5$) penalises unnecessary colour
+shifts when a real image from domain $Y$ is passed through $G_{X \to Y}$.
+The total generator objective is:
+\begin{equation}
+  \mathcal{L}_G = \mathcal{L}_{\text{GAN}} +
+    \lambda_{\text{cyc}}\,\mathcal{L}_{\text{cyc}} +
+    \lambda_{\text{id}}\,\mathcal{L}_{\text{id}}.
+\end{equation}
+
+% -------------------------------------------------------
+\subsection{UNIT}
+\label{sec:unit}
+% -------------------------------------------------------
+
+UNIT~\cite{liu2017unsupervised} assumes a shared latent space across domains: images
+from both domains are encoded via domain-specific encoders $E_A$ and $E_B$ into a
+shared representation from which domain-specific decoders $\text{Dec}_A$ and
+$\text{Dec}_B$ reconstruct or translate images.
+The shared bottleneck is partitioned into three segments of residual blocks:
+domain-private pre-shared blocks ($n_{\text{priv}}^{\text{pre}}{=}3$), shared blocks
+($n_{\text{shared}}{=}2$--$3$ depending on size), and domain-private post-shared blocks
+($n_{\text{priv}}^{\text{post}}{=}3$), totalling $n_{\text{blocks}}{=}9$.
+Stochasticity is introduced via VAE reparameterisation:
+$1{\times}1$ convolutions produce per-pixel $\mu$ and $\log\sigma^2$ maps, and a latent
+code $z = \mu + \varepsilon\sigma$, $\varepsilon \sim \mathcal{N}(0,I)$, is passed to the
+decoders.
+The generator loss combines adversarial, cycle-reconstruction L1, and KL-divergence
+terms:
+\begin{equation}
+  \mathcal{L}_G = \lambda_{\text{GAN}}\,\mathcal{L}_{\text{GAN}} +
+    \lambda_{\text{recon}}\,\mathcal{L}_{\text{recon}} +
+    \lambda_{\text{KL}}\,\mathcal{L}_{\text{KL}},
+\end{equation}
+with $\lambda_{\text{GAN}}{=}1$, $\lambda_{\text{recon}}{=}10$, and
+$\lambda_{\text{KL}}{=}0.01$.
+
+% -------------------------------------------------------
+\subsection{MUNIT}
+\label{sec:munit}
+% -------------------------------------------------------
+
+MUNIT~\cite{huang2018multimodal} disentangles each image into a domain-invariant
+\textit{content} code $c$ (encoding spatial structure) and a domain-specific
+\textit{style} code $s$ (encoding appearance).
+Separate content encoders $E^c_A$, $E^c_B$ (ResNet encoders followed by $n_{\text{content}}$
+residual blocks) and lightweight style encoders $E^s_A$, $E^s_B$ (three stride-2
+convolutions, global average pooling, and a linear layer to a style vector of
+dimension $d_s{=}8$) process each domain independently.
+Translation is achieved by pairing the content code of the source image with a style
+code from the target domain: the style code is injected into the decoder via Adaptive
+Instance Normalisation~(AdaIN), in which the affine parameters
+$(\gamma,\,\beta)$ are predicted by a style MLP of two fully connected layers
+($d_{\text{MLP}}{=}256$) applied to the style vector.
+Four AdaIN residual blocks per decoder perform style-conditioned refinement before
+standard upsampling.
+The generator objective optimises adversarial, image reconstruction, content
+consistency, and style consistency terms:
+\begin{equation}
+  \mathcal{L}_G = \mathcal{L}_{\text{GAN}} +
+    \lambda_{\text{img}}\,\mathcal{L}_{\text{img}} +
+    \lambda_{\text{c}}\,\mathcal{L}_{\text{content}} +
+    \lambda_{\text{s}}\,\mathcal{L}_{\text{style}},
+\end{equation}
+with $\lambda_{\text{img}}{=}10$, $\lambda_{\text{c}}{=}1$, $\lambda_{\text{s}}{=}1$.
+
+% -------------------------------------------------------
+\subsection{DCLGAN}
+\label{sec:dclgan}
+% -------------------------------------------------------
+
+DCLGAN~\cite{han2021dual} augments the CycleGAN framework with a dual contrastive
+objective.
+Intermediate feature maps are extracted at three depths from the encoder and residual
+bottleneck of each generator; 256 spatial locations are randomly sampled from each map
+and projected to a $256$-dimensional embedding space via per-layer two-layer MLPs.
+An InfoNCE loss~\cite{oord2018representation} treats the corresponding anchor--positive
+pair (source patch and its translated counterpart) as the positive sample, with all
+other patches in the minibatch as negatives, computed symmetrically for both translation
+directions:
+\begin{equation}
+  \mathcal{L}_{\text{DCL}} =
+    \mathcal{L}_{\text{NCE}}(A{\to}B) + \mathcal{L}_{\text{NCE}}(B{\to}A),
+    \quad \tau{=}0.07.
+\end{equation}
+The full generator loss is:
+\begin{equation}
+  \mathcal{L}_G = \mathcal{L}_{\text{GAN}} +
+    \lambda_{\text{cyc}}\,\mathcal{L}_{\text{cyc}} +
+    \lambda_{\text{DCL}}\,\mathcal{L}_{\text{DCL}},
+\end{equation}
+with $\lambda_{\text{cyc}}{=}10$, $\lambda_{\text{DCL}}{=}1$.
+The identity loss is disabled by default to conserve GPU memory.
+
+% -------------------------------------------------------
+\subsection{UVCGAN}
+\label{sec:uvcgan}
+% -------------------------------------------------------
+
+UVCGAN~\cite{torbunov2022uvcgan} replaces the standard ResNet generator with a
+UNet--Vision Transformer hybrid.
+A UNet encoder performs $n_{down}{=}4$ stride-2 downsampling steps, collecting skip
+connections at each spatial scale (channel progression:
+$n_{gf} \to 2n_{gf} \to 2n_{gf} \to 4n_{gf} \to 8n_{gf}$, capped at $8n_{gf}$).
+The resulting $16{\times}16$ feature map is flattened into a sequence of tokens and
+processed by a lightweight Vision Transformer~(ViT) bottleneck of $n_{\text{ViT}}$
+transformer blocks, each consisting of Layer Normalisation, multi-head self-attention,
+and a $4{\times}$ feed-forward expansion with GELU activation, combined via ReZero
+residual scaling~\cite{bachlechner2021rezero} (all residual scale parameters initialised
+to zero).
+The UNet decoder restores spatial resolution through symmetric transposed-convolutional
+upsampling with skip-connection concatenation.
+
+Training proceeds in two stages.
+In \textbf{Stage~1 (pretraining)}, the generator learns to reconstruct images with
+randomly masked patches (patch size $32{\times}32$, count 4 per image) using an L1
+reconstruction loss on masked regions only, without discriminator involvement.
+In \textbf{Stage~2 (finetuning)}, the pretrained generator is used as initialisation
+for standard cycle-consistent GAN training ($\lambda_{\text{cyc}}{=}10$,
+$\lambda_{\text{id}}{=}0.5$) with both discriminators active.
+
+% -------------------------------------------------------
+\subsection{MIUDiff}
+\label{sec:miudiff}
+% -------------------------------------------------------
+
+MIUDiff~\cite{liu2025score} frames stain translation as a conditional score-based
+diffusion problem with mutual information~(MI) guidance.
+A DDPM forward process~\cite{ho2020ddpm} corrupts target-domain images over $T{=}1000$
+timesteps with a linear noise schedule ($\beta_1{=}10^{-4}$, $\beta_T{=}2{\times}10^{-2}$).
+The reverse process is parameterised by a time-conditioned UNet, whose sinusoidal time
+embedding is projected through a two-layer MLP ($4{\times}$ hidden expansion) before
+being injected into each residual block via feature-wise affine transformations.
+The UNet channel progression is controlled by a multiplier tuple; attention blocks are
+inserted at the $16{\times}16$ resolution level.
+
+Training proceeds in three stages:
+
+\textbf{Stage~1 (unconditional pretraining).}
+An unconditional noise predictor $\hat{\varepsilon}_{\text{uncond}}$ is trained on
+target-domain~(B) images alone using a standard diffusion loss
+$\mathcal{L}_{\text{eps}} = \|\hat{\varepsilon} - \varepsilon\|_2^2$ combined with a
+mutual information penalty.
+A MINE-based estimator~\cite{belghazi2018mine} quantifies the MI between gradient-magnitude
+maps and the image, encouraging the model to capture tissue structure:
+$\mathcal{L} = \mathcal{L}_{\text{eps}} + \lambda_{\text{MI}}\,\mathcal{L}_{\text{MI}}$
+($\lambda_{\text{MI}}{=}1$).
+
+\textbf{Stage~2 (conditional finetuning).}
+A conditional predictor $\hat{\varepsilon}_{\text{cond}}$ is initialised from Stage~1
+and trained with the source grayscale image~$\tilde{x}_A$ concatenated to the noisy
+target as additional conditioning input.
+The MI guidance term is retained.
+
+\textbf{Stage~3 (patch-contrastive finetuning).}
+The Stage~2 checkpoint is finetuned with a patch-contrastive loss~(PCL,
+$\lambda_{\text{PCL}}{=}0.1$) applied at low noise levels ($t \le 40$) using InfoNCE
+on shallow feature projections to enforce local structural correspondence, sharpening
+collagen fibre boundary reconstruction.
+
+At inference, DDIM sampling~\cite{song2021ddim} with $T_{\text{sample}}{=}200$
+deterministic steps is used, augmented by MI-guided gradient steps on the latent
+trajectory ($\eta_{\text{guidance}}{=}1.0$).
+Unlike all GAN-based models, MIUDiff requires iterative reverse-diffusion at inference
+time, incurring substantially higher per-tile computational cost.
+
+% -------------------------------------------------------
+\subsection{Model Overview}
+\label{sec:model_overview}
+% -------------------------------------------------------
+
+Table~\ref{tab:model_overview} summarises the six architectures across the four dimensions
+most relevant to this study: methodological family, generator backbone, training losses,
+and inference cost.
+
+\begin{table}[h]
+\centering
+\caption{Overview of the six evaluated models.
+  Loss symbols follow the notation introduced in each subsection.
+  \textit{Pretraining} indicates whether the model requires a supervised or
+  self-supervised warm-up stage before adversarial/diffusion training.
+  \textit{Inference} distinguishes single forward-pass generators from iterative
+  reverse-diffusion samplers.}
+\label{tab:model_overview}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lllccc}
+\toprule
+\textbf{Model} & \textbf{Family} & \textbf{Generator backbone} &
+\textbf{Loss components} & \textbf{Pretraining} & \textbf{Inference} \\
+\midrule
+CycleGAN & Cycle-consistent GAN & ResNet &
+  $\mathcal{L}_{\text{GAN}} + \lambda_{\text{cyc}}\mathcal{L}_{\text{cyc}} + \lambda_{\text{id}}\mathcal{L}_{\text{id}}$ &
+  No & Single-pass \\[2pt]
+UNIT & Shared-latent-space GAN & VAE--ResNet &
+  $\mathcal{L}_{\text{GAN}} + \lambda_{\text{recon}}\mathcal{L}_{\text{recon}} + \lambda_{\text{KL}}\mathcal{L}_{\text{KL}}$ &
+  No & Single-pass \\[2pt]
+MUNIT & Content--style disentanglement GAN & AdaIN--ResNet &
+  $\mathcal{L}_{\text{GAN}} + \lambda_{\text{img}}\mathcal{L}_{\text{img}} + \lambda_{\text{c}}\mathcal{L}_{\text{c}} + \lambda_{\text{s}}\mathcal{L}_{\text{s}}$ &
+  No & Single-pass \\[2pt]
+DCLGAN & Contrastive learning GAN & ResNet &
+  $\mathcal{L}_{\text{GAN}} + \lambda_{\text{cyc}}\mathcal{L}_{\text{cyc}} + \lambda_{\text{DCL}}\mathcal{L}_{\text{DCL}}$ &
+  No & Single-pass \\[2pt]
+UVCGAN & Hybrid ViT GAN & UNet--ViT &
+  $\mathcal{L}_{\text{GAN}} + \lambda_{\text{cyc}}\mathcal{L}_{\text{cyc}} + \lambda_{\text{id}}\mathcal{L}_{\text{id}}$ &
+  Yes (masked recon.) & Single-pass \\[2pt]
+MIUDiff & Score-based diffusion & UNet (DDPM) &
+  $\mathcal{L}_{\text{eps}} + \lambda_{\text{MI}}\mathcal{L}_{\text{MI}} + \lambda_{\text{PCL}}\mathcal{L}_{\text{PCL}}$ &
+  Yes (3-stage) & Iterative (DDIM) \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+% -------------------------------------------------------
+\subsection{Model Size Configurations}
+\label{sec:model_sizes}
+% -------------------------------------------------------
+
+To assess the effect of model capacity, each architecture is trained at three scales.
+The key hyperparameters controlling generator size are adjusted per model family
+(Table~\ref{tab:model_sizes}); all other architectural choices remain fixed.
+Parameter counts refer to the single-direction generator~(A\,$\to$\,B) only; bidirectional
+models have approximately twice this count when both generators are included.
+For MIUDiff, the count covers both the unconditional and conditional UNet branches
+(both are required at inference).
+
+\begin{table}[h]
+\centering
+\caption{Generator size configurations. Parameter counts are for the single
+A\,$\to$\,B generator direction. ``Shared'' denotes shared bottleneck blocks in UNIT.}
+\label{tab:model_sizes}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{llccccc}
+\toprule
+\textbf{Model} & \textbf{Size} & \textbf{Params} & \textbf{$n_{gf}$} &
+\textbf{$n_{\text{blocks}}$} & \textbf{Additional hyperparameters} \\
+\midrule
+\multirow{3}{*}{CycleGAN}
+  & Small  & 10.20\,M & 64  & 8  & --- \\
+  & Medium & 50.18\,M & 128 & 10 & --- \\
+  & Large  & 102.26\,M & 192 & 9  & --- \\
+\midrule
+\multirow{3}{*}{UNIT}
+  & Small  & 10.33\,M & 64  & 8  & shared blocks = 2 \\
+  & Medium & 50.71\,M & 128 & 10 & shared blocks = 2 \\
+  & Large  & 103.44\,M & 192 & 9  & shared blocks = 3 \\
+\midrule
+\multirow{3}{*}{MUNIT}
+  & Small  & 10.14\,M & 64  & --- & content blocks = 3 \\
+  & Medium & 47.64\,M & 128 & --- & content blocks = 5 \\
+  & Large  & 94.87\,M & 192 & --- & content blocks = 4 \\
+\midrule
+\multirow{3}{*}{DCLGAN}
+  & Small  & 10.20\,M & 64  & 8  & --- \\
+  & Medium & 50.18\,M & 128 & 10 & --- \\
+  & Large  & 102.26\,M & 192 & 9  & --- \\
+\midrule
+\multirow{3}{*}{UVCGAN}
+  & Small  & 10.01\,M & 48  & --- & $d_{\text{ViT}}{=}96$,\;$n_{\text{ViT}}{=}6$ \\
+  & Medium & 48.28\,M & 96  & --- & $d_{\text{ViT}}{=}384$,\;$n_{\text{ViT}}{=}6$ \\
+  & Large  & 96.72\,M & 128 & --- & $d_{\text{ViT}}{=}384$,\;$n_{\text{ViT}}{=}17$ \\
+\midrule
+\multirow{3}{*}{MIUDiff}
+  & Small  & 10.31\,M & --- & --- & $c_{\text{base}}{=}32$,\;mult\,=\,[1,2,4,4] \\
+  & Medium & 47.97\,M & --- & --- & $c_{\text{base}}{=}64$,\;mult\,=\,[1,2,2,4,4] \\
+  & Large  & 98.60\,M & --- & --- & $c_{\text{base}}{=}64$,\;mult\,=\,[1,2,4,8] \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+
+% ============================================================
+%  New bibliography entries for this section
+%  (merge with references.bib; shared entries already listed)
+% ============================================================
+%
+% @inproceedings{mao2017lsgan,
+%   author    = {Mao, Xudong and Li, Qing and Xie, Haoran and Lau, Raymond Y.K. and Wang, Zhen and Paul Smolley, Stephen},
+%   title     = {Least Squares Generative Adversarial Networks},
+%   booktitle = {ICCV},
+%   year      = {2017}
+% }
+%
+% @inproceedings{shrivastava2017learning,
+%   author    = {Shrivastava, Ashish and Pfister, Tomas and Tuzel, Oncel and Susskind, Josh and Wang, Wenda and Webb, Russell},
+%   title     = {Learning from Simulated and Unsupervised Images through Adversarial Training},
+%   booktitle = {CVPR},
+%   year      = {2017}
+% }
+%
+% @inproceedings{oord2018representation,
+%   author    = {van den Oord, A{\"a}ron and Li, Yazhe and Vinyals, Oriol},
+%   title     = {Representation Learning with Contrastive Predictive Coding},
+%   booktitle = {NeurIPS},
+%   year      = {2018},
+%   eprint    = {1807.03748}
+% }
+%
+% @inproceedings{bachlechner2021rezero,
+%   author    = {Bachlechner, Thomas and Majumder, Bodhisattwa Prasad and Mao, Henry and Cottrell, Gary and McAuley, Julian},
+%   title     = {{ReZero} is All You Need: Fast Convergence at Large Depth},
+%   booktitle = {UAI},
+%   year      = {2021},
+%   eprint    = {2003.04887}
+% }
+%
+% @inproceedings{ho2020ddpm,
+%   author    = {Ho, Jonathan and Jain, Ajay and Abbeel, Pieter},
+%   title     = {Denoising Diffusion Probabilistic Models},
+%   booktitle = {NeurIPS},
+%   year      = {2020},
+%   eprint    = {2006.11239}
+% }
+%
+% @inproceedings{song2021ddim,
+%   author    = {Song, Jiaming and Meng, Chenlin and Ermon, Stefano},
+%   title     = {Denoising Diffusion Implicit Models},
+%   booktitle = {ICLR},
+%   year      = {2021},
+%   eprint    = {2010.02502}
+% }
+%
+% @inproceedings{belghazi2018mine,
+%   author    = {Belghazi, Mohamed Ishmael and Baratin, Aristide and Rajeshwar, Sai and Ozair, Sherjil and Bengio, Yoshua and Courville, Aaron and Hjelm, Devon},
+%   title     = {{MINE}: Mutual Information Neural Estimation},
+%   booktitle = {ICML},
+%   year      = {2018},
+%   eprint    = {1801.04062}
+% }
+%
+% (Shared entries already in related_work.tex:
+%  isola2017image, zhu2017unpaired, liu2017unsupervised, huang2018multimodal,
+%  han2021dual, torbunov2022uvcgan, liu2025score)

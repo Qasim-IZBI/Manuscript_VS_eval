@@ -1,0 +1,732 @@
+% =============================================================
+%  references.bib
+%  Consolidated bibliography for:
+%  "Evaluating Unsupervised I2I Models for H&E → Sirius Red
+%   Virtual Staining in Mouse Liver Tissue"
+%
+%  Usage: add  \bibliography{references}  to your main .tex file.
+%
+%  Entries marked [TBC] require first-author / metadata
+%  verification before final submission.
+%  Organised by topic group; alphabetical within each group.
+%
+%  ⚠  DUPLICATE KEY WARNING
+%     insilicolabeling2023  (related_work.tex)
+%     trustworthy_cell_ensemble2023  (uncertainty_analysis.tex)
+%  both refer to the same paper (PMC10663640).  Both keys are
+%  present here so the project compiles.  Before submission,
+%  choose one key, update every \cite{} accordingly, and delete
+%  the redundant entry.
+% =============================================================
+
+
+% -----------------------------------------------------------
+%  Core I2I Translation Models
+% -----------------------------------------------------------
+
+@inproceedings{han2021dual,
+  author       = {Han, Junlin and Shoeiby, Mehrdad and Petersson,
+                  Lars and Armin, Mohammad Ali},
+  title        = {Dual Contrastive Learning for Unsupervised
+                  Image-to-Image Translation},
+  booktitle    = {Proceedings of the {IEEE/CVF} Conference on Computer
+                  Vision and Pattern Recognition Workshops ({CVPRW})},
+  year         = {2021},
+  eprint       = {2104.07689},
+  archivePrefix = {arXiv}
+}
+
+@inproceedings{huang2018multimodal,
+  author       = {Huang, Xun and Liu, Ming-Yu and Belongie, Serge
+                  and Kautz, Jan},
+  title        = {Multimodal Unsupervised Image-to-Image Translation},
+  booktitle    = {Proceedings of the European Conference on Computer
+                  Vision ({ECCV})},
+  year         = {2018},
+  eprint       = {1804.04732},
+  archivePrefix = {arXiv}
+}
+
+@inproceedings{liu2017unsupervised,
+  author       = {Liu, Ming-Yu and Breuel, Thomas and Kautz, Jan},
+  title        = {Unsupervised Image-to-Image Translation Networks},
+  booktitle    = {Advances in Neural Information Processing Systems
+                  ({NeurIPS})},
+  year         = {2017},
+  eprint       = {1703.00848},
+  archivePrefix = {arXiv}
+}
+
+@inproceedings{liu2025score,
+  author       = {Liu, Anran and Wang, Xiaofei and Cai, Jing
+                  and Li, Chao},
+  title        = {Score-based Diffusion Model for Unpaired Virtual
+                  Histology Staining},
+  booktitle    = {Workshop on Computational Mathematics and Medical
+                  Image Computing and Analysis ({CMMCA})},
+  year         = {2025},
+  eprint       = {2506.23184},
+  archivePrefix = {arXiv},
+  doi          = {10.1007/978-3-032-06624-4_4}
+}
+
+@inproceedings{torbunov2022uvcgan,
+  author       = {Torbunov, Dmitrii and Huang, Yi and Yu, Haiwang
+                  and Huang, Jin and Yoo, Shinjae and Tricoli, Utku
+                  and Tsang, Raymond and Viren, Brett and Ren, Yihui},
+  title        = {{UVCGAN}: {UNet} Vision Transformer Cycle-Consistent
+                  {GAN} for Unpaired Image-to-Image Translation},
+  booktitle    = {Proceedings of the {IEEE/CVF} Winter Conference on
+                  Applications of Computer Vision ({WACV})},
+  year         = {2023},
+  eprint       = {2203.02557},
+  archivePrefix = {arXiv}
+}
+
+@inproceedings{zhu2017unpaired,
+  author       = {Zhu, Jun-Yan and Park, Taesung and Isola, Phillip
+                  and Efros, Alexei A.},
+  title        = {Unpaired Image-to-Image Translation using
+                  Cycle-Consistent Adversarial Networks},
+  booktitle    = {Proceedings of the {IEEE} International Conference
+                  on Computer Vision ({ICCV})},
+  year         = {2017},
+  eprint       = {1703.10593},
+  archivePrefix = {arXiv}
+}
+
+
+% -----------------------------------------------------------
+%  Liver Histopathology Practice
+%  (staining panels, tissue consumption, serial-section misalignment)
+% -----------------------------------------------------------
+
+@article{clark2017immunohistochemistry,
+  author  = {Clark, Iesha and Torbenson, Michael S.},
+  title   = {Immunohistochemistry and Special Stains in Medical Liver
+             Pathology},
+  journal = {Advances in Anatomic Pathology},
+  volume  = {24},
+  number  = {2},
+  pages   = {99--109},
+  year    = {2017},
+  doi     = {10.1097/PAP.0000000000000139},
+  note    = {PMID: 28181953}
+}
+
+@article{dehaan2021deep,
+  author  = {de Haan, Kevin and Zhang, Yijie and Zuckerman, Jonathan E.
+             and Liu, Tairan and Sisk, Anthony E. and Diaz,
+             Miguel F. Pimentel and Jen, Kuang-Yu and Nobori, Atsushi
+             and Liou, Sophie and Zhang, Shu and Riahi, Reza and
+             Rivenson, Yair and Wallace, W. Dean and Ozcan, Aydogan},
+  title   = {Deep learning-based transformation of {H\&E} stained
+             tissues into special stains},
+  journal = {Nature Communications},
+  volume  = {12},
+  pages   = {4884},
+  year    = {2021},
+  doi     = {10.1038/s41467-021-25221-2},
+  note    = {PMC: PMC8361203}
+}
+
+@article{gatenbee2023virtual,
+  author  = {Gatenbee, Chandler D. and Baker, Ann-Marie and
+             Prabhakaran, Sandhya and others},
+  title   = {Virtual alignment of pathology image series for
+             multi-gigapixel whole slide images},
+  journal = {Nature Communications},
+  volume  = {14},
+  pages   = {4502},
+  year    = {2023},
+  doi     = {10.1038/s41467-023-40218-9}
+}
+
+@article{krishna2013role,
+  author  = {Krishna, Murli},
+  title   = {Role of special stains in diagnostic liver pathology},
+  journal = {Clinical Liver Disease},
+  volume  = {2},
+  number  = {S1},
+  pages   = {S8--S10},
+  year    = {2013},
+  doi     = {10.1002/cld.148},
+  note    = {PMID: 30992876}
+}
+
+@article{lefkowitch2006special,
+  author  = {Lefkowitch, Jay H.},
+  title   = {Special stains in diagnostic liver pathology},
+  journal = {Seminars in Diagnostic Pathology},
+  volume  = {23},
+  number  = {3--4},
+  pages   = {190--198},
+  year    = {2006},
+  doi     = {10.1053/j.semdp.2006.11.006},
+  note    = {PMID: 17355092}
+}
+
+
+% -----------------------------------------------------------
+%  Virtual Staining Applications
+% -----------------------------------------------------------
+
+@article{adib2024dual,
+  author  = {Adib, Erfan and others},   % [TBC] verify full author list
+  title   = {Dual contrastive learning based image-to-image
+             translation of unstained skin tissue into virtually
+             stained {H\&E} images},
+  journal = {Scientific Reports},
+  volume  = {14},
+  pages   = {2335},
+  year    = {2024},
+  doi     = {10.1038/s41598-024-52833-7}
+}
+
+@article{chen2022mvfstain,
+  author  = {Chen and others},   % [TBC] verify first author
+  title   = {{MVFStain}: Multiple virtual functional stain
+             histopathology images generation based on specific
+             domain mapping},
+  journal = {Medical Image Analysis},
+  year    = {2022},
+  doi     = {10.1016/j.media.2022.102550}
+}
+
+@article{kieffer2020largescale,
+  author  = {Kieffer and others},   % [TBC] verify first author
+  title   = {A large-scale internal validation study of unsupervised
+             virtual trichrome staining technologies on nonalcoholic
+             steatohepatitis liver biopsies},
+  journal = {Modern Pathology},
+  year    = {2020},
+  doi     = {10.1038/s41379-020-00718-1}
+}
+
+@article{li2023unpaired,
+  author  = {Li and others},   % [TBC] verify first author
+  title   = {Unpaired virtual histological staining using prior-guided
+             generative adversarial networks},
+  journal = {Computerized Medical Imaging and Graphics},
+  year    = {2023},
+  doi     = {10.1016/j.compmedimag.2023.102228}
+}
+
+@article{liu2021virtual,
+  author  = {Liu and others},   % [TBC] verify full author list
+  title   = {Virtual Immunohistochemistry for Breast Cancer Biomarker
+             Prediction From {H\&E}-Stained Images Using Generative
+             Network},
+  journal = {Image Analysis \& Stereology},
+  year    = {2021}
+}
+
+@misc{vifit2025,
+  author       = {others},   % [TBC] verify first author
+  title        = {{ViFIT}-assisted Histopathology: From {H\&E} Style
+                  Standardization to Virtual Fiber Image
+                  Transformation},
+  howpublished = {bioRxiv},
+  year         = {2025},
+  doi          = {10.1101/2025.01.24.634654}
+}
+
+
+% -----------------------------------------------------------
+%  Evaluation and Benchmarking
+% -----------------------------------------------------------
+
+@inproceedings{her2task2024,
+  author    = {others},   % [TBC] verify from MICCAI 2024 proceedings
+  title     = {Advancing {H\&E}-to-{IHC} Virtual Staining with
+               Task-Specific Domain Knowledge for {HER2} Scoring},
+  booktitle = {Medical Image Computing and Computer Assisted
+               Intervention ({MICCAI})},
+  year      = {2024},
+  url       = {https://papers.miccai.org/miccai-2024/051-Paper3227.html}
+}
+
+@article{khan2023effect,
+  author  = {Khan, Amirreza and Koivukoski, Sonja and Valkonen, Mira
+             and Latonen, Leena and Ruusuvuori, Pekka},
+  title   = {The effect of neural network architecture on virtual
+             {H\&E} staining: {S}ystematic assessment of histological
+             feasibility},
+  journal = {Patterns},
+  volume  = {4},
+  number  = {5},
+  year    = {2023},
+  doi     = {10.1016/j.patter.2023.100730}
+}
+
+@article{klockner2025he,
+  author  = {Kl{\"o}ckner and others},   % [TBC] verify full author list
+  title   = {{H\&E} to {IHC} virtual staining methods in breast
+             cancer: an overview and benchmarking},
+  journal = {npj Digital Medicine},
+  year    = {2025},
+  doi     = {10.1038/s41746-025-01741-9}
+}
+
+@article{renal_seg2025,
+  author  = {others},   % [TBC] verify first author (PubMed: 40712735)
+  title   = {Virtual Histological Staining as a Tool for Extending
+             Renal Segmentation Across Stains},
+  journal = {Computerized Medical Imaging and Graphics},
+  year    = {2025},
+  doi     = {10.1016/j.compmedimag.2025.102395}
+}
+
+@misc{staindiffuser2024,
+  author       = {others},   % [TBC] verify first author
+  title        = {{StainDiffuser}: {MultiTask} Dual Diffusion Model
+                  for Virtual Staining},
+  howpublished = {arXiv:2403.11340},
+  year         = {2024},
+  eprint       = {2403.11340},
+  archivePrefix = {arXiv}
+}
+
+@article{visgab2025,
+  author  = {others},   % [TBC] verify first author
+  title   = {{VISGAB}: Virtual staining-driven {GAN} benchmarking for
+             optimizing skin tissue histology},
+  journal = {Scientific Reports},
+  year    = {2025},
+  doi     = {10.1038/s41598-025-26493-0}
+}
+
+
+% -----------------------------------------------------------
+%  GAN Building Blocks
+% -----------------------------------------------------------
+
+@inproceedings{bachlechner2021rezero,
+  author    = {Bachlechner, Thomas and Majumder, Bodhisattwa Prasad
+               and Mao, Henry and Cottrell, Gary and McAuley, Julian},
+  title     = {{ReZero} is All You Need: {F}ast Convergence at Large
+               Depth},
+  booktitle = {Proceedings of the Conference on Uncertainty in
+               Artificial Intelligence ({UAI})},
+  year      = {2021},
+  eprint    = {2003.04887},
+  archivePrefix = {arXiv}
+}
+
+@inproceedings{isola2017image,
+  author    = {Isola, Phillip and Zhu, Jun-Yan and Zhou, Tinghui
+               and Efros, Alexei A.},
+  title     = {Image-to-Image Translation with Conditional Adversarial
+               Networks},
+  booktitle = {Proceedings of the {IEEE} Conference on Computer Vision
+               and Pattern Recognition ({CVPR})},
+  year      = {2017}
+}
+
+@inproceedings{mao2017lsgan,
+  author    = {Mao, Xudong and Li, Qing and Xie, Haoran and Lau,
+               Raymond Y.K. and Wang, Zhen and Paul Smolley, Stephen},
+  title     = {Least Squares Generative Adversarial Networks},
+  booktitle = {Proceedings of the {IEEE} International Conference on
+               Computer Vision ({ICCV})},
+  year      = {2017}
+}
+
+@inproceedings{oord2018representation,
+  author       = {van den Oord, A{\"a}ron and Li, Yazhe
+                  and Vinyals, Oriol},
+  title        = {Representation Learning with Contrastive Predictive
+                  Coding},
+  year         = {2018},
+  eprint       = {1807.03748},
+  archivePrefix = {arXiv}
+}
+
+@inproceedings{shrivastava2017learning,
+  author    = {Shrivastava, Ashish and Pfister, Tomas and Tuzel,
+               Oncel and Susskind, Josh and Wang, Wenda
+               and Webb, Russell},
+  title     = {Learning from Simulated and Unsupervised Images through
+               Adversarial Training},
+  booktitle = {Proceedings of the {IEEE} Conference on Computer Vision
+               and Pattern Recognition ({CVPR})},
+  year      = {2017}
+}
+
+
+% -----------------------------------------------------------
+%  Diffusion Model Foundations
+% -----------------------------------------------------------
+
+@inproceedings{belghazi2018mine,
+  author    = {Belghazi, Mohamed Ishmael and Baratin, Aristide
+               and Rajeshwar, Sai and Ozair, Sherjil
+               and Bengio, Yoshua and Courville, Aaron
+               and Hjelm, Devon},
+  title     = {{MINE}: Mutual Information Neural Estimation},
+  booktitle = {Proceedings of the International Conference on
+               Machine Learning ({ICML})},
+  year      = {2018},
+  eprint    = {1801.04062},
+  archivePrefix = {arXiv}
+}
+
+@inproceedings{ho2020ddpm,
+  author    = {Ho, Jonathan and Jain, Ajay and Abbeel, Pieter},
+  title     = {Denoising Diffusion Probabilistic Models},
+  booktitle = {Advances in Neural Information Processing Systems
+               ({NeurIPS})},
+  year      = {2020},
+  eprint    = {2006.11239},
+  archivePrefix = {arXiv}
+}
+
+@inproceedings{song2021ddim,
+  author    = {Song, Jiaming and Meng, Chenlin and Ermon, Stefano},
+  title     = {Denoising Diffusion Implicit Models},
+  booktitle = {Proceedings of the International Conference on
+               Learning Representations ({ICLR})},
+  year      = {2021},
+  eprint    = {2010.02502},
+  archivePrefix = {arXiv}
+}
+
+
+% -----------------------------------------------------------
+%  Image Quality Metrics
+% -----------------------------------------------------------
+
+@inproceedings{heusel2017fid,
+  author    = {Heusel, Martin and Ramsauer, Hubert and Unterthiner,
+               Thomas and Nessler, Bernhard and Hochreiter, Sepp},
+  title     = {{GANs} Trained by a Two Time-Scale Update Rule
+               Converge to a Local {Nash} Equilibrium},
+  booktitle = {Advances in Neural Information Processing Systems
+               ({NeurIPS})},
+  year      = {2017},
+  eprint    = {1706.08500},
+  archivePrefix = {arXiv}
+}
+
+@article{simonyan2015vgg,
+  author       = {Simonyan, Karen and Zisserman, Andrew},
+  title        = {Very Deep Convolutional Networks for Large-Scale
+                  Image Recognition},
+  journal      = {Proceedings of the International Conference on
+                  Learning Representations ({ICLR})},
+  year         = {2015},
+  eprint       = {1409.1556},
+  archivePrefix = {arXiv}
+}
+
+@article{wang2004ssim,
+  author  = {Wang, Zhou and Bovik, Alan C. and Sheikh, Hamid R.
+             and Simoncelli, Eero P.},
+  title   = {Image Quality Assessment: {F}rom Error Visibility to
+             Structural Similarity},
+  journal = {{IEEE} Transactions on Image Processing},
+  volume  = {13},
+  number  = {4},
+  pages   = {600--612},
+  year    = {2004},
+  doi     = {10.1109/TIP.2003.819861}
+}
+
+@inproceedings{szegedy2016inception,
+  author    = {Szegedy, Christian and Vanhoucke, Vincent and Ioffe,
+               Sergey and Shlens, Jon and Wojna, Zbigniew},
+  title     = {Rethinking the Inception Architecture for Computer
+               Vision},
+  booktitle = {Proceedings of the {IEEE} Conference on Computer Vision
+               and Pattern Recognition ({CVPR})},
+  year      = {2016}
+}
+
+@inproceedings{zhang2018lpips,
+  author    = {Zhang, Richard and Isola, Phillip and Efros, Alexei A.
+               and Shechtman, Eli and Wang, Oliver},
+  title     = {The Unreasonable Effectiveness of Deep Features as a
+               Perceptual Metric},
+  booktitle = {Proceedings of the {IEEE} Conference on Computer Vision
+               and Pattern Recognition ({CVPR})},
+  year      = {2018},
+  eprint    = {1801.03924},
+  archivePrefix = {arXiv}
+}
+
+
+% -----------------------------------------------------------
+%  Uncertainty Quantification
+% -----------------------------------------------------------
+
+@inproceedings{gal2016dropout,
+  author    = {Gal, Yarin and Ghahramani, Zoubin},
+  title     = {Dropout as a {Bayesian} Approximation: {R}epresenting
+               Model Uncertainty in Deep Learning},
+  booktitle = {Proceedings of the International Conference on Machine
+               Learning ({ICML})},
+  year      = {2016}
+}
+
+% NOTE: this key (insilicolabeling2023) is used in related_work.tex.
+% uncertainty_analysis.tex uses the key trustworthy_cell_ensemble2023
+% for the same paper — see the duplicate entry below and the warning
+% at the top of this file.
+@article{insilicolabeling2023,
+  author  = {Rauber, Paul and others},   % [TBC] verify full author list
+  title   = {Trustworthy in silico cell labeling via ensemble-based
+             image translation},
+  journal = {Nature Communications},
+  year    = {2023},
+  note    = {PMC10663640},
+  url     = {https://pmc.ncbi.nlm.nih.gov/articles/PMC10663640/}
+}
+
+% DUPLICATE of insilicolabeling2023 — used in uncertainty_analysis.tex.
+% Consolidate to one key before submission.
+@article{trustworthy_cell_ensemble2023,
+  author  = {Rauber, Paul and others},   % [TBC]
+  title   = {Trustworthy in silico cell labeling via ensemble-based
+             image translation},
+  journal = {Nature Communications},
+  year    = {2023},
+  note    = {PMC10663640},
+  url     = {https://pmc.ncbi.nlm.nih.gov/articles/PMC10663640/}
+}
+
+@inproceedings{lakshminarayanan2017simple,
+  author    = {Lakshminarayanan, Balaji and Pritzel, Alexander
+               and Blundell, Charles},
+  title     = {Simple and Scalable Predictive Uncertainty Estimation
+               using Deep Ensembles},
+  booktitle = {Advances in Neural Information Processing Systems
+               ({NeurIPS})},
+  year      = {2017}
+}
+
+@misc{trustworthy_i2i2025,
+  author       = {others},   % [TBC] verify from arXiv:2501.17570
+  title        = {Trustworthy image-to-image translation: evaluating
+                  uncertainty calibration in unpaired training
+                  scenarios},
+  howpublished = {arXiv:2501.17570},
+  year         = {2025},
+  eprint       = {2501.17570},
+  archivePrefix = {arXiv}
+}
+
+@inproceedings{ugac2021,
+  author    = {Upadhyay, Uddeshya and Chen, Yanbei and Akata, Zeynep},
+  title     = {Robustness via Uncertainty-aware Cycle Consistency},
+  booktitle = {Advances in Neural Information Processing Systems
+               ({NeurIPS})},
+  year      = {2021},
+  eprint    = {2110.12467},
+  archivePrefix = {arXiv}
+}
+
+@article{uncertainty_informed_hist2022,
+  author  = {Ghoshal, Biraja and Tucker, Allan},
+  title   = {Uncertainty-informed deep learning models enable
+             high-confidence predictions for digital histopathology},
+  journal = {Nature Communications},
+  year    = {2022},
+  doi     = {10.1038/s41467-022-34025-x}
+}
+
+@inproceedings{ilg2018ause,
+  author    = {Ilg, Eddy and {\c{C}}i{\c{c}}ek, {\"O}zg{\"u}n and
+               Galesso, Silvio and Klein, Aaron and Makansi, Osama and
+               Hutter, Frank and Brox, Thomas},
+  title     = {Uncertainty Estimates and Multi-Hypotheses Networks for
+               Optical Flow},
+  booktitle = {Proceedings of the European Conference on Computer
+               Vision ({ECCV})},
+  year      = {2018}
+}
+
+@inproceedings{poggi2020sparsification,
+  author    = {Poggi, Matteo and Aleotti, Filippo and Tosi, Fabio
+               and Mattoccia, Stefano},
+  title     = {On the Uncertainty of Self-Supervised Monocular Depth
+               Estimation},
+  booktitle = {Proceedings of the {IEEE/CVF} Conference on Computer
+               Vision and Pattern Recognition ({CVPR})},
+  year      = {2020}
+}
+
+@inproceedings{guo2017ece,
+  author    = {Guo, Chuan and Pleiss, Geoff and Sun, Yu
+               and Weinberger, Kilian Q.},
+  title     = {On Calibration of Modern Neural Networks},
+  booktitle = {Proceedings of the International Conference on Machine
+               Learning ({ICML})},
+  year      = {2017}
+}
+
+@inproceedings{kendall2017uncertainties,
+  author    = {Kendall, Alex and Gal, Yarin},
+  title     = {What Uncertainties Do We Need in {Bayesian} Deep
+               Learning for Computer Vision?},
+  booktitle = {Advances in Neural Information Processing Systems
+               ({NeurIPS})},
+  year      = {2017}
+}
+
+@inproceedings{siddiqui2024uncertainty,
+  author    = {Siddiqui, Qasim M. K. and Starke, Sebastian
+               and Steinbach, Peter},
+  title     = {Uncertainty Estimation in Instance Segmentation
+               with Star-Convex Shapes},
+  booktitle = {Proceedings of the {IEEE/CVF} Winter Conference on
+               Applications of Computer Vision ({WACV})},
+  year      = {2024},
+  pages     = {1424--1433}
+}
+
+
+% -----------------------------------------------------------
+%  Liver Pathology, Sirius Red, and Dataset
+% -----------------------------------------------------------
+
+@article{bataller2005liver,
+  author  = {Bataller, Ramon and Brenner, David A.},
+  title   = {Liver fibrosis},
+  journal = {Journal of Clinical Investigation},
+  volume  = {115},
+  number  = {2},
+  pages   = {209--218},
+  year    = {2005},
+  doi     = {10.1172/JCI24282}
+}
+
+@article{constantine1969,
+  author  = {Constantine, V. S. and Mowry, R. W.},
+  title   = {Selective staining of human dermal collagen.
+             {II}. {T}he use of {Picrosirius} {Red} {F3BA}
+             with polarization microscopy},
+  journal = {Journal of Investigative Dermatology},
+  volume  = {50},
+  number  = {6},
+  pages   = {419--423},
+  year    = {1969},
+  doi     = {10.1038/jid.1968.68}
+}
+
+@article{ghallab2025asbt,
+  author  = {Ghallab, Ahmed and Myllys, Maiju
+             and Gonz{\'a}lez, Daniela and others},  % [TBC] full list
+  title   = {Stage-dependent effects of systemic {ASBT} inhibition in
+             a cholestasis-induced cholemic nephropathy mouse model},
+  journal = {{JHEP} Reports},
+  volume  = {7},
+  year    = {2025},
+  doi     = {10.1016/j.jhepr.2025.101599}
+}
+
+@article{huang2013sirius,
+  author  = {Huang, Yi and de Boer, Wilhelmina B. and Adams, Leon A.
+             and MacQuillan, Gerry and Bulsara, Max K.
+             and Jeffrey, Gary P.},
+  title   = {Image analysis of liver collagen using {Sirius} {Red} is
+             more accurate and correlates better with serum fibrosis
+             markers than trichrome},
+  journal = {Liver International},
+  volume  = {33},
+  number  = {8},
+  pages   = {1249--1256},
+  year    = {2013},
+  doi     = {10.1111/liv.12184}
+}
+
+@article{liverfibrosis2025,
+  author  = {others},   % [TBC] verify from ScienceDirect 2025
+  title   = {Enhancing liver fibrosis measurement: {D}eep learning and
+             uncertainty analysis across multi-center cohorts},
+  journal = {Journal of Pathology Informatics},
+  year    = {2025},
+  doi     = {10.1016/j.jpi.2026.100411}
+}
+
+@article{sirius_fibrosis2024,
+  author  = {others},   % [TBC] verify from Biological Imaging 2024
+  title   = {Fibrosis severity scoring on {Sirius} {Red} histology
+             with multiple-instance deep learning},
+  journal = {Biological Imaging},
+  year    = {2024},
+  doi     = {10.1017/S2633903X24000023}
+}
+
+
+% -----------------------------------------------------------
+%  Review Papers
+% -----------------------------------------------------------
+
+@article{aatresh2024virtual,
+  author  = {Aatresh, Akash A. and others},   % [TBC]
+  title   = {Virtual histopathology methods in medical imaging:
+             a systematic review},
+  journal = {{BMC} Medical Imaging},
+  year    = {2024},
+  doi     = {10.1186/s12880-024-01498-9}
+}
+
+@article{chen2025challenges,
+  author  = {Chen and others},   % [TBC] Intelligent Oncology 2025
+  title   = {Virtual staining for pathology: {C}hallenges,
+             limitations and perspectives},
+  journal = {Intelligent Oncology},
+  year    = {2025},
+  doi     = {10.1016/j.iotech.2025.100022}
+}
+
+@article{latonen2024virtual,
+  author  = {Latonen, Leena and others},
+  title   = {Virtual staining for histology by deep learning},
+  journal = {Trends in Biotechnology},
+  volume  = {42},
+  number  = {6},
+  year    = {2024},
+  doi     = {10.1016/j.tibtech.2024.02.003}
+}
+
+@article{rivenson2020emerging,
+  author  = {Rivenson, Yair and de Haan, Kevin and Wallace, W. Dean
+             and Ozcan, Aydogan},
+  title   = {Emerging Advances to Transform Histopathology Using
+             Virtual Staining},
+  journal = {{BME} Frontiers},
+  year    = {2020},
+  doi     = {10.34133/2020/9647163}
+}
+
+
+% -----------------------------------------------------------
+%  Optimisation
+% -----------------------------------------------------------
+
+@article{bankhead2017qupath,
+  author  = {Bankhead, Peter and Loughrey, Maurice B. and
+             Fern{\'a}ndez, Jos{\'e} A. and Dombrowski, Yvonne and
+             McArt, Darragh G. and Dunne, Philip D. and McQuaid,
+             Stephen and Gray, R. Timothy and Murray, Liam J. and
+             Coleman, Helen G. and James, Jacqueline A. and
+             Salto-Tellez, Manuel and Hamilton, Peter W.},
+  title   = {{QuPath}: Open source software for digital pathology
+             image analysis},
+  journal = {Scientific Reports},
+  volume  = {7},
+  pages   = {16878},
+  year    = {2017},
+  doi     = {10.1038/s41598-017-17204-5}
+}
+
+@inproceedings{kingma2015adam,
+  author    = {Kingma, Diederik P. and Ba, Jimmy},
+  title     = {Adam: {A} Method for Stochastic Optimization},
+  booktitle = {Proceedings of the International Conference on
+               Learning Representations ({ICLR})},
+  year      = {2015},
+  eprint    = {1412.6980},
+  archivePrefix = {arXiv}
+}

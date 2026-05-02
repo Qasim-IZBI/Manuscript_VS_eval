@@ -1,0 +1,40 @@
+dataset_split
+Timestamp;Treatment;Sample;HE;HE tiles count;Error in assigning;SR;SR tiles count;Sample distribution;Error in assigning;Data split;Total WSIs
+d31;BDL+v;M1;defect;7494;;Yellow-defect;7712;medium;;small;7
+d31;BDL+v;M2;fine;1799;;fine;1799;test;;small+medium;15
+d31;BDL+v;M3;defect;2149;;Yellow-defect;2187;large;;small+medium+large;30
+d31;BDL+v;M4;Small-defect;5042;;fine;5547;large;;test;5
+d31;BDL+v;M10;Small-defect;8335;;fine;8514;large;;Test (not registered);3
+d31;Sham+v;M3;Small-defect;4107;;fine;3729;large;;;
+d31;Sham+v;M4;fine;6231;Used double in large also;fine;6690;small;;;
+d31;Sham+v;M5;fine;5277;;fine;5216;medium;;;
+d31;Sham+v;M6;fine;;;fine;;test (not registered);;;
+w7;BDL+v;M1;fine;13585;;fine;13761;small;;;
+w7;BDL+v;M2;fine;6619;;fine;6817;medium;;;
+w7;BDL+v;M4;fine;11991;;fine;;medium;;;
+w7;BDL+v;M5;fine;10285;;fine;10237;large;Used double in medium also;;
+w7;BDL+v;M10;fine;2813;;fine;2813;test;;;
+w7;Sham+v;M1;fine;6023;;fine;6248;small;;;
+w7;Sham+v;M2;fine;7039;;fine;7987;medium;;;
+w7;Sham+v;M3;fine;7937;;fine;8135;medium;;;
+w7;Sham+v;M4;fine;5091;;fine;5091;test;;;
+w10;BDL+v;M1;fine;3860;;Yellow-defect;4956;large;;;
+w10;BDL+v;M2;fine;5501;;Yellow-defect;5597;large;;;
+w10;BDL+v;M4;fine;6436;;fine;5834;small;;;
+w10;BDL+v;M6;fine;5639;;fine;3792;medium;;;
+w10;BDL+v;M10;fine;3751;;fine;3751;test;;;
+w10;Sham+v;M7;fine;5019;;fine;5183;small;;;
+w10;Sham+v;M8;fine;6459;;small Yellow-defect;5487;large;;;
+w10;Sham+v;M9;fine;;;fine;;test (not registered);;;
+w10;Sham+v;M10;fine;6732;;Yellow-defect;7427;large;;;
+w13;BDL+v;M1;fine;3280;;Yellow-defect;4129;large;;;
+w13;BDL+v;M2;fine;3570;;Yellow-defect;3512;large;;;
+w13;BDL+v;M3-1;fine;6485;;Yellow-defect;6369;large;;;
+w13;BDL+v;M3-2;fine;2303;Also consist M3-3 tissue in this slide;small Yellow-defect;1571;small;;;
+w13;BDL+v;M3-3;;;;Yellow-defect;708;large;;;
+w13;BDL+v;M4;fine;13054;;Yellow-defect;13535;large;;;
+w13;BDL+v;M9;fine;;;fine;;test (not registered);;;
+w13;Sham+v;M1;fine;7741;;small Yellow-defect;7340;medium;;;
+w13;Sham+v;M2;fine;7088;;small Yellow-defect;7922;large;;;
+w13;Sham+v;M3;fine;9715;;fine;10006;small;;;
+w13;Sham+v;M5;fine;2831;;fine;2831;test;;;

@@ -1,0 +1,281 @@
+% ============================================================
+%  Section 9: Epistemic Uncertainty Analysis
+%  H&E to Sirius Red Virtual Staining Paper
+% ============================================================
+
+\section{Epistemic Uncertainty Analysis}
+\label{sec:uncertainty}
+
+The scaling study~(Section~\ref{sec:results_scaling}) identifies how model capacity and
+data volume jointly affect translation quality, but it treats each configuration as a
+deterministic predictor.
+In practice, an unpaired I2I model trained from a single random initialisation offers no
+indication of where its predictions are reliable and where they should be treated with
+caution.
+We address this gap by training deep ensembles for the best-performing configuration
+from each model family---where \textit{best} is judged solely by task-based CPA
+agreement, for reasons detailed in Section~\ref{sec:ens_selection}---and constructing
+spatially resolved epistemic uncertainty maps that quantify the tile-level confidence
+of each model.
+
+% -------------------------------------------------------
+\subsection{Model Selection for Ensemble Analysis}
+\label{sec:ens_selection}
+% -------------------------------------------------------
+
+For each of the six model families (CycleGAN, UNIT, MUNIT, DCLGAN, UVCGAN, MIUDiff),
+we select the configuration from the 54-run scaling study that achieves the best
+CPA agreement on the held-out test set (Section~\ref{sec:task_eval}), yielding six
+configurations that enter the ensemble analysis.
+
+\paragraph{Rationale for CPA-only selection.}
+A central finding of this paper is that standard perceptual and distributional
+metrics---FID (Section~\ref{sec:fid}), LPIPS (Section~\ref{sec:lpips}), and
+patch-based SSIM (Section~\ref{sec:ssim})---are unreliable proxies for the clinical
+utility of virtual staining in an unpaired setting
+(Section~\ref{sec:results_scaling}).
+Selecting configurations by a composite of these metrics would implicitly endorse
+their validity for model selection, contradicting this conclusion.
+We therefore select exclusively on CPA agreement, the only metric that directly
+measures whether a virtual SR image supports the same downstream collagen
+quantification as a real SR image.
+This choice is methodologically consistent: the configurations that enter the
+uncertainty analysis are those judged best by the criterion we argue is the
+appropriate one, not by the metrics we argue are insufficient.
+
+\paragraph{Selection procedure.}
+All 54 configurations are ranked by CPA agreement from 1 (best) to 54 (worst).
+Within each model family, the configuration with the best (lowest-ranked) CPA
+agreement score is selected as the representative for ensemble training.
+In the event of a tie within a family, the configuration with the lower FID is
+preferred as a secondary tiebreak.
+
+\paragraph{Selected configurations.}
+\textcolor{red}{[TODO: insert table of selected configurations once 54-run results are
+available. For each model family, report the winning size (Small / Medium / Large),
+data fraction (25\% / 50\% / 100\%), CPA agreement score, and CPA rank out of 54.
+Include FID, LPIPS, and patch-SSIM for these configurations as supplementary
+columns to illustrate the relationship---or divergence---between task-based and
+perceptual rankings.]}
+
+\paragraph{Ensemble training.}
+For each selected configuration, ten models are trained independently from distinct
+random seeds, using the identical hyperparameters and data as the corresponding
+scaling-study run.
+Using the same fixed data ensures that variance in ensemble member outputs reflects
+genuine epistemic uncertainty arising from model initialisation rather than exposure to
+different training examples.
+The ensemble size of $K{=}10$ is motivated by convergence analysis showing that
+calibration errors plateau at approximately ten members for deep ensembles in
+biomedical image segmentation~\cite{siddiqui2024uncertainty}, and is consistent
+with prior ensemble-based uncertainty work in virtual staining
+applications~\cite{trustworthy_cell_ensemble2023}.
+
+% -------------------------------------------------------
+\subsection{Uncertainty Map Construction}
+\label{sec:unc_maps}
+% -------------------------------------------------------
+
+Given an ensemble of $K{=}10$ independently trained generators
+$\{G^{(k)}_{A \to B}\}_{k=1}^{K}$ for a selected configuration, we derive a per-tile
+mean prediction and a spatially resolved epistemic uncertainty map for each H\&E test
+tile $x \in \mathcal{D}_{\text{test}}$.
+
+\paragraph{Ensemble mean prediction.}
+The ensemble mean image $\bar{y}(x)$ is computed as the pixel-wise arithmetic mean of
+the ten generator outputs:
+\begin{equation}
+  \bar{y}(x) = \frac{1}{K} \sum_{k=1}^{K} G^{(k)}_{A \to B}(x).
+\end{equation}
+This mean image serves as the primary virtual stain prediction for each
+ensemble-evaluated configuration and is used in all downstream metric computations
+described in Section~\ref{sec:metrics}.
+
+\paragraph{Epistemic uncertainty map.}
+Epistemic uncertainty at each pixel location $i$ is estimated as the pixel-wise
+variance across ensemble members:
+\begin{equation}
+  \sigma^2_c(x, y) = \frac{1}{K-1} \sum_{k=1}^{K}
+    \bigl(G^{(k)}_{A \to B}(x)_{c,x,y} - \bar{y}(x)_{c,x,y}\bigr)^2,
+    \quad c \in \{R, G, B\}.
+\end{equation}
+The three per-channel variance maps are summed to obtain a single-channel scalar
+uncertainty map:
+\begin{equation}
+  U(x, y) = \sigma^2_R(x,y) + \sigma^2_G(x,y) + \sigma^2_B(x,y),
+\end{equation}
+giving $\mathbf{U}(x) \in \mathbb{R}^{H \times W}$, where $H{\times}W = 256{\times}256$
+pixels.
+Using the sample variance~($K{-}1$ denominator) is consistent with the unbiased
+estimator of the population variance under the finite ensemble~\cite{lakshminarayanan2017simple}.
+Summing rather than averaging channels preserves the total disagreement signal: a
+pixel where all three channels disagree should register higher uncertainty than one
+where only one channel varies.
+High values in $\mathbf{U}(x)$ indicate pixels where the ensemble members disagree
+substantially, reflecting regions where the model is uncertain about the correct
+translation---for example, due to ambiguous texture, rare tissue morphologies, or
+artefacts not well represented in the training distribution.
+
+\paragraph{Visualisation.}
+For qualitative inspection, each test tile is displayed as a three-panel composite: the
+input H\&E tile, the ensemble mean virtual SR prediction $\bar{y}(x)$, and the
+uncertainty map $\mathbf{U}(x)$ rendered as a heatmap (magma colorscale, normalised
+globally to $[0,1]$ using dataset-wide $p_1$--$p_{99}$ percentile bounds for
+comparability across tiles) overlaid on the mean prediction at 50\% opacity.
+Tile-level scalar uncertainty is summarised as $\bar{\sigma}^2(x) =
+\frac{1}{HW}\sum_i \sigma^2_i(x)$, the spatial mean of $\mathbf{U}(x)$, and used in
+the correlation analyses of Section~\ref{sec:unc_vs_error}.
+Qualitative uncertainty maps are shown for representative tiles spanning low,
+intermediate, and high $\bar{\sigma}^2(x)$ values for each of the six model families,
+enabling direct visual comparison of uncertainty structure across architectures.
+
+
+% -------------------------------------------------------
+\subsection{Uncertainty Calibration}
+\label{sec:unc_calibration}
+% -------------------------------------------------------
+
+A spatially resolved uncertainty map is only useful if it is \textit{calibrated}:
+when the model assigns high uncertainty to a pixel, the translation should be
+measurably worse at that pixel.
+Verifying this requires an independent per-pixel error signal.
+In a supervised setting this would be the absolute deviation from a known target;
+in the unpaired setting of this work no such target exists, because the H\&E and SR
+images originate from different physical sections.
+We therefore use \textit{cycle-reconstruction error} as a proxy for per-pixel
+translation difficulty.
+MC~dropout~\cite{gal2016dropout} was not adopted as an alternative to deep ensembles
+because its uncertainty estimates require extensive dropout-rate tuning to achieve
+calibration, and miscalibration persists even after tuning in complex
+tasks~\cite{siddiqui2024uncertainty,trustworthy_i2i2025}; deep ensembles yield
+well-calibrated estimates with minimal hyperparameter
+sensitivity~\cite{lakshminarayanan2017simple,siddiqui2024uncertainty}.
+
+\paragraph{Error proxy: judge-based cycle-reconstruction MAE.}
+For a translated tile $B' = G_{A \to B}(A)$, the cycle-reconstruction error at pixel
+$(x, y)$ is defined as
+\begin{equation}
+  E(x, y) = \bigl|A(x, y) - F_{\mathrm{judge}}(B')(x, y)\bigr|,
+\end{equation}
+where $F_{\mathrm{judge}}\colon B \to A$ is a fixed external GAN inverter applied
+identically to every architecture's translated output.
+We adopt this \textit{judge-based} variant in preference to the \textit{self-cycle}
+variant, in which each model inverts its own translation.
+Self-cycle error can be artificially low when the forward and inverse generators share
+the same systematic bias: if both directions ignore the same tissue feature, the round
+trip reconstructs the source faithfully despite a poor forward translation.
+The judge-based variant removes this confound because the judge was trained
+independently and cannot be jointly biased with the model under evaluation.
+It additionally provides a calibration number for MIUDiff, which is a
+unidirectional model ($A \to B$ only) with no learned inverse.
+A single \textcolor{red}{[TODO: judge model architecture and checkpoint]} checkpoint is
+frozen and reused as the judge for all six model families.
+Calibration results are therefore stated as ``calibration with respect to
+judge-based cycle-reconstruction error'' rather than against true translation error,
+which is unavailable in this unpaired setting.
+
+\paragraph{Tile preparation and tissue masking.}
+Calibration is computed on a version of the test set re-tiled with zero overlap
+(stride equal to tile size, $256{\times}256$ pixels), avoiding the double-counting
+of border pixels that would bias across-tile and dataset-level statistics under
+overlapping tiling.
+All per-pixel metrics are restricted to tissue pixels identified by the preprocessing
+tissue mask; background pixels --- where both $U$ and $E$ are near-zero --- are
+excluded to prevent spurious inflation of rank correlations.
+
+\paragraph{Calibration metrics.}
+Once each tile yields a paired map $(U(x,y),\, E(x,y))$ over tissue pixels, we
+evaluate calibration along four complementary dimensions following established
+practice in predictive uncertainty
+evaluation~\cite{kendall2017uncertainties,ilg2018ause,poggi2020sparsification}.
+
+\subparagraph{Within-tile Spearman $\rho$ (spatial calibration).}
+For each tile, $U$ and $E$ are flattened over tissue pixels and their Spearman rank
+correlation $\rho$ is computed.
+A value near $+1$ indicates that high-uncertainty pixels co-locate with high-error
+pixels; near $0$ means the spatial structure of uncertainty is uninformative; a
+negative value indicates anti-calibration.
+We report mean~$\pm$~std of $\rho$ across all test tiles as the headline spatial
+calibration figure.
+Spearman rank correlation is preferred over Pearson because $U$ and $E$ are on
+different scales and only their ordinal relationship is of interest.
+
+\subparagraph{Across-tile Spearman and Pearson $\rho$ (tile-level calibration).}
+Each tile is reduced to two scalars --- $\overline{U}$ and $\overline{E}$, the spatial
+means over tissue pixels --- and both Spearman and Pearson correlations are computed
+across all tiles.
+This catches the failure mode where a model is spatially well-calibrated within each
+tile but assigns identical mean uncertainty everywhere, making it useless for
+flagging unreliable tiles for pathologist review.
+Both coefficients are reported because tile-mean values tend to be more linearly
+related than per-pixel values.
+
+\subparagraph{AUSE --- sparsification error.}
+The \textit{Area Under the Sparsification Error}
+curve~\cite{ilg2018ause,poggi2020sparsification} measures whether uncertainty
+correctly ranks pixels by their error magnitude, weighting rank inversions by how
+much error they cost.
+Pixels are sorted by predicted uncertainty in descending order; the mean error on the
+retained fraction is tracked as pixels are progressively removed, giving the
+\textit{predicted sparsification curve} $S_{\mathrm{pred}}(k)$.
+An oracle curve $S_{\mathrm{oracle}}(k)$ is obtained by sorting on actual error $E$.
+AUSE is the area between the two curves:
+\begin{equation}
+  \mathrm{AUSE} = \int_0^1 \bigl[S_{\mathrm{pred}}(k) - S_{\mathrm{oracle}}(k)
+  \bigr]\,\mathrm{d}k.
+\end{equation}
+AUSE $= 0$ indicates that predicted and oracle orderings coincide; AUSE equal to the
+random-ordering baseline indicates that uncertainty carries no information about error.
+AUSE is computed per tile and averaged across tiles.
+Unlike Spearman $\rho$, AUSE weights rank inversions by error magnitude, so a model
+that correctly identifies the highest-error pixels scores well even if it
+misranks low-error pixels.
+
+\subparagraph{ECE and reliability diagram (calibration shape).}
+Tissue pixels are binned by $U$-quantile into $B{=}10$ equal-mass bins.
+Both the uncertainty and error maps are jointly rescaled to $[0,1]$ using
+dataset-global $p_1$--$p_{99}$ bounds before binning, making the diagonal of the
+reliability diagram a meaningful reference.
+Within each bin $b$, the mean normalised uncertainty $\overline{U_n}_b$ and mean
+normalised error $\overline{E_n}_b$ are computed and plotted against each other
+(reliability diagram); perfect calibration corresponds to the identity diagonal.
+An ECE-like summary score quantifies the weighted deviation from the
+diagonal~\cite{guo2017ece}:
+\begin{equation}
+  \mathrm{ECE} = \sum_{b=1}^{B} \frac{n_b}{N}
+    \bigl|\overline{U_n}_b - \overline{E_n}_b\bigr|,
+\end{equation}
+where $n_b$ is the number of pixels in bin $b$ and $N$ is the total.
+This construction adapts the classification ECE of~\cite{guo2017ece} to the
+regression setting by normalising both axes to $[0,1]$; it should not be compared
+directly to ECE values from classification contexts.
+Dataset-global normalisation bounds make ECE comparable across architectures within
+this dataset.
+Lower ECE indicates better agreement between uncertainty magnitude and error magnitude,
+complementing the rank-based AUSE.
+
+\paragraph{Caveats.}
+The four metrics characterise the same underlying property from complementary angles
+and should be read as a converging picture rather than independent evidence.
+Cycle-reconstruction error is a proxy, not a ground truth: a perfect generator pair
+with an imperfect judge will exhibit non-zero cycle error even for correct
+translations, and cross-section biological differences between the H\&E and SR
+sections add an irreducible noise floor to AUSE and ECE that no model can overcome.
+These limitations are discussed further in Section~\ref{sec:discussion}.
+
+% ============================================================
+%  New bibliography entries for this section
+%  (merge with references.bib)
+% ============================================================
+%
+% @article{trustworthy_cell_ensemble2023,
+%   author  = {Rauber, Paul and others},
+%   title   = {Trustworthy in silico cell labeling via ensemble-based image translation},
+%   journal = {Nature Communications},
+%   year    = {2023},
+%   note    = {PMC10663640},
+%   url     = {https://pmc.ncbi.nlm.nih.gov/articles/PMC10663640/}
+% }
+%
+% (Shared entries already listed:
+%  lakshminarayanan2017simple, gal2016dropout, trustworthy_i2i2025)

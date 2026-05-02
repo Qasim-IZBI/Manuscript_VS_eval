@@ -1,0 +1,57 @@
+\documentclass{bmvc2k}
+
+%% Paper number assigned by OpenReview — replace ?? once you have it
+\bmvcreviewcopy{??}
+
+\title{A Scaling Benchmark for Unsupervised H\&E to Sirius Red\\
+Virtual Staining with Epistemic Uncertainty Analysis}
+
+% Author list is suppressed during blind review by \bmvcreviewcopy.
+% Fill in real details now; they appear only in the final version.
+\addauthor{Author One}{author1@institution.edu}{1}
+\addauthor{Author Two}{author2@institution.edu}{1}
+
+\addinstitution{
+  Department\\          % TODO: fill in
+  University\\
+  City, Country
+}
+
+\runninghead{Blind Review}{H\&E to SR Virtual Staining Benchmark}
+
+% Standard BMVC macros (not in the class file to avoid name collisions)
+\def\eg{\emph{e.g}\bmvaOneDot}
+\def\Eg{\emph{E.g}\bmvaOneDot}
+\def\etal{\emph{et al}\bmvaOneDot}
+
+%-------------------------------------------------------------------------
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+% TODO (~250 words). Must cover:
+%   1. Clinical motivation — SR staining consumes tissue; virtual staining removes
+%      the need for an extra section and enables retrospective analysis from H&E archives.
+%   2. Gap — no systematic comparison of unpaired I2I models for H&E->SR in liver tissue.
+%   3. What we do — novel BDL mouse liver dataset + 54-configuration scaling study
+%      (6 models x 3 sizes x 3 data fractions) + multi-metric + task-based evaluation
+%      + first epistemic uncertainty analysis via deep ensembles for unpaired virtual staining.
+%   4. Key findings — (insert after experiments are complete).
+\end{abstract}
+
+%-------------------------------------------------------------------------
+\input{introduction}           % Section 1
+\input{related_work}           % Section 2
+\input{dataset}                % Section 3
+\input{models_section}         % Section 4
+\input{experimental_setup}     % Section 5
+\input{evaluation_metrics}     % Section 6
+\input{results}                % Section 7 — stub; fill in after experiments
+\input{uncertainty_analysis}   % Section 8 — ss8.1-8.2 written; ss8.3-8.4 TODO
+\input{discussion}             % Section 9 — stub; fill in after results
+\input{conclusion}             % Section 10 — stub; fill in last
+
+\bibliography{references}
+
+\end{document}

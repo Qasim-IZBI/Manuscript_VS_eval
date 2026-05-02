@@ -1,0 +1,254 @@
+% ============================================================
+%  Section 7: Evaluation Metrics
+%  H&E to Sirius Red Virtual Staining Paper
+% ============================================================
+
+\section{Evaluation Metrics}
+\label{sec:metrics}
+
+Evaluating virtual staining presents a fundamental measurement challenge: H\&E and
+Sirius Red images are obtained from \textit{adjacent} tissue sections rather than the
+same physical section, so even a geometrically perfect translation cannot produce a
+pixel-identical match to the reference owing to tissue deformation, differences in
+section thickness, and staining variability between sections.
+We therefore combine three complementary families of metrics --- distributional,
+perceptual, and task-based --- each of which is sensitive to a different aspect of
+translation quality and carries different assumptions about correspondence between
+real and virtual images.
+
+% -------------------------------------------------------
+\subsection{Fréchet Inception Distance}
+\label{sec:fid}
+% -------------------------------------------------------
+
+The Fréchet Inception Distance~(FID;~\cite{heusel2017fid}) measures the divergence
+between the distribution of real SR tiles and the distribution of virtually generated
+SR tiles without requiring any pairing between individual images.
+Feature representations are extracted from the penultimate layer of an
+InceptionV3~\cite{szegedy2016inception} network pre-trained on ImageNet, and both sets
+of features are modelled as multivariate Gaussians with means $\mu_r$, $\mu_g$ and
+covariances $\Sigma_r$, $\Sigma_g$.
+The FID is then:
+\begin{equation}
+  \text{FID} = \|\mu_r - \mu_g\|_2^2 +
+    \operatorname{tr}\!\bigl(\Sigma_r + \Sigma_g -
+      2(\Sigma_r \Sigma_g)^{1/2}\bigr).
+\end{equation}
+Lower FID indicates that the generated distribution is statistically closer to the real
+SR distribution.
+Because FID operates at the population level it is insensitive to misalignment between
+individual tile pairs, making it the primary distributional quality measure under our
+loosely registered dataset.
+FID is computed over the full test set; a minimum of 2{,}048 images per split is used
+to obtain stable estimates~\cite{heusel2017fid}.
+
+% -------------------------------------------------------
+\subsection{Learned Perceptual Image Patch Similarity}
+\label{sec:lpips}
+% -------------------------------------------------------
+
+LPIPS~\cite{zhang2018lpips} measures perceptual distance between two images by
+comparing their deep feature representations across multiple layers of a
+VGG16~\cite{simonyan2015vgg} network.
+For each tile pair $(x_{\text{real}},\, x_{\text{virtual}})$ matched by tile
+identifier from adjacent sections, activations at multiple network depths are
+normalised channel-wise and their $\ell_2$ distances are summed with learned scalar
+weights:
+\begin{equation}
+  \text{LPIPS}(x_r, x_g) = \sum_l w_l \,
+    \bigl\| \hat{\phi}_l(x_r) - \hat{\phi}_l(x_g) \bigr\|_2^2,
+\end{equation}
+where $\hat{\phi}_l$ denotes unit-normalised activations at layer $l$ and $w_l$ are
+weights optimised to match human perceptual judgements~\cite{zhang2018lpips}.
+Lower LPIPS reflects greater perceptual similarity.
+Although LPIPS uses paired tiles, the metric is more tolerant of the mild spatial
+misalignment present in adjacent-section pairs than pixel-level measures, because it
+operates on spatially pooled feature maps rather than raw pixel intensities.
+
+% -------------------------------------------------------
+\subsection{Patch-Based Structural Similarity Index}
+\label{sec:ssim}
+% -------------------------------------------------------
+
+The Structural Similarity Index~(SSIM;~\cite{wang2004ssim}) quantifies luminance,
+contrast, and structural agreement between two images within local windows.
+Full-image SSIM is unreliable under loose inter-section registration because even
+sub-pixel tissue shifts depress the score due to its sensitivity to exact spatial
+correspondence.
+We therefore adopt a \textit{patch-based} variant: for each tile pair, $N_p$ patches of
+size $p{\times}p$ pixels are randomly sampled from non-overlapping spatial locations,
+SSIM is computed within each patch independently, and the per-tile score is reported as
+the mean across patches.
+This strategy reduces the contribution of global misalignment to the final score while
+preserving sensitivity to local textural and structural differences that are
+diagnostically relevant for collagen fibre assessment.
+Patch size and count are specified in Section~\ref{sec:exp_setup}.
+
+% -------------------------------------------------------
+\subsection{Task-Based Evaluation: Positive-Area Agreement}
+\label{sec:task_eval}
+% -------------------------------------------------------
+
+Pixel-level and perceptual metrics assess visual similarity to a reference image
+but do not directly measure whether a virtually stained slide supports the same
+biological conclusions as the real stain.
+We therefore complement the above measures with a task-based evaluation that tests
+whether the virtual stain output faithfully preserves the positive-stained area of
+the target marker.
+
+\paragraph{Sirius Red (primary evaluation).}
+A collagen segmentation model~(see Section~\ref{sec:sr_seg_model}) trained exclusively
+on real SR tiles is applied identically to (i)~the real SR test tiles and (ii)~the
+virtual SR tiles produced by each model configuration.
+For each tile, the segmentation yields a binary collagen mask from which the
+\textit{collagen proportionate area}~(CPA) --- the fraction of tissue area occupied by
+Sirius Red-positive collagen --- is computed.
+CPA is the standard quantitative readout for hepatic fibrosis assessment and is
+directly comparable across slides~\cite{huang2013sirius}.
+
+Distributional agreement between real and virtual CPA is quantified at the WSI level.
+For each condition, one CPA value per WSI is derived by dividing the total
+PSR-labelled pixels by all tissue-labelled pixels across the reconstructed WSI
+(background excluded).
+The primary metric is the \textit{Wasserstein-1 distance}~(earth-mover distance)
+between the real-SR CPA distribution and each model's virtual-SR CPA distribution,
+which measures the minimum transport cost between distributions and is robust to
+differences in distribution shape~\cite{villani2009optimal}.
+Uncertainty in the Wasserstein estimate is reported as a 95\% bootstrap confidence
+interval constructed by WSI-level resampling (1{,}000 iterations), providing
+honest uncertainty quantification given the small test-set size
+($n{=}5$~WSIs; see Section~\ref{sec:tiling}).
+As a supplementary directional measure, the signed mean difference
+(virtual\,$-$\,real) and the standard-deviation ratio (virtual\,/\,real) are reported
+to characterise the bias and spread of each model's CPA output.
+The Kolmogorov--Smirnov~(KS) statistic is included for completeness; owing to the
+limited sample size, it is interpreted as directional evidence only and not used as a
+decision criterion.
+Lower Wasserstein-1 distance indicates that the virtual stain supports collagen
+quantification consistent with the real stain, providing a biologically grounded
+evaluation criterion that perceptual metrics cannot capture.
+
+% -------------------------------------------------------
+\subsection{Task-Based Evaluation: Cross-Stain Spatial Consistency}
+\label{sec:cross_stain}
+% -------------------------------------------------------
+
+The positive-area agreement metric~(Section~\ref{sec:task_eval}) evaluates whether
+the total collagen fraction is preserved across the distribution of test WSIs, but
+does not assess whether PSR-positive signal is generated in spatially correct
+locations within a tile.
+We therefore introduce a complementary spatial fidelity measure that exploits the
+pixel-level alignment between each H\&E input tile and its corresponding generated
+SR output tile.
+
+An acellular eosinophilic region mask --- serving as a collagen proxy --- is
+extracted from each H\&E input tile using Macenko colour
+deconvolution~\cite{[TODO: macenko2009]} followed by nuclear exclusion: the eosin
+channel response above a fixed threshold is masked by a dilated haematoxylin mask
+to remove nuclear and cytoplasmic signal, and connected components below a minimum
+area are discarded.
+The resulting mask represents acellular eosinophilic extracellular matrix~(ECM),
+which is a tissue-level collagen proxy in fibrotic liver.
+This collagen proxy mask is compared against the PSR-positive region mask produced
+by the frozen nnU-Net~v2 segmentation model~(Section~\ref{sec:sr_seg_model})
+applied to the corresponding generated SR tile.
+Because each H\&E tile and its generated SR counterpart share identical spatial
+coordinates by construction, no registration is required, and this evaluation is
+unaffected by the inter-section misalignment that complicates the paired metrics
+in Sections~\ref{sec:lpips} and~\ref{sec:ssim}.
+
+Spatial agreement is quantified by the Dice similarity coefficient~(DSC) and
+Intersection-over-Union~(IoU), reported as mean~$\pm$~standard deviation across
+all test WSIs.
+A model that generates PSR signal preferentially in acellular eosinophilic regions
+will achieve high DSC even if its total CPA differs from real SR; conversely, a
+model that distributes PSR signal independently of the H\&E collagen structure will
+score poorly.
+This evaluation requires no real SR images and is therefore independent of the
+CPA distribution comparison, constituting a complementary signal of spatial
+translation fidelity.
+
+\textit{Limitation.}
+The eosin channel cannot cleanly separate collagen from other eosinophilic ECM
+components~(fibrin, basement membrane).
+The collagen proxy represents acellular eosinophilic ECM rather than collagen
+specifically; however, any resulting imprecision is applied identically across all
+model conditions, so relative DSC comparisons between models remain valid.
+
+% -------------------------------------------------------
+\subsection{Summary}
+\label{sec:metrics_summary}
+% -------------------------------------------------------
+
+Table~\ref{tab:metrics_summary} summarises the five metrics, their pairing
+requirements, and the aspect of translation quality each addresses.
+
+\begin{table}[h]
+\centering
+\caption{Overview of evaluation metrics. ``Paired'' indicates whether the metric
+requires tile-level correspondence between real and virtual SR images.}
+\label{tab:metrics_summary}
+\begin{tabular}{lccl}
+\toprule
+\textbf{Metric} & \textbf{Paired} & \textbf{Lower is better} &
+\textbf{Aspect assessed} \\
+\midrule
+FID                        & No  & \checkmark & Population-level distributional similarity \\
+LPIPS                      & Yes & \checkmark & Deep perceptual similarity \\
+Patch SSIM                 & Yes & ---        & Local structural and textural similarity \\
+CPA agreement (Wasserstein-1) & No  & \checkmark & Collagen proportionate area distribution fidelity \\
+Cross-stain DSC / IoU      & No  & ---        & Spatial fidelity of generated PSR signal \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+% ============================================================
+%  New bibliography entries for this section
+%  (merge with references.bib)
+% ============================================================
+%
+% @inproceedings{heusel2017fid,
+%   author    = {Heusel, Martin and Ramsauer, Hubert and Unterthiner, Thomas and Nessler, Bernhard and Hochreiter, Sepp},
+%   title     = {{GANs} Trained by a Two Time-Scale Update Rule Converge to a Local {Nash} Equilibrium},
+%   booktitle = {NeurIPS},
+%   year      = {2017},
+%   eprint    = {1706.08500}
+% }
+%
+% @inproceedings{szegedy2016inception,
+%   author    = {Szegedy, Christian and Vanhoucke, Vincent and Ioffe, Sergey and Shlens, Jon and Wojna, Zbigniew},
+%   title     = {Rethinking the Inception Architecture for Computer Vision},
+%   booktitle = {CVPR},
+%   year      = {2016}
+% }
+%
+% @inproceedings{zhang2018lpips,
+%   author    = {Zhang, Richard and Isola, Phillip and Efros, Alexei A. and Shechtman, Eli and Wang, Oliver},
+%   title     = {The Unreasonable Effectiveness of Deep Features as a Perceptual Metric},
+%   booktitle = {CVPR},
+%   year      = {2018},
+%   eprint    = {1801.03924}
+% }
+%
+% @article{simonyan2015vgg,
+%   author    = {Simonyan, Karen and Zisserman, Andrew},
+%   title     = {Very Deep Convolutional Networks for Large-Scale Image Recognition},
+%   booktitle = {ICLR},
+%   year      = {2015},
+%   eprint    = {1409.1556}
+% }
+%
+% @article{wang2004ssim,
+%   author    = {Wang, Zhou and Bovik, Alan C. and Sheikh, Hamid R. and Simoncelli, Eero P.},
+%   title     = {Image Quality Assessment: From Error Visibility to Structural Similarity},
+%   journal   = {IEEE Transactions on Image Processing},
+%   volume    = {13},
+%   number    = {4},
+%   pages     = {600--612},
+%   year      = {2004},
+%   doi       = {10.1109/TIP.2003.819861}
+% }
+%
+% (Shared entries already listed:
+%  huang2013sirius)
