@@ -6,176 +6,24 @@
 \section{Dataset}
 \label{sec:dataset}
 
-The dataset introduced in this work is, to our knowledge, the first publicly
-released resource dedicated to unsupervised H\&E~$\to$~Sirius Red translation
-research in liver tissue.
-The H\&E and SR images originate from the same liver specimens described in
-\textcolor{red}{[TODO: cite ASBTi paper --- Ghallab et al., JHEP Reports 2025,
-doi:10.1016/j.jhepr.2025.101599]}, where they were used for histopathological
-quantification of hepatic fibrosis.
-
-% -------------------------------------------------------
-\subsection{Animal Model and Tissue Collection}
-\label{sec:animal_model}
-% -------------------------------------------------------
-
-Obstructive cholestasis was induced in eight-to-ten-week-old male C57BL/6N mice
-(Janvier Labs, France) by ligation of the extrahepatic common bile duct~(BDL) at
-a position between the gallbladder and the duodenum, following previously
-established procedures~\textcolor{red}{[TODO: cite original BDL protocol paper]}.
-Sham-operated control mice underwent the identical surgical procedure without
-bile-duct ligation.
-Both BDL and sham animals received vehicle as part of a larger study evaluating
-pharmacological ASBT inhibition~\cite{ghallab2025asbt}; only the vehicle-treated
-arms are included in this dataset.
-The model recapitulates the progressive hepatic fibrosis observed in cholestatic
-liver disease~\cite{bataller2005liver}, with fibrosis severity increasing systematically
-across four post-surgical time points: day~3 (early stage, minimal fibrosis),
-day~21 (intermediate fibrosis with inflammation), day~42 (established fibrosis),
-and day~63 (advanced fibrosis).
-Animals were housed under standard environmental conditions with free access to
-water and ad libitum feeding on a standard rodent diet (Ssniff, Soest, Germany).
-All experiments were ethically approved by the local committee~(LANUV,
-North Rhine-Westphalia, Germany; application number 81-02.04.2022.A286).
-
-In total, 36 animals contributed liver sections to this dataset, spanning four
-post-surgical time points and both treatment conditions~(BDL+vehicle and
-sham+vehicle), with four to five animals per cohort.
-
-% -------------------------------------------------------
-\subsection{Histological Staining}
-\label{sec:staining}
-% -------------------------------------------------------
-
-Consecutive 4\,$\mu$m-thick sections were cut from paraformaldehyde-fixed,
-paraffin-embedded~(PFPE) liver tissue blocks, ensuring that adjacent sections
-sample the same tissue volume with minimal inter-section deformation.
-The first section of each pair was stained with haematoxylin and eosin~(H\&E)
-using the Discovery Ultra Automated Slide Preparation System
-(Ventana Medical Systems / Roche).
-The immediately adjacent section was stained with Sirius Red using a
-commercially available kit according to the manufacturer's
-instructions\textcolor{red}{[TODO: specify kit name/manufacturer if available]}.
-Sirius Red binds selectively to fibrillar collagens (types I and III) through
-electrostatic interactions between the sulphonic acid groups of the dye and the
-basic amino acids of collagen, providing high-specificity collagen
-visualisation~\cite{constantine1969}.
-Because both sections are cut from the same PFPE block, macroscopic tissue
-morphology is consistent across the H\&E and SR stains; however, microscopic
-deformation between consecutive sections introduces a degree of spatial
-misalignment that precludes exact pixel-level correspondence
-(addressed in Section~\ref{sec:metrics}).
-
-% -------------------------------------------------------
-\subsection{WSI Acquisition}
-\label{sec:wsi_acquisition}
-% -------------------------------------------------------
-
-All stained slides were digitised on a Zeiss Axio Scan.Z1 whole-slide scanner at
-$\times$20 magnification, corresponding to a native pixel resolution of
-$0.221\,\mu$m/pixel.
-Images were acquired in CZI format and exported to RGB TIFF using
-QuPath~\cite{bankhead2017qupath} prior to tiling.
-Slides with severe tissue artefacts (folds, air bubbles, or scanning failures
-affecting the majority of the section) were excluded prior to tiling.
-Slides exhibiting a mild yellow background tinge in non-collagen tissue areas ---
-a minor staining variability that does not affect PSR-positive signal ---
-were retained in the training set, as this appearance is present in the real SR
-distribution and is accounted for by the downstream segmentation model.
-
-% -------------------------------------------------------
-\subsection{Tiling and Preprocessing}
-\label{sec:dataset_tiling}
-% -------------------------------------------------------
-
-Tissue masks were generated for each WSI using a pixel classifier in
-QuPath~\cite{bankhead2017qupath}: tissue regions were identified by applying an
-intensity threshold on the Eosin channel for H\&E slides and on the DAB channel
-for SR slides.
-The masked WSI was tiled into non-overlapping $256{\times}256$\,pixel patches
-using a stride equal to the tile size.
-Tiles in which less than 50\% of pixels fell within the tissue mask were discarded
-from the training set; no tissue filtering was applied to the test set.
-All retained tiles were normalised channel-wise to $[-1,\,1]$ by subtracting
-$0.5$ and dividing by $0.5$ per channel.
-This preprocessing was applied identically to both the H\&E~(domain~A) and
-SR~(domain~B) tile sets.
-
-Table~\ref{tab:tile_counts} reports the resulting tile counts per domain and split.
-
-\begin{table}[h]
-\centering
-\caption{Tile counts after tissue filtering. Training subsets (25\%, 50\%) are
-strict subsets of the full 100\% training set.}
-\label{tab:tile_counts}
-\begin{tabular}{lcccc}
-\toprule
-\textbf{Split} & \textbf{WSIs} & \textbf{H\&E tiles} & \textbf{SR tiles} & \textbf{Data fraction} \\
-\midrule
-Train (100\%) & 30 & 192{,}847 & 183{,}253 & 100\% \\
-Train (50\%)  & 15 & 109{,}049 &  96{,}292 & 50\%  \\
-Train (25\%)  &  7 &  49{,}312 &  49{,}293 & 25\%  \\
-Test          &  5 &  16{,}285 &  16{,}285 & ---   \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-% -------------------------------------------------------
-\subsection{Data Splits and Subsets}
-\label{sec:splits}
-% -------------------------------------------------------
-
-The dataset was partitioned at the \textit{animal level} to prevent data leakage:
-no WSI from the same animal appears in more than one split.
-Splits were stratified by time point and treatment group to ensure that all
-disease stages and both conditions~(BDL, sham) are represented in every
-training subset and in the test set.
-The training set comprises 30 WSIs organised into sequentially numbered per-WSI
-subdirectories (\texttt{001/} through \texttt{030/}) for each domain, enabling
-reproducible data-fraction subsets via contiguous folder ranges:
-25\%~$(\llbracket 1,7 \rrbracket)$, 50\%~$(\llbracket 1,15 \rrbracket)$, and
-100\%~$(\llbracket 1,30 \rrbracket)$.
-Smaller subsets are strict subsets of larger ones, ensuring that performance
-differences across data fractions are attributable solely to training set size and
-not to variation in which slides are included.
-The test set comprises five held-out WSIs from animals not present in any training
-fraction, and is shared identically across all 54 experimental configurations.
-
-Table~\ref{tab:split_stats} summarises the per-split slide counts and disease-stage
-distribution.
-
-\begin{table}[h]
-\centering
-\caption{Dataset split summary. BDL stage indicates post-ligation day at which
-tissue was harvested; sham = control mice without bile-duct ligation.}
-\label{tab:split_stats}
-\begin{tabular}{lcccccc}
-\toprule
-\textbf{Split} & \textbf{Animals} & \textbf{WSIs} &
-\multicolumn{4}{c}{\textbf{BDL stage (WSIs)}} \\
-\cmidrule(lr){4-7}
-& & & Sham & Day 3 & Day 21/42 & Day 63 \\
-\midrule
-Train & 28 & 30 & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} \\
-Test  &  5 &  5 & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-% -------------------------------------------------------
-\subsection{Public Release}
-\label{sec:public_release}
-% -------------------------------------------------------
-
-The full dataset --- including all H\&E and SR WSIs, tissue masks, and tile-level
-metadata --- will be released publicly under a
-\textcolor{red}{[TODO: licence, e.g.\ Creative Commons Attribution 4.0
-(CC~BY~4.0)]} licence alongside the publication of this paper.
-The dataset will be deposited at \textcolor{red}{[TODO: repository, e.g.\ Zenodo /
-BioImage Archive]} and assigned a persistent digital object identifier~(DOI)
-\textcolor{red}{[TODO: DOI once assigned]}.
-Pre-trained model checkpoints and all training scripts will be released in the same
-repository to enable full reproduction of the reported results.
+The dataset used in this study comprises whole-slide images of mouse liver tissue
+from a bile-duct ligation~(BDL) model of cholestatic liver disease~\cite{ghallab2025asbt},
+spanning four post-surgical time points that recapitulate a progression from minimal
+to advanced hepatic fibrosis.
+For each of 36 C57BL/6N mice, serial sections from the same tissue block were
+stained with H\&E and Sirius Red~(SR), the diagnostic gold standard for hepatic
+collagen quantification~\cite{huang2013sirius}.
+Because the two sections are non-adjacent cuts, the dataset is inherently \emph{unpaired}.
+After whole-slide digitisation at $\times$20 magnification, WSIs were tiled into
+non-overlapping $512{\times}512$\,pixel patches and downsampled to $256{\times}256$\,pixels,
+yielding an effective resolution of $0.442\,\mu$m/pixel; the final collection comprises approximately
+192{,}847 H\&E and 183{,}253 SR training tiles across 30 WSIs, with 16{,}285
+tiles per domain reserved for testing, partitioned at the animal level to
+prevent data leakage.
+To the best of our knowledge, this constitutes the first publicly available resource
+for unsupervised H\&E~$\to$~SR translation in liver tissue; full acquisition and
+preprocessing details, including animal model, histological staining protocol,
+WSI acquisition, tiling, and data splits, are provided in Supplementary Sec.~1.
 
 
 % ============================================================

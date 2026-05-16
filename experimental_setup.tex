@@ -1,144 +1,62 @@
 % ============================================================
-%  Section 6: Experimental Setup
+%  Section 6: Training and Inference
 %  H&E to Sirius Red Virtual Staining Paper
 % ============================================================
 
-\section{Experimental Setup}
-\label{sec:exp_setup}
+\subsection{Training and Inference}
+\label{sec:training_inference}
 
-% -------------------------------------------------------
-\subsection{Image Preprocessing and Tiling}
-\label{sec:tiling}
-% -------------------------------------------------------
-
-Whole-slide images~(WSIs) were tiled into non-overlapping $256{\times}256$\,pixel
-patches using a stride equal to the tile size.
-Tiles with less than 50\% tissue content (assessed against the corresponding tissue
-mask) were discarded from the training set; no tissue filtering was applied to the test
-set.
-All tiles were resized to $256{\times}256$ pixels at extraction time and normalised
-channel-wise to $[-1,\,1]$ by subtracting $0.5$ and dividing by $0.5$ per channel.
-The resulting tiles are organised into numbered per-WSI subdirectories
-(\texttt{001/}, \texttt{002/}, \ldots) for domain~A~(H\&E) and domain~B~(SR) separately,
-enabling reproducible data-fraction subsets via contiguous folder ranges
-(Section~\ref{sec:scaling}).
-
-% -------------------------------------------------------
-\subsection{Training Protocol}
-\label{sec:training_protocol}
-% -------------------------------------------------------
-
+\paragraph{Training Protocol.}
 All models are trained with the Adam optimiser~\cite{kingma2015adam} using a learning
 rate of $2{\times}10^{-4}$, $\beta_1{=}0.5$, and $\beta_2{=}0.999$, with a batch size
 of~1.
 Training is \textit{step-based} rather than epoch-based: each optimiser update
 constitutes one step, ensuring a fair comparison across data-fraction configurations
 that differ in the number of available tiles.
-All configurations use automatic mixed precision~(AMP) to reduce GPU memory and wall
-time without loss of numerical stability.
+CycleGAN, UNIT, MUNIT, and DCLGAN are each trained for $750{,}000$~steps.
+CycleDiffusion is trained for the same number of steps, with both DDPMs optimised
+simultaneously in a single run and no fine-tuning phase.
+UVCGAN follows a two-stage schedule: $250{,}000$~steps of masked image
+pretraining~(Stage~1) followed by $500{,}000$~steps of cycle-consistent
+finetuning~(Stage~2), with Stage~2 initialised from the Stage~1 checkpoint.
 
-Single-stage models~(CycleGAN, UNIT, MUNIT, DCLGAN) are trained for
-$5{\times}10^6$~steps.
-Multi-stage models use the same total budget distributed across their stages:
-
-\begin{itemize}
-  \item \textbf{UVCGAN:} $1.25{\times}10^6$~steps of masked image pretraining
-    (Stage~1) followed by $3.75{\times}10^6$~steps of cycle-consistent finetuning
-    (Stage~2), with Stage~2 initialised from the Stage~1 checkpoint.
-
-  \item \textbf{MIUDiff:} $3.5{\times}10^6$~steps of unconditional DDPM pretraining
-    on domain~B (Stage~1), $7.5{\times}10^5$~steps of conditional MI-guided finetuning
-    (Stage~2), and $7.5{\times}10^5$~steps of patch-contrastive finetuning (Stage~3),
-    with each stage initialised from the previous stage's final checkpoint.
-\end{itemize}
-
-Model checkpoints are saved every $2.5{\times}10^5$~steps; generator losses are logged
-every $10^3$~steps to \texttt{loss\_log.csv} for post-hoc convergence analysis.
-All experiments are run on a single GPU~(\texttt{paula} partition) with 8~CPU cores and
-32\,GB RAM per job.
-Training is fully resumable: if a run is interrupted, it automatically restores the
-latest available checkpoint and continues from that step.
-
-% -------------------------------------------------------
-\subsection{Scaling Study Design}
-\label{sec:scaling}
-% -------------------------------------------------------
-
-We conduct a full factorial experiment over three axes:
-
-\paragraph{Model architecture.}
-The six models evaluated are CycleGAN, UNIT, MUNIT, DCLGAN, UVCGAN, and MIUDiff,
-covering cycle-consistent GANs, shared-latent-space GANs, content--style
-disentanglement, contrastive learning, hybrid ViT--GANs, and score-based diffusion
-(detailed in Section~\ref{sec:models}).
+\paragraph{Scaling Study Design.}
+To systematically characterise how model capacity and data volume jointly affect
+translation quality, we conduct a full factorial experiment across the six architectures
+described in Section~\ref{sec:models}, three generator capacity scales, and three
+training data fractions.
 
 \paragraph{Generator capacity.}
-Each model is trained at three generator sizes --- Small~(${\approx}10$\,M), Medium~(${\approx}50$\,M), and Large~(${\approx}100$\,M) parameters --- by adjusting the base channel width
-$n_{gf}$ and depth $n_{\text{blocks}}$ (or equivalent per model family; see
-Table~\ref{tab:model_sizes}).
+Each model is trained at three generator sizes, Small~(${\approx}10$\,M),
+Medium~(${\approx}50$\,M), and Large~(${\approx}100$\,M) parameters, by adjusting the
+base channel width $n_{gf}$ and depth $n_{\text{blocks}}$ (or equivalent per model
+family; see Supplementary Sec.~2).
 All size variants within a model family share the same training protocol, data, and
 random seed, so that any performance difference is attributable solely to generator
 capacity.
 
 \paragraph{Training data fraction.}
-The dataset is partitioned at the WSI level into three nested subsets: 25\%, 50\%, and
-100\% of the full training set, corresponding to WSI folder ranges
-$\llbracket 1,7 \rrbracket$, $\llbracket 1,15 \rrbracket$, and $\llbracket 1,30 \rrbracket$
-respectively.
+The training set is partitioned into three nested subsets comprising 25\%, 50\%, and
+100\% of the 30 training WSIs, constructed via contiguous WSI folder ranges to avoid data leakage.
 Smaller subsets are strict subsets of larger ones, so differences across data fractions
 are not confounded by variation in which slides are included.
-The same fixed test set~(held-out WSIs not included in any training fraction) is used
-for evaluation across all configurations.
+The same fixed test set of held-out WSIs is used for evaluation across all configurations.
 
-\vspace{0.5em}
-\noindent
-The full factorial yields $6\text{ models} \times 3\text{ sizes} \times 3\text{ data
+Together, these axes yield $6\text{ models} \times 3\text{ sizes} \times 3\text{ data
 fractions} = \mathbf{54}$ experimental configurations, each trained and evaluated
-independently as a separate SLURM array job.
+independently.
 
-% -------------------------------------------------------
-\subsection{Sirius Red Collagen Segmentation Model}
-\label{sec:sr_seg_model}
-% -------------------------------------------------------
-
-The task-based evaluations~(Sections~\ref{sec:task_eval} and~\ref{sec:cross_stain})
-require a frozen collagen segmentation model applied identically to real and virtual
-SR images.
-We adopt an off-the-shelf nnU-Net~v2 model~\cite{[TODO: nnUNet SR publication]} trained
-for PSR-positive area segmentation on Sirius Red WSIs; performance figures for this model
-are reported in the original publication.
-Because the same model is applied without modification to all conditions, any systematic
-segmentation errors cancel out in the comparison: residual differences in predicted
-collagen area reflect differences in staining fidelity between generative models rather
-than segmentation imprecision.
-
-% -------------------------------------------------------
-\subsection{Inference Configuration}
-\label{sec:inference}
-% -------------------------------------------------------
-
+\paragraph{Inference.}
 At test time, all GAN-based models perform a single forward pass through the trained
 $G_{A \to B}$ generator per tile.
-MIUDiff uses DDIM sampling~\cite{song2021ddim} over $T_{\text{sample}}{=}300$
-deterministic reverse-diffusion steps with classifier-free MI guidance at scale
-$\eta{=}1.0$.
-For all models, generated tiles are denormalised from $[-1,\,1]$ to $[0,\,1]$ and
-saved as TIFF files, preserving the original tile identifiers for downstream metric
-computation.
+CycleDiffusion requires two sequential DDIM passes per tile~\cite{song2021ddim}:
+$\mathcal{M}_A$ encodes the source tile into the shared noise latent via DDIM inversion
+over $T_{\text{encode}}{=}$\textcolor{red}{[TODO]}~steps, and $\mathcal{M}_B$ then
+decodes it into the target domain via DDIM sampling over
+$T_{\text{sample}}{=}$\textcolor{red}{[TODO]}~steps.
+For all models, generated tiles are denormalised to $[0,\,1]$ and saved with their
+original tile identifiers to enable downstream metric computation.
 
-% -------------------------------------------------------
-\subsection{Reproducibility}
-\label{sec:reproducibility}
-% -------------------------------------------------------
-
-All 54 training jobs are defined in a single SLURM job-array script that encodes every
-architectural hyperparameter and data-fraction argument explicitly, ensuring full
-reproducibility from a single command.
-Each checkpoint stores the complete model configuration alongside the optimiser state
-and accumulated training time, so any run can be resumed or re-evaluated at any saved
-step.
-The dataset, pre-trained model checkpoints, and training scripts will be released
-publicly alongside this paper.
 
 
 % ============================================================

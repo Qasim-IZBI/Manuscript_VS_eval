@@ -1,11 +1,447 @@
 %% Supplementary Material
 %% This file is \input{}'d by both bmvc_supp_review.tex and bmvc_supp_final.tex.
 
+\section{Dataset Details}
+\label{sec:supp-dataset}
+
+\paragraph{Animal Model and Tissue Collection.}
+\label{sec:supp-animal_model}
+
+As described in~\cite{ghallab2025asbt}, obstructive cholestasis was induced in
+eight-to-ten-week-old male C57BL/6N mice (Janvier Labs, France) by ligation of
+the extrahepatic common bile duct~(BDL) at a position between the gallbladder and
+the duodenum, following previously established
+procedures~\textcolor{red}{[TODO: cite original BDL protocol paper]}.
+Sham-operated control mice underwent the identical surgical procedure without
+bile-duct ligation.
+Both BDL and sham animals received vehicle as part of a larger pharmacological
+study evaluating ASBT inhibition (AS0369, 60\,mg/kg)~\cite{ghallab2025asbt}.
+This evaluation uses only the vehicle-treated arms from that study: the
+pharmacological intervention introduces fibrosis-independent morphological
+variation that would confound the stain-translation task, and restricting
+to vehicle controls yields a clean disease-progression continuum driven
+solely by BDL severity.
+Although the source study also collected kidney tissue and applied a broader
+staining panel~(H\&E, Sirius Red, and several immunohistochemical markers),
+this work focuses exclusively on liver sections with H\&E and Sirius Red: hepatic
+fibrosis graded by Sirius Red is the primary clinical endpoint of the cholestasis
+model, and Sirius Red is the diagnostic gold standard for collagen quantification
+in liver pathology~\cite{huang2013sirius}.
+\textcolor{red}{[TODO: Consider including the AS0369-treated arms in the epistemic
+uncertainty analysis as an out-of-distribution probe.
+Confirm availability of AS0369 liver WSIs before committing to this.]}
+The model recapitulates the progressive hepatic fibrosis observed in cholestatic
+liver disease~\cite{bataller2005liver}, with fibrosis severity increasing systematically
+across four post-surgical time points: day~3 (early stage, minimal fibrosis),
+day~21 (intermediate fibrosis with inflammation), day~42 (established fibrosis),
+and day~63 (advanced fibrosis).
+Animals were housed under standard environmental conditions with free access to
+water and ad libitum feeding on a standard rodent diet (Ssniff, Soest, Germany).
+All animal experiments were conducted and ethically approved as described
+in~\cite{ghallab2025asbt}.
+
+In total, 36 animals contributed liver sections to the dataset
+from~\cite{ghallab2025asbt}, spanning four post-surgical time points and both
+treatment conditions~(BDL+vehicle and sham+vehicle), with four to five animals
+per cohort.
+
+\paragraph{Histological Staining.}
+\label{sec:supp-staining}
+
+Histological procedures followed those reported in~\cite{ghallab2025asbt}.
+Serial 4\,$\mu$m-thick sections were cut from paraformaldehyde-fixed,
+paraffin-embedded~(PFPE) liver tissue blocks.
+One section per block was stained with haematoxylin and eosin~(H\&E) using the
+Discovery Ultra Automated Slide Preparation System (Ventana Medical Systems / Roche)
+\textcolor{red}{[TODO: confirm which section number in the cutting sequence was
+designated for H\&E staining]}.
+A non-adjacent section from the same block
+\textcolor{red}{[TODO: confirm the number of intervening sections between the
+H\&E and SR cuts]} was stained with Sirius Red using a
+commercially available kit according to the manufacturer's
+instructions\textcolor{red}{[TODO: specify kit name/manufacturer if available]}.
+Sirius Red binds selectively to fibrillar collagens (types I and III) through
+electrostatic interactions between the sulphonic acid groups of the dye and the
+basic amino acids of collagen, providing high-specificity collagen
+visualisation~\cite{constantine1969}.
+Because both sections originate from the same PFPE block, macroscopic tissue
+morphology is consistent across the H\&E and SR stains; however, the separation
+between the two cuts introduces inter-section deformation and a degree of spatial
+misalignment that precludes exact pixel-level correspondence
+(see Section~4 of the main paper).
+
+\paragraph{WSI Acquisition.}
+\label{sec:supp-wsi_acquisition}
+
+Slide digitisation was performed as part of the study reported
+in~\cite{ghallab2025asbt}.
+All stained slides were digitised on a Zeiss Axio Scan.Z1 whole-slide scanner at
+$\times$20 magnification, corresponding to a native pixel resolution of
+$0.221\,\mu$m/pixel.
+Images were acquired in CZI format and exported to RGB TIFF using
+QuPath~\cite{bankhead2017qupath} prior to tiling.
+Slides with severe tissue artefacts (folds, air bubbles, or scanning failures
+affecting the majority of the section) were excluded prior to tiling.
+Slides exhibiting a mild yellow background tinge in non-collagen tissue areas,
+a minor staining variability that does not affect PSR-positive signal,
+were retained in the training set, as this appearance is present in the real SR
+distribution and is accounted for by the downstream segmentation model.
+
+\paragraph{Tiling and Preprocessing.}
+\label{sec:supp-dataset_tiling}
+
+Tissue masks were generated for each WSI using a pixel classifier in
+QuPath~\cite{bankhead2017qupath}: tissue regions were identified by applying an
+intensity threshold on the Eosin channel for H\&E slides and on the DAB channel
+for SR slides.
+The masked WSI was tiled into non-overlapping $512{\times}512$\,pixel patches
+using a stride equal to the tile size; each patch was subsequently downsampled to
+$256{\times}256$\,pixels by bilinear interpolation, yielding an effective pixel
+resolution of $0.442\,\mu$m/pixel.
+Tiles in which less than 50\% of pixels fell within the tissue mask were discarded
+from the training set; no tissue filtering was applied to the test set.
+All retained tiles were normalised channel-wise to $[-1,\,1]$ by subtracting
+$0.5$ and dividing by $0.5$ per channel.
+This preprocessing was applied identically to both the H\&E~(domain~A) and
+SR~(domain~B) tile sets.
+
+Table~\ref{tab:supp-tile_counts} reports the resulting tile counts per domain and split.
+
+\begin{table}[h]
+\centering
+\caption{Tile counts after tissue filtering. Training subsets (25\%, 50\%) are
+strict subsets of the full 100\% training set.}
+\label{tab:supp-tile_counts}
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Split} & \textbf{WSIs} & \textbf{H\&E tiles} & \textbf{SR tiles} & \textbf{Data fraction} \\
+\midrule
+Train (100\%) & 30 & 192{,}847 & 183{,}253 & 100\% \\
+Train (50\%)  & 15 & 109{,}049 &  96{,}292 & 50\%  \\
+Train (25\%)  &  7 &  49{,}312 &  49{,}293 & 25\%  \\
+Test          &  5 &  16{,}285 &  16{,}285 & ---   \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Data Splits and Subsets.}
+\label{sec:supp-splits}
+
+The dataset was partitioned at the \textit{animal level} to prevent data leakage:
+no WSI from the same animal appears in more than one split.
+Splits were stratified by time point and treatment group to ensure that all
+disease stages and both conditions~(BDL, sham) are represented in every
+training subset and in the test set.
+The training set comprises 30 WSIs organised into sequentially numbered per-WSI
+subdirectories (\texttt{001/} through \texttt{030/}) for each domain, enabling
+reproducible data-fraction subsets via contiguous folder ranges:
+25\%~$(\llbracket 1,7 \rrbracket)$, 50\%~$(\llbracket 1,15 \rrbracket)$, and
+100\%~$(\llbracket 1,30 \rrbracket)$.
+Smaller subsets are strict subsets of larger ones, ensuring that performance
+differences across data fractions are attributable solely to training set size and
+not to variation in which slides are included.
+The test set comprises five held-out WSIs from animals not present in any training
+fraction, and is shared identically across all 54 experimental configurations.
+
+Table~\ref{tab:supp-split_stats} summarises the per-split slide counts and disease-stage
+distribution.
+
+\begin{table}[h]
+\centering
+\caption{Dataset split summary. BDL stage indicates post-ligation day at which
+tissue was harvested; sham = control mice without bile-duct ligation.}
+\label{tab:supp-split_stats}
+\begin{tabular}{lcccccc}
+\toprule
+\textbf{Split} & \textbf{Animals} & \textbf{WSIs} &
+\multicolumn{4}{c}{\textbf{BDL stage (WSIs)}} \\
+\cmidrule(lr){4-7}
+& & & Sham & Day 3 & Day 21/42 & Day 63 \\
+\midrule
+Train & 28 & 30 & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} \\
+Test  &  5 &  5 & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Public Release.}
+\label{sec:supp-public_release}
+
+The original H\&E and Sirius Red WSIs were collected and digitised as part of
+the study reported in~\cite{ghallab2025asbt}.
+The derived dataset used in this work, comprising tissue masks, tile-level
+metadata, data-split assignments, and tiled image patches, will be released
+publicly under a \textcolor{red}{[TODO: licence, e.g.\ Creative Commons
+Attribution 4.0 (CC~BY~4.0)]} licence alongside the publication of this paper,
+subject to the data-sharing terms of the source study.
+The derived data will be deposited at \textcolor{red}{[TODO: repository,
+e.g.\ Zenodo / BioImage Archive]} and assigned a persistent digital object
+identifier~(DOI) \textcolor{red}{[TODO: DOI once assigned]}.
+Pre-trained model checkpoints and all training scripts will be released in the
+same repository to enable full reproduction of the reported results.
+
+% -------------------------------------------------------
+
+\section{Model Details}
+\label{sec:supp-models}
+
+\paragraph{Shared Building Blocks.}
+\label{sec:supp-shared_blocks}
+
+\paragraph{ResNet generator.}
+The encoder begins with a $7{\times}7$ convolution (with reflection padding) mapping the
+input to $n_{gf}$ feature channels, followed by $n_{down}{=}2$ stride-2 convolutional
+downsampling layers that double the channel count at each step, producing a bottleneck
+of $4\,n_{gf}$ channels at one-quarter the input resolution.
+The bottleneck consists of a stack of $n_{blocks}$ residual blocks (each: $3{\times}3$
+reflected conv + Instance Normalisation + ReLU, applied twice with a skip
+connection), after which a symmetric decoder of $n_{up}{=}2$ transposed-convolutional
+layers restores the spatial resolution and reduces the channel count back to
+$n_{gf}$, before a final $7{\times}7$ convolution and Tanh activation produce the
+translated image in $[-1,\,1]$.
+
+\paragraph{PatchGAN discriminator.}
+All GAN-based models use a $70{\times}70$ PatchGAN discriminator~\cite{isola2017image}:
+an initial $4{\times}4$ stride-2 convolution, three further strided blocks with Instance
+Normalisation and Leaky-ReLU ($\alpha{=}0.2$), and a final convolution to a single-channel
+score map.
+The discriminator is trained with a Least-Squares GAN~(LSGAN) objective~\cite{mao2017lsgan}
+throughout.
+
+\paragraph{CycleGAN.}
+\label{sec:supp-cyclegan}
+
+CycleGAN~\cite{zhu2017unpaired} learns two independent generators $G_{A \to B}$ and
+$G_{B \to A}$, each instantiated as the ResNet generator described above.
+Two PatchGAN discriminators $D_A$ and $D_B$ distinguish real from generated images in
+each domain.
+Beyond adversarial training, a cycle-consistency loss enforces that translating an image
+to the other domain and back recovers the original:
+\begin{equation}
+  \mathcal{L}_{\text{cyc}} =
+    \bigl\| G_{B \to A}(G_{A \to B}(x_A)) - x_A \bigr\|_1 +
+    \bigl\| G_{A \to B}(G_{B \to A}(x_B)) - x_B \bigr\|_1,
+\end{equation}
+weighted by $\lambda_{\text{cyc}}{=}10$.
+An optional identity loss ($\lambda_{\text{id}}{=}0.5$) penalises unnecessary colour
+shifts when a real image from domain $Y$ is passed through $G_{X \to Y}$.
+The total generator objective is:
+\begin{equation}
+  \mathcal{L}_G = \mathcal{L}_{\text{GAN}} +
+    \lambda_{\text{cyc}}\,\mathcal{L}_{\text{cyc}} +
+    \lambda_{\text{id}}\,\mathcal{L}_{\text{id}}.
+\end{equation}
+
+\paragraph{UNIT.}
+\label{sec:supp-unit}
+
+UNIT~\cite{liu2017unsupervised} assumes a shared latent space across domains: images
+from both domains are encoded via domain-specific encoders $E_A$ and $E_B$ into a
+shared representation from which domain-specific decoders $\text{Dec}_A$ and
+$\text{Dec}_B$ reconstruct or translate images.
+The shared bottleneck is partitioned into three segments of residual blocks:
+domain-private pre-shared blocks ($n_{\text{priv}}^{\text{pre}}{=}3$), shared blocks
+($n_{\text{shared}}{=}2$--$3$ depending on size), and domain-private post-shared blocks
+($n_{\text{priv}}^{\text{post}}{=}3$), totalling $n_{\text{blocks}}{=}9$.
+Stochasticity is introduced via VAE reparameterisation:
+$1{\times}1$ convolutions produce per-pixel $\mu$ and $\log\sigma^2$ maps, and a latent
+code $z = \mu + \varepsilon\sigma$, $\varepsilon \sim \mathcal{N}(0,I)$, is passed to the
+decoders.
+The generator loss combines adversarial, cycle-reconstruction L1, and KL-divergence
+terms:
+\begin{equation}
+  \mathcal{L}_G = \lambda_{\text{GAN}}\,\mathcal{L}_{\text{GAN}} +
+    \lambda_{\text{recon}}\,\mathcal{L}_{\text{recon}} +
+    \lambda_{\text{KL}}\,\mathcal{L}_{\text{KL}},
+\end{equation}
+with $\lambda_{\text{GAN}}{=}1$, $\lambda_{\text{recon}}{=}10$, and
+$\lambda_{\text{KL}}{=}0.01$.
+
+\paragraph{MUNIT.}
+\label{sec:supp-munit}
+
+MUNIT~\cite{huang2018multimodal} disentangles each image into a domain-invariant
+\textit{content} code $c$ (encoding spatial structure) and a domain-specific
+\textit{style} code $s$ (encoding appearance).
+Separate content encoders $E^c_A$, $E^c_B$ (ResNet encoders followed by $n_{\text{content}}$
+residual blocks) and lightweight style encoders $E^s_A$, $E^s_B$ (three stride-2
+convolutions, global average pooling, and a linear layer to a style vector of
+dimension $d_s{=}8$) process each domain independently.
+Translation is achieved by pairing the content code of the source image with a style
+code from the target domain: the style code is injected into the decoder via Adaptive
+Instance Normalisation~(AdaIN), in which the affine parameters
+$(\gamma,\,\beta)$ are predicted by a style MLP of two fully connected layers
+($d_{\text{MLP}}{=}256$) applied to the style vector.
+Four AdaIN residual blocks per decoder perform style-conditioned refinement before
+standard upsampling.
+The generator objective optimises adversarial, image reconstruction, content
+consistency, and style consistency terms:
+\begin{equation}
+  \mathcal{L}_G = \mathcal{L}_{\text{GAN}} +
+    \lambda_{\text{img}}\,\mathcal{L}_{\text{img}} +
+    \lambda_{\text{c}}\,\mathcal{L}_{\text{content}} +
+    \lambda_{\text{s}}\,\mathcal{L}_{\text{style}},
+\end{equation}
+with $\lambda_{\text{img}}{=}10$, $\lambda_{\text{c}}{=}1$, $\lambda_{\text{s}}{=}1$.
+
+\paragraph{DCLGAN.}
+\label{sec:supp-dclgan}
+
+DCLGAN~\cite{han2021dual} augments the CycleGAN framework with a dual contrastive
+objective.
+Intermediate feature maps are extracted from the encoder output and at three depths of
+the residual bottleneck of each generator, giving four feature maps per translation
+direction; 256 spatial locations are randomly sampled from each map and projected to a
+$256$-dimensional embedding space via per-layer two-layer MLPs.
+An InfoNCE loss~\cite{oord2018representation} treats the corresponding anchor--positive
+pair (source patch and its translated counterpart) as the positive sample, with all
+other patches in the minibatch as negatives, computed symmetrically for both translation
+directions:
+\begin{equation}
+  \mathcal{L}_{\text{DCL}} =
+    \mathcal{L}_{\text{NCE}}(A{\to}B) + \mathcal{L}_{\text{NCE}}(B{\to}A),
+    \quad \tau{=}0.07.
+\end{equation}
+The full generator loss is:
+\begin{equation}
+  \mathcal{L}_G = \mathcal{L}_{\text{GAN}} +
+    \lambda_{\text{id}}\,\mathcal{L}_{\text{id}} +
+    \lambda_{\text{DCL}}\,\mathcal{L}_{\text{DCL}},
+\end{equation}
+with $\lambda_{\text{id}}{=}1$, $\lambda_{\text{DCL}}{=}1$.
+Cycle-consistency is disabled by default, as the DCL objective provides sufficient
+cross-domain structural constraint; the identity loss serves as a colour-space anchor.
+
+\paragraph{UVCGAN.}
+\label{sec:supp-uvcgan}
+
+UVCGAN~\cite{torbunov2022uvcgan} replaces the standard ResNet generator with a
+UNet--Vision Transformer hybrid.
+A UNet encoder performs $n_{down}{=}4$ stride-2 downsampling steps, collecting skip
+connections at each spatial scale (channel progression:
+$n_{gf} \to 2n_{gf} \to 2n_{gf} \to 4n_{gf} \to 8n_{gf}$, capped at $8n_{gf}$).
+The resulting $16{\times}16$ feature map is flattened into a sequence of tokens and
+processed by a lightweight Vision Transformer~(ViT) bottleneck of $n_{\text{ViT}}$
+transformer blocks, each consisting of Layer Normalisation, multi-head self-attention,
+and a $4{\times}$ feed-forward expansion with GELU activation, combined via ReZero
+residual scaling~\cite{bachlechner2021rezero} (all residual scale parameters initialised
+to zero).
+The UNet decoder restores spatial resolution through symmetric transposed-convolutional
+upsampling with skip-connection concatenation.
+
+Training proceeds in two stages.
+In \textbf{Stage~1 (pretraining)}, the generator learns to reconstruct images with
+randomly masked patches (patch size $32{\times}32$, count 4 per image) using an L1
+reconstruction loss on masked regions only, without discriminator involvement.
+In \textbf{Stage~2 (finetuning)}, the pretrained generator is used as initialisation
+for standard cycle-consistent GAN training ($\lambda_{\text{cyc}}{=}10$,
+$\lambda_{\text{id}}{=}0.5$) with both discriminators active.
+
+\paragraph{CycleDiffusion.}
+\label{sec:supp-cyclediffusion}
+
+CycleDiffusion~\cite{wu2022cyclediffusion} performs unpaired image-to-image translation
+by exploiting an emergent shared Gaussian latent space between two diffusion models trained
+simultaneously on their respective domains, without adversarial training or any
+cycle-consistency loss term.
+Two domain-specific unconditional DDPMs, $\mathcal{M}_A$ for the source domain and
+$\mathcal{M}_B$ for the target domain, are each parameterised by a time-conditioned UNet
+whose sinusoidal time embedding is projected through a two-layer MLP ($4{\times}$ hidden
+expansion) and injected into each residual block via feature-wise affine transformations.
+The channel progression is controlled by a base channel count $c_{\text{base}}$ and a
+multiplier sequence $\text{mult}$; self-attention blocks are inserted at the
+$16{\times}16$ resolution level.
+
+\paragraph{Training.}
+Both DDPMs are trained simultaneously in a single training run, each with its own
+domain loss and no gradient coupling between them, using the standard epsilon-prediction
+objective~\cite{ho2020ddpm}:
+\begin{equation}
+  \mathcal{L} = \mathcal{L}_{\text{eps}}(A) + \mathcal{L}_{\text{eps}}(B), \qquad
+  \mathcal{L}_{\text{eps}} = \mathbb{E}_{x,\,\varepsilon,\,t}
+    \bigl[\|\hat{\varepsilon}_\theta(x_t,\,t) - \varepsilon\|_2^2\bigr],
+\end{equation}
+where $x_t = \sqrt{\bar\alpha_t}\,x_0 + \sqrt{1-\bar\alpha_t}\,\varepsilon$ is the
+noisy image at timestep $t$ under a linear noise schedule
+($\beta_1{=}10^{-4}$, $\beta_T{=}2{\times}10^{-2}$, $T{=}1000$).
+
+\paragraph{Translation.}
+At inference, DDIM inversion~\cite{song2021ddim} maps $x_A$ to a shared latent code $z$
+via $\mathcal{M}_A$, which $\mathcal{M}_B$ then decodes into the target domain:
+\begin{equation}
+  z = \mathrm{DDIM\text{-}Invert}_{\mathcal{M}_A}(x_A), \qquad
+  \hat{x}_B = \mathrm{DDIM\text{-}Sample}_{\mathcal{M}_B}(z).
+\end{equation}
+Cycle consistency is an inference-time property of the shared latent structure: because
+DDIM inversion is a deterministic left inverse of DDIM sampling, the round-trip
+$x_A \to z \to \hat{x}_B \to z' \to \hat{x}_A$ approximately reconstructs $x_A$
+without any training signal enforcing it.
+Both encoding and decoding use deterministic DDIM ($\eta{=}0$) over $T_{\text{DDIM}}{=}200$
+steps, incurring approximately twice the cost of a single DDIM run.
+
+\paragraph{Model Size Configurations.}
+\label{sec:supp-model_sizes}
+
+To assess the effect of model capacity, each architecture is trained at three scales.
+The key hyperparameters controlling generator size are adjusted per model family
+(Table~\ref{tab:supp-model_sizes}); all other architectural choices remain fixed.
+Parameter counts refer to the single-direction generator~(A\,$\to$\,B) only; bidirectional
+models have approximately twice this count when both generators are included.
+For CycleDiffusion, the count covers both the domain-A and domain-B UNet branches
+(both are required at inference).
+
+\begin{table}[h]
+\centering
+\caption{Generator size configurations. Parameter counts are for the single
+A\,$\to$\,B generator direction. ``Shared'' denotes shared bottleneck blocks in UNIT.}
+\label{tab:supp-model_sizes}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{llccccc}
+\toprule
+\textbf{Model} & \textbf{Size} & \textbf{Params} & \textbf{$n_{gf}$} &
+\textbf{$n_{\text{blocks}}$} & \textbf{Additional hyperparameters} \\
+\midrule
+\multirow{3}{*}{CycleGAN}
+  & Small  & 10.20\,M & 64  & 8  & --- \\
+  & Medium & 50.18\,M & 128 & 10 & --- \\
+  & Large  & 102.26\,M & 192 & 9  & --- \\
+\midrule
+\multirow{3}{*}{UNIT}
+  & Small  & 10.33\,M & 64  & 8  & shared blocks = 2 \\
+  & Medium & 50.71\,M & 128 & 10 & shared blocks = 2 \\
+  & Large  & 103.44\,M & 192 & 9  & shared blocks = 3 \\
+\midrule
+\multirow{3}{*}{MUNIT}
+  & Small  & 10.14\,M & 64  & --- & content blocks = 3 \\
+  & Medium & 47.64\,M & 128 & --- & content blocks = 5 \\
+  & Large  & 94.87\,M & 192 & --- & content blocks = 4 \\
+\midrule
+\multirow{3}{*}{DCLGAN}
+  & Small  & 10.20\,M & 64  & 8  & --- \\
+  & Medium & 50.18\,M & 128 & 10 & --- \\
+  & Large  & 102.26\,M & 192 & 9  & --- \\
+\midrule
+\multirow{3}{*}{UVCGAN}
+  & Small  & 10.01\,M & 48  & --- & $d_{\text{ViT}}{=}96$,\;$n_{\text{ViT}}{=}6$ \\
+  & Medium & 48.28\,M & 96  & --- & $d_{\text{ViT}}{=}384$,\;$n_{\text{ViT}}{=}6$ \\
+  & Large  & 96.72\,M & 128 & --- & $d_{\text{ViT}}{=}384$,\;$n_{\text{ViT}}{=}17$ \\
+\midrule
+\multirow{3}{*}{CycleDiffusion}
+  & Small  & 10.68\,M & --- & 1 & $c_{\text{base}}{=}48$,\;mult\,=\,[1,2,2,4] \\
+  & Medium & 50.29\,M & --- & 2 & $c_{\text{base}}{=}84$,\;mult\,=\,[1,2,2,4] \\
+  & Large  & 100.02\,M & --- & 2 & $c_{\text{base}}{=}128$,\;mult\,=\,[1,2,4] \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+% -------------------------------------------------------
+
 \section{Full Scaling Study Results}
 \label{sec:supp-full-results}
 
 % TODO: Tables with all 54 configurations (6 models x 3 sizes x 3 data fractions).
-% Report FID, LPIPS, patch-SSIM, and CPA (W1) for each.
+% Report FID, LPIPS, patch-SSIM, and CPA MAE for each.
 
 \section{Additional Qualitative Examples}
 \label{sec:supp-qualitative}
@@ -19,13 +455,7 @@
 % TODO: Full hyperparameter tables per model (learning rate, batch size,
 % loss weights, number of training iterations, hardware).
 
-\section{Dataset Details}
-\label{sec:supp-dataset}
-
-% TODO: Per-split statistics (tile counts, animal counts per time point),
-% stain normalisation procedure, tile extraction parameters.
-
-\section{Uncertainty Analysis — Additional Results}
+\section{Uncertainty Analysis -- Additional Results}
 \label{sec:supp-uncertainty}
 
 % TODO: Per-model ensemble diversity curves, calibration plots,

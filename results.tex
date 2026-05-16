@@ -1,38 +1,168 @@
 % ============================================================
-%  Section 7: Results — Scaling Study
+%  Section 6.3: Results — Scaling Study
 %  H&E to Sirius Red Virtual Staining Paper
 % ============================================================
 
-\section{Results: Scaling Study}
+\subsection{Results: Scaling Study}
 \label{sec:results_scaling}
 
-% TODO: This section covers all 54 configurations (6 models x 3 sizes x 3 data fractions).
-% See paper_structure.md ss8.1-8.5 for the full subsection plan.
+Results are reported for three model families (CycleGAN, UNIT, MUNIT) across all nine
+scaling configurations ($3~\text{sizes} \times 3~\text{data fractions}$).
+FID, LPIPS, and patch-based SSIM are computed once over the full test tile set and carry
+no per-sample variance estimate; CPA MAE is computed per WSI and reported as
+mean~$\pm$~std over $N{=}5$ held-out test WSIs.
+Figure~\ref{fig:results_overview} summarises all four metrics across the 27~configurations.
+
+\textcolor{red}{TODO: Figure~\ref{fig:results_overview} — four panels (FID, LPIPS,
+patch-SSIM, CPA MAE), x-axis = model family, scatter points coloured by model size and
+shaped by data fraction, with std bars from the 5 test WSIs for CPA MAE.}
 
 % -------------------------------------------------------
-\subsection{Overall Model Comparison}
-\label{sec:results_overall}
-% TODO: Aggregated ranking across all 54 configurations (mean +/- std per model family).
-% Summary table: FID / LPIPS / patch-SSIM / CPA agreement per model.
-
-% -------------------------------------------------------
-\subsection{Effect of Model Size}
+\subsubsection{Effect of Model Size}
 \label{sec:results_size}
-% TODO: All three data fractions shown (25% / 50% / 100%).
-% Figures: 2x3 grid of panels (one per model), 3 lines per panel (one per data fraction).
+
+Referring to Figure~\ref{fig:results_overview}, we examine how each metric responds to
+increasing generator capacity within each model family.
+
+\paragraph{CycleGAN.}
+At 25\% and 50\% training data, FID and CPA MAE are relatively stable across model
+sizes (FID: 109.0–118.4 and 107.2–138.6 respectively; MAE: 0.045–0.053 and 0.055–0.063),
+with no consistent directional trend.
+At full data, the medium model achieves the lowest FID of any CycleGAN configuration
+(103.7) and the lowest CPA MAE overall ($0.008~{\pm}~0.007$, Spearman $\rho{=}1.0$,
+Pearson $r{=}0.997$).
+The large model at full data produces the highest CPA MAE of any configuration tested
+($0.085~{\pm}~0.032$), despite the small and medium models both performing well at the
+same data fraction.
+LPIPS ($0.0476$–$0.0480$) and patch-based SSIM ($0.00119$–$0.00133$) are
+effectively constant across all CycleGAN size configurations.
+
+\paragraph{UNIT.}
+FID decreases with model size at 25\% data (small: 183.7, medium: 179.6, large: 172.9)
+and the large model achieves the lowest FID at full data (170.8 vs.\ 190.0 for medium
+and 187.2 for small), giving a consistent directional trend across data fractions.
+CPA MAE also favours the large model at 25\% and 50\% data (large/small: $0.024~{\pm}~0.041$;
+large/medium: $0.023~{\pm}~0.030$), while at full data all three sizes produce
+comparable MAE values in the range $0.037$–$0.046$.
+LPIPS ($0.0532$–$0.0535$) and patch-based SSIM are flat across all UNIT size configurations.
+
+\paragraph{MUNIT.}
+Neither FID nor CPA MAE shows a consistent directional response to model size for MUNIT.
+FID ranges from 163.7 to 210.0 with no monotonic trend within any data fraction.
+CPA MAE values lie in the range $0.039$–$0.059$ across all configurations, with no model
+size consistently outperforming the others across data fractions.
+LPIPS ($0.0536$–$0.0541$) and patch-based SSIM remain flat.
+
+\paragraph{DCLGAN.}
+\textcolor{red}{[TODO]}
+
+\paragraph{UVCGAN.}
+\textcolor{red}{[TODO]}
+
+\paragraph{CycleDiffusion.}
+\textcolor{red}{[TODO]}
+
+\paragraph{Cross-model observation.}
+\textcolor{red}{[TODO]}
+The three model families respond differently to increases in generator capacity.
+UNIT shows the most consistent trend: FID improves with model size across data fractions.
+For CycleGAN, the effect of model size on CPA MAE is conditional on data fraction,
+with a strong divergence between medium and large models only apparent at full data.
+MUNIT shows no consistent response to model size on either metric.
 
 % -------------------------------------------------------
-\subsection{Effect of Training Data Size}
+\subsubsection{Effect of Training Data Size}
 \label{sec:results_data}
-% TODO: All three model sizes shown (Small / Medium / Large).
-% Figures: 2x3 grid of panels (one per model), 3 lines per panel (one per model size).
+
+Referring again to Figure~\ref{fig:results_overview}, we examine how each metric responds
+to increasing training data fraction within each model family.
+
+\paragraph{CycleGAN.}
+For the medium model, FID decreases from 138.6 at 50\% data to 103.7 at full data, the
+largest single-step FID improvement observed across all CycleGAN configurations.
+CPA MAE for the medium model drops sharply from $0.057$ at 50\% to $0.008$ at full data,
+while the small model MAE remains in the range $0.045$–$0.063$ across all data fractions
+with no clear trend.
+The large model shows the opposite pattern: MAE at full data ($0.085~{\pm}~0.032$) is
+substantially worse than at 25\% ($0.052~{\pm}~0.062$) or 50\% ($0.055~{\pm}~0.061$).
+
+\paragraph{UNIT.}
+FID shows no consistent improvement with additional training data for UNIT; values
+distribute in the range 170.4–190.0 with no directional trend within any model size.
+CPA MAE is lowest at 50\% data for both the small model (small/medium: $0.017~{\pm}~0.020$)
+and the large model (large/medium: $0.023~{\pm}~0.030$).
+At full data, MAE values for the small and large models are higher than at 50\%, while
+the medium model shows a modest improvement from 50\% ($0.047$) to full data ($0.037$).
+Additional training data beyond 50\% does not consistently reduce CPA MAE for UNIT.
+
+\paragraph{MUNIT.}
+FID increases with data fraction for MUNIT: the two highest FID values across all
+configurations are both at full data (small/large: 209.0; large/large: 210.0), compared
+to a minimum of 163.7 at 25\% data (medium/small).
+This represents a consistent degradation in distributional realism with additional
+training data, a pattern not observed in either CycleGAN or UNIT.
+CPA MAE remains within a narrow band ($0.041$–$0.059$) across all data fractions and
+model sizes, with no configuration benefiting consistently from more training data.
+
+\paragraph{DCLGAN.}
+\textcolor{red}{[TODO]}
+
+\paragraph{UVCGAN.}
+\textcolor{red}{[TODO]}
+
+\paragraph{CycleDiffusion.}
+\textcolor{red}{[TODO]}
+
+\paragraph{Cross-model observation.}
+\textcolor{red}{[TODO]}
+The benefit of additional training data differs across model families.
+CycleGAN shows a strong but model-size-dependent improvement at full data, concentrated
+in the medium model.
+UNIT reaches its best CPA MAE at 50\% data and does not improve further with the full
+training set.
+MUNIT is the only family where FID degrades as training data increases, while CPA MAE
+remains insensitive to data fraction throughout.
 
 % -------------------------------------------------------
-\subsection{Joint Scaling Behaviour}
+\subsubsection{Joint Scaling Behaviour}
 \label{sec:results_joint}
-% TODO: Heatmaps (size x data fraction) per model, per metric.
+
+\textcolor{red}{TODO: Figure — heatmaps (model size $\times$ data fraction) per model
+family, one heatmap per metric (FID, CPA MAE).}
+
+\textcolor{red}{[TODO]}
+The joint view of both scaling axes reveals that capacity and data fraction interact
+differently across model families.
+For CycleGAN, the best configuration (medium/full data) is an isolated point in the
+$3{\times}3$ grid: neither increasing model size nor increasing data fraction alone
+predicts performance, and the interaction between the two axes is required to identify
+it.
+For UNIT, model capacity is the dominant axis: the large model achieves lower FID across
+all data fractions, and the data fraction axis provides limited additional signal.
+For MUNIT, neither axis produces a consistent effect on CPA MAE, and the data axis
+produces a counterintuitive FID increase.
 
 % -------------------------------------------------------
-\subsection{Task-based vs.\ Perceptual Metric Agreement}
+\subsubsection{Metric Observations}
 \label{sec:results_metric_agreement}
-% TODO: Spearman rank correlation between FID/LPIPS/SSIM rankings and CPA-agreement ranking.
+
+\textcolor{red}{TODO: Spearman rank correlation table between FID/LPIPS/SSIM rankings
+and CPA MAE ranking across all 27 configurations.}
+
+\textcolor{red}{[TODO]}
+LPIPS and patch-based SSIM show negligible variation across all 27~configurations
+(LPIPS: $0.0476$–$0.0541$; patch-SSIM: below $0.002$ throughout), indicating that
+these metrics do not distinguish between model families or scaling configurations at the
+ranges explored here.
+FID provides separation at the level of model families — CycleGAN configurations
+(103.7–138.6) score consistently lower than UNIT (170.4–190.0) and MUNIT
+(163.7–210.0) — reflecting distributional differences in the generated stain
+appearance across architectures.
+CPA MAE, as the primary benchmark, captures the scaling-dependent performance
+differences reported in Sections~\ref{sec:results_size} and~\ref{sec:results_data}:
+it distinguishes configurations within a model family and across data fractions in
+ways that the distributional measures do not resolve.
+For instance, MUNIT achieves the single lowest per-configuration FID of any family
+(medium/small: 163.7), while its best CPA MAE ($0.040~{\pm}~0.030$) remains
+substantially above the best CycleGAN configuration ($0.008~{\pm}~0.007$),
+underscoring that FID and CPA MAE each capture a distinct aspect of model behaviour.

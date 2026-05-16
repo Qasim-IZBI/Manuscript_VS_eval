@@ -6,14 +6,12 @@
 
 \section{Related Work}
 
-\subsection{Virtual Staining in Histopathology}
-
+\paragraph{Virtual Staining in Histopathology.}
 Histopathological diagnosis relies on a panel of stains applied to thin tissue sections,
 each requiring dedicated reagents, skilled technicians, and additional biopsy material.
-Virtual staining---the computational prediction of a target stain from an existing one
-using deep learning---offers a pathway to reduce tissue consumption, laboratory costs,
-and turn-around time while standardising stain quality across
-centres~\cite{rivenson2020emerging, latonen2024virtual}.
+Virtual staining uses deep learning to predict a target stain from an existing one,
+offering a pathway to reduce tissue consumption, laboratory costs, and turn-around time
+while standardising stain quality across centres~\cite{rivenson2020emerging, latonen2024virtual}.
 In liver pathology, Sirius Red~(SR) staining is the clinical reference for collagen
 quantification and fibrosis staging; obtaining it requires a separate section from the
 same biopsy as the routinely acquired haematoxylin and eosin~(H\&E) slide.
@@ -23,8 +21,7 @@ sections is impractical at scale due to tissue deformation and processing artefa
 motivating the shift towards unsupervised, unpaired learning
 frameworks~\cite{aatresh2024virtual, chen2025challenges}.
 
-\subsection{Unsupervised Image-to-Image Translation}
-
+\paragraph{Unsupervised Image-to-Image Translation.}
 Cycle-consistent adversarial networks~(CycleGAN;~\cite{zhu2017unpaired}) established the
 dominant paradigm for unpaired stain translation by training two generators with a
 cycle-consistency loss that enforces invertibility without pixel-level supervision.
@@ -41,14 +38,15 @@ complexity.
 UVCGAN~\cite{torbunov2022uvcgan} revisited cycle-consistent training with a
 UNet--Vision Transformer hybrid generator and self-supervised masked image pretraining,
 achieving stronger preservation of long-range structural correlations.
-More recently, score-based diffusion models have been applied to this problem:
-Liu~\etal~\cite{liu2025score} proposed a mutual-information-guided reverse diffusion
-process with timestep-customised noise scheduling and a local patch-contrastive loss for
-unpaired H\&E\,$\to$\,IHC translation, offering finer control over staining intensity
-and structural reconstruction than adversarial methods alone.
+More recently, diffusion models have been applied to this problem.
+Wu and De la Torre~\cite{wu2022cyclediffusion} proposed CycleDiffusion, which enforces
+cycle consistency through a shared diffusion noise space: a source image is
+deterministically encoded to a latent noise vector via DDIM inversion using a
+source-domain DDPM, then decoded into the target domain by a separately trained
+target-domain DDPM, with cycle consistency recovered by requiring that the re-inverted
+translation reconstructs the original source.
 
-\subsection{Applications to Histopathology Stain Translation}
-
+\paragraph{Applications to Histopathology Stain Translation.}
 These architectures have been adopted for a growing range of histopathological stain
 conversion tasks.
 CycleGAN remains the most widely deployed backbone: Liu~\etal~\cite{liu2021virtual}
@@ -72,33 +70,32 @@ DCLGAN was applied to a bespoke virtual staining task by Adib~\etal~\cite{adib20
 translating autofluorescence images of unstained skin tissue to H\&E with 90.2\%
 diagnostic concordance among dermatopathologists.
 UVCGAN has been included as a strong unpaired baseline in multi-domain staining studies,
-though recent comparisons for H\&E\,$\to$\,fibre-stain translation~\cite{vifit2025} found
+though recent comparisons for H\&E\,$\to$\,fibre-stain translation\~\cite{vifit2025} found
 it struggled to generate valid fibre texture.
 Despite these advances, no study to date has directly compared these six model families
 on unpaired H\&E\,$\to$\,histochemical stain translation in mouse liver tissue.
 
-\subsection{Evaluation Frameworks for Virtual Staining}
-
+\paragraph{Evaluation Frameworks for Virtual Staining.}
 Evaluating virtual staining models poses unique challenges.
-Pixel-level metrics~(SSIM, PSNR, MAE) require co-registered ground-truth pairs, while
-distributional metrics such as FID and KID measure population-level realism without
-assessing spatial correspondence.
+Dense pixel-level metrics such as PSNR require exact pixel correspondence and
+co-registered ground-truth pairs, patch-based SSIM relaxes this requirement by
+computing structural similarity over local windows rather than the full image, and
+distributional metrics such as FID capture population-level realism without
+any pairing.
 Khan~\etal~\cite{khan2023effect} showed that standard image quality metrics do not always
 correlate with histological feasibility in virtual H\&E staining, underscoring the need
 for pathology-aware evaluation.
-VISGAB~\cite{visgab2025} introduced a histology-specific fidelity index~(HSFI)---derived
-from pathologist concordance experiments on skin tissue---and found that CycleGAN
-outperforms DCLGAN and CUTGAN on structural fidelity despite slower inference.
 Kl\"{o}ckner~\etal~\cite{klockner2025he} benchmarked paired and unpaired models for
 breast cancer IHC generation on the BCI and MIST datasets, reporting that quantitative
 rankings frequently disagree with qualitative pathologist assessments.
 The StainDiffuser benchmark~\cite{staindiffuser2024} is the most comprehensive to date,
 evaluating more than twenty GAN-based and diffusion-based I2I models with a consistent
 metric suite.
-Our study contributes a complementary evaluation focused on an underexplored histochemical
-stain target in mouse liver tissue from a BDL model of cholestatic liver disease---Sirius
-Red~(SR) for collagen and fibrosis quantification---using a dataset collected in-house,
-and assesses all six models using both patch-level and distributional metrics.
+Our study contributes a complementary evaluation of Sirius Red, an underexplored
+histochemical stain for collagen and fibrosis quantification, using mouse liver tissue
+from a bile-duct ligation model of cholestatic liver disease~\cite{ghallab2025asbt},
+assessing all six models with CPA MAE as the primary task-based benchmark,
+complemented by perceptual and distributional measures.
 
 A growing body of work argues that image quality metrics alone are insufficient and
 advocates for \textit{task-based evaluation}, in which downstream clinical tasks are
@@ -118,16 +115,17 @@ For collagen quantification specifically, deep learning models have been develop
 segment positive Sirius Red areas in liver WSIs and score fibrosis severity~\cite{sirius_fibrosis2024},
 and U-Net-based collagen segmentation on Sirius Red achieves Dice scores of
 $0.83$--$0.90$ across heterogeneous staining conditions~\cite{liverfibrosis2025}.
-We adopt this task-based paradigm by applying an SR-specific collagen segmentation model
-to both real and virtually generated SR images and comparing the resulting collagen
-proportionate area~(CPA) distributions across all six translation models, providing a
-biologically grounded complement to patch-level and distributional metrics.
+We adopt this task-based paradigm by applying a frozen SR collagen segmentation model
+identically to real and virtual SR images, computing the mean absolute error between
+paired real-SR and virtual-SR collagen proportionate area~(CPA) values at the
+WSI level across all six translation models.
+CPA MAE serves as the primary biologically grounded benchmark in this study, with FID,
+LPIPS, and patch-based SSIM as complementary distributional and perceptual measures.
 
-\subsection{Epistemic Uncertainty in Virtual Staining and I2I Translation}
-
-Epistemic uncertainty---the component of predictive uncertainty attributable to limited
-training data or model capacity---is most commonly quantified via Monte Carlo~(MC)
-dropout~\cite{gal2016dropout}, which approximates Bayesian posterior sampling through
+\paragraph{Epistemic Uncertainty in Virtual Staining and I2I Translation.}
+Epistemic uncertainty, referring to the component of predictive uncertainty attributable
+to limited training data or model capacity, is most commonly quantified via
+Monte Carlo~(MC) dropout~\cite{gal2016dropout}, which approximates Bayesian posterior sampling through
 repeated stochastic forward passes at inference time, or via deep
 ensembles~\cite{lakshminarayanan2017simple}, which measure disagreement across
 independently trained models.
@@ -258,12 +256,12 @@ systematic uncertainty analysis for unpaired virtual histological staining.
 %   eprint    = {2203.02557}
 % }
 %
-% @inproceedings{liu2025score,
-%   author    = {Liu, Anran and Wang, Xiaofei and Cai, Jing and Li, Chao},
-%   title     = {Score-based Diffusion Model for Unpaired Virtual Histology Staining},
-%   booktitle = {CMMCA},
-%   year      = {2025},
-%   eprint    = {2506.23184}
+% @article{wu2022cyclediffusion,
+%   author    = {Wu, Chen Henry and De la Torre, Fernando},
+%   title     = {Unifying Diffusion Models' Latent Space, with Applications to {CycleDiffusion} and Guidance},
+%   journal   = {arXiv preprint},
+%   year      = {2022},
+%   eprint    = {2210.05559}
 % }
 %
 % @article{liu2021virtual,

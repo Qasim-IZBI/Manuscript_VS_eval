@@ -41,7 +41,7 @@ To our knowledge, no prior study has applied MC dropout or deep ensembles to qua
 - Latonen et al. (2024). Virtual staining for histology by deep learning. *Trends in Biotechnology*, 42(6).
 - Liu et al. (2017). Unsupervised Image-to-Image Translation Networks (UNIT). arXiv:1703.00848.
 - Liu et al. (2021). Virtual Immunohistochemistry for Breast Cancer Biomarker Prediction From H&E-Stained Images Using Generative Network. *Image Analysis & Stereology*.
-- Liu et al. (2025). Score-based Diffusion Model for Unpaired Virtual Histology Staining. arXiv:2506.23184. *CMMCA 2025*.
+- Wu & Niebles (2023). CycleDiffusion: Leveraging Cycle Consistency in Unpaired Image-to-Image Translation with Diffusion Models. arXiv:2205.09810. *ICCV 2023*.
 - MVFStain [TBC] et al. (2022). Multiple virtual functional stain histopathology images generation based on specific domain mapping. *Medical Image Analysis*.
 - PG-GAN [TBC] et al. (2023). Unpaired virtual histological staining using prior-guided generative adversarial networks. *Medical Image Analysis*.
 - Rivenson, de Haan, Wallace & Ozcan (2020). Emerging Advances to Transform Histopathology Using Virtual Staining. *BME Frontiers*.
