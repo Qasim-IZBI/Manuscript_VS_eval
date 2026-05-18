@@ -29,7 +29,7 @@ consuming limited material and introducing spatial misalignment between the SR a
 slides due to tissue deformation during sectioning.
 
 Virtual staining, which uses deep learning to predict a target stain directly from an
-existing digitised slide, offers an attractive solution.
+existing digitised slide, offers an attractive solution (Figure~\ref{fig:pipeline_overview}).
 By eliminating the need for additional sections, it conserves tissue,
 reduces turn-around time, and creates the possibility of retrospective stain analysis from
 H\&E archives~\cite{rivenson2020emerging, latonen2024virtual}.
@@ -45,6 +45,21 @@ therefore better suited to this setting. However, no study has directly applied 
 histochemical stain translation in liver tissue, and it remains unclear which model
 within the increasingly diverse family of unpaired image-to-image~(I2I) approaches
 performs best for this task.
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=0.92\linewidth]{images/Intro_GM}
+  \caption{%
+    Overview of the virtual H\&E~$\to$~SR staining pipeline studied in this work.
+    A whole-slide image acquired with H\&E staining is decomposed into
+    $256{\times}256$\,pixel tiles, which are passed through an unpaired
+    image-to-image translation model to produce virtual Sirius Red tiles.
+    The translated tiles are reassembled into a virtual SR WSI, from which
+    collagen proportionate area~(CPA) can be quantified without consuming
+    an additional tissue section.%
+  }
+  \label{fig:pipeline_overview}
+\end{figure*}
 
 Since the introduction of cycle-consistent adversarial networks~(CycleGAN;~\cite{zhu2017unpaired}),
 the unpaired I2I field has diversified considerably.

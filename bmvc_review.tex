@@ -30,14 +30,37 @@ A Systematic Study of Scaling and Uncertainty in Unpaired Generative Models}
 \maketitle
 
 \begin{abstract}
-% TODO (~250 words). Must cover:
-%   1. Clinical motivation — SR staining consumes tissue; virtual staining removes
-%      the need for an extra section and enables retrospective analysis from H&E archives.
-%   2. Gap — no systematic comparison of unpaired I2I models for H&E->SR in liver tissue.
-%   3. What we do — novel BDL mouse liver dataset + 54-configuration scaling study
-%      (6 models x 3 sizes x 3 data fractions) + multi-metric + task-based evaluation
-%      + first epistemic uncertainty analysis via deep ensembles for unpaired virtual staining.
-%   4. Key findings — (insert after experiments are complete).
+Comprehensive histopathological analysis requires multiple specialised stains, yet
+each additional stain consumes a separate tissue section from a limited biopsy,
+extends laboratory turnaround time, and introduces spatial misalignment between
+staining layers.
+Virtual staining, which predicts a target stain directly from a digitised H\&E slide,
+eliminates this requirement and enables retrospective analysis from existing archives.
+In liver pathology, Sirius Red~(SR) is the histochemical gold standard for collagen
+proportionate area~(CPA) measurement and fibrosis staging, but no systematic benchmark
+has compared unsupervised image-to-image~(I2I) architectures for H\&E~$\to$~SR
+translation, characterised how model capacity and training data volume jointly govern
+staining quality, or quantified the predictive uncertainty of such models.
+We release an open whole-slide image dataset of paired H\&E and Sirius Red sections
+from a mouse bile-duct ligation model~\cite{ghallab2025asbt} and conduct a
+full-factorial scaling study across six architectures (CycleGAN, UNIT, MUNIT, DCLGAN,
+UVCGAN, CycleDiffusion), three generator capacities, and three training data fractions,
+yielding 54 configurations.
+All configurations are evaluated with perceptual metrics alongside a task-based CPA
+mean absolute error that exploits the paired tissue-block structure of the dataset
+to provide a biologically grounded benchmark.
+We additionally train deep ensembles for the best configuration per model family and
+derive spatially resolved epistemic uncertainty maps, the first such analysis for
+unpaired virtual histological staining.
+Perceptual metrics saturate across well-behaved configurations and correlate only
+moderately with CPA MAE (Spearman $\rho{=}0.55$--$0.64$), confirming that task-based
+evaluation is indispensable for model selection in this domain.
+CPA MAE spans over an order of magnitude ($0.008$--$0.171$) across the 54
+configurations; MUNIT is the most stable architecture across all scaling conditions,
+while DCLGAN and UVCGAN exhibit catastrophic training failures at high capacity
+with limited data.
+\textcolor{red}{[TODO: add one to two sentences on the headline uncertainty findings
+once Section~\ref{sec:unc_results} is complete.]}
 \end{abstract}
 
 %-------------------------------------------------------------------------

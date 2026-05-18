@@ -6,8 +6,8 @@
 \section{Models}
 \label{sec:models}
 
-We evaluate six unsupervised image-to-image translation architectures, summarised in
-Table~\ref{tab:model_overview}.
+We evaluate six unsupervised image-to-image translation architectures, illustrated in
+Figure~\ref{fig:model_architectures}.
 All six share a cycle-consistency training objective; five are GAN-based and use a
 $70{\times}70$ PatchGAN discriminator.
 \textbf{CycleGAN}~\cite{zhu2017unpaired} serves as the plain adversarial baseline.
@@ -25,26 +25,25 @@ Each architecture is trained at three capacity scales (${\sim}10$\,M, ${\sim}50$
 ${\sim}100$\,M parameters), yielding 54 configurations in total; full architectural
 details and size configurations are provided in Supplementary Sec.~2.
 
-\begin{table}[h]
-\centering
-\caption{Overview of the six evaluated models. \textit{Inference} distinguishes
-  single forward-pass generators from iterative reverse-diffusion samplers.
-  Full architectural details and loss formulations are provided in Supplementary Sec.~2.}
-\label{tab:model_overview}
-\begin{tabular}{llll}
-\toprule
-\textbf{Model} & \textbf{Family} & \textbf{Generator backbone} & \textbf{Inference} \\
-\midrule
-CycleGAN      & Cycle-consistent GAN              & ResNet           & Single-pass \\[2pt]
-UNIT          & Shared-latent-space GAN           & VAE--ResNet      & Single-pass \\[2pt]
-MUNIT         & Content--style disentanglement GAN & AdaIN--ResNet   & Single-pass \\[2pt]
-DCLGAN        & Contrastive learning GAN          & ResNet           & Single-pass \\[2pt]
-UVCGAN        & Hybrid ViT GAN                    & UNet--ViT        & Single-pass \\[2pt]
-CycleDiffusion & Shared-latent diffusion          & Dual UNet (DDPM) & Iterative ($2{\times}$DDIM) \\
-\bottomrule
-\end{tabular}
-\end{table}
 
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=0.82\linewidth]{images/I2I_Models_02}
+  \caption{%
+    Schematic encoder--decoder architectures of the six evaluated unsupervised I2I models.
+    \textit{CycleGAN} and \textit{DCLGAN} share a plain ResNet generator backbone;
+    DCLGAN additionally enforces a dual patch-level contrastive loss between domains.
+    \textit{UNIT} couples the two directions through a shared VAE bottleneck.
+    \textit{MUNIT} adds a per-domain style encoder that injects style codes via
+    Adaptive Instance Normalisation, enabling multimodal generation.
+    \textit{UVCGAN} replaces the ResNet bottleneck with a Vision Transformer block
+    preceded by masked-image pretraining.
+    \textit{CycleDiffusion} departs from the GAN paradigm: each domain has a
+    dedicated DDPM whose shared noise space mediates the cycle, with translation
+    performed via DDIM inversion and sampling rather than a deterministic forward pass.%
+  }
+  \label{fig:model_architectures}
+\end{figure*}
 
 % ============================================================
 %  New bibliography entries for this section

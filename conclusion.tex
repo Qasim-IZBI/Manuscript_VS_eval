@@ -1,18 +1,54 @@
 % ============================================================
-%  Section 10: Conclusion
+%  Section 8: Conclusion
 %  H&E to Sirius Red Virtual Staining Paper
 % ============================================================
 
 \section{Conclusion}
 \label{sec:conclusion}
 
-% TODO (~200 words). Write last once all results are known.
-% Must cover:
-%   1. Restate the problem and gap (H&E->SR virtual staining; no systematic unpaired benchmark).
-%   2. Summarise the four contributions concisely:
-%        (i)   novel open BDL mouse liver dataset,
-%        (ii)  54-run scaling study,
-%        (iii) multi-metric evaluation including task-based CPA agreement,
-%        (iv)  first epistemic uncertainty analysis via deep ensembles for unpaired virtual staining.
-%   3. Headline findings (insert after experiments are complete).
-%   4. Closing statement on open dataset and benchmark value to the community.
+Obtaining a Sirius Red stain for hepatic fibrosis assessment requires a separate tissue
+section, consuming limited biopsy material and introducing spatial misalignment between
+staining layers.
+Virtual staining via unsupervised image-to-image translation offers a practical
+alternative, yet no systematic benchmark had compared competing architectures for
+H\&E~$\to$~SR translation or characterised how model capacity and training data volume
+jointly affect translation quality in this setting.
+
+We introduced an open whole-slide image dataset of paired H\&E and Sirius Red sections
+from a mouse bile-duct ligation model of cholestatic liver disease~\cite{ghallab2025asbt},
+providing the first dedicated resource for this translation task.
+Building on this dataset, we conducted a full-factorial scaling study across six
+unsupervised I2I architectures (CycleGAN, UNIT, MUNIT, DCLGAN, UVCGAN, and
+CycleDiffusion), three generator capacities, and three training data fractions, yielding
+54 independently evaluated configurations.
+We evaluated all configurations with a combination of perceptual metrics (Patch-SSIM,
+LPIPS, FID) and a task-based collagen proportionate area MAE, the latter exploiting the
+paired tissue-block structure of the dataset to provide a biologically grounded
+benchmark.
+Finally, we trained deep ensembles of ten independently initialised models for the
+best-performing configuration per family and constructed spatially resolved epistemic
+uncertainty maps, constituting the first uncertainty analysis for unpaired virtual
+histological staining.
+
+The scaling study reveals that perceptual metrics saturate within a narrow band across
+the majority of well-behaved configurations and correlate only moderately with CPA MAE
+($\rho{=}0.55$--$0.64$), confirming that task-based evaluation is indispensable for
+model selection in this domain.
+CPA MAE spans over an order of magnitude across the 54 configurations ($0.008$--$0.171$),
+with medium-capacity generators trained on the full dataset performing most reliably
+across families.
+MUNIT is the most stable architecture, maintaining a narrow CPA MAE range of
+$0.040$--$0.059$ across all nine scaling conditions.
+DCLGAN and UVCGAN exhibit catastrophic training failures at high generator capacity
+under limited data, underscoring that over-parameterisation is as significant a
+deployment risk as under-training.
+CycleDiffusion produces competitive CPA MAE despite systematically lower Patch-SSIM
+than GAN-based families, demonstrating that perceptual sharpness and biological
+accuracy are not equivalent objectives.
+\textcolor{red}{[TODO: add one to two sentences summarising the headline uncertainty
+findings once Section~\ref{sec:unc_results} is complete: which model families produce
+well-calibrated epistemic uncertainty maps, and what the ensemble analysis reveals
+about deployment readiness relative to the CPA MAE rankings.]}
+
+The dataset, model implementations, and evaluation code are released publicly to
+support reproducible benchmarking and future work on virtual histochemical staining.

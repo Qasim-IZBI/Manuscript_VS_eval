@@ -1,168 +1,207 @@
 % ============================================================
-%  Section 6.3: Results — Scaling Study
+%  Section 5.3: Results — Scaling Study
 %  H&E to Sirius Red Virtual Staining Paper
 % ============================================================
 
 \subsection{Results: Scaling Study}
 \label{sec:results_scaling}
 
-Results are reported for three model families (CycleGAN, UNIT, MUNIT) across all nine
-scaling configurations ($3~\text{sizes} \times 3~\text{data fractions}$).
-FID, LPIPS, and patch-based SSIM are computed once over the full test tile set and carry
-no per-sample variance estimate; CPA MAE is computed per WSI and reported as
-mean~$\pm$~std over $N{=}5$ held-out test WSIs.
-Figure~\ref{fig:results_overview} summarises all four metrics across the 27~configurations.
+Quantitative results for all 54 configurations are shown in
+Figure~\ref{fig:results_overview}, which plots all four metrics jointly across the
+full experiment.
+Each point corresponds to one configuration; colour encodes data fraction and marker
+shape encodes generator size.
+Four high-level patterns emerge: (i)~CPA MAE spans over an order of magnitude
+($0.008$--$0.171$) and is far more discriminative than the perceptual metrics, which
+saturate within a narrow band for well-behaved GAN configurations; (ii)~CycleDiffusion
+attains systematically lower Patch-SSIM ($0.200$--$0.293$) than GAN-based methods
+($0.298$--$0.349$), irrespective of scale; (iii)~two model families exhibit training
+instability under specific scaling conditions; and (iv)~perceptual metric rankings
+correlate only moderately with the CPA MAE ranking.
 
-\textcolor{red}{TODO: Figure~\ref{fig:results_overview} — four panels (FID, LPIPS,
-patch-SSIM, CPA MAE), x-axis = model family, scatter points coloured by model size and
-shaped by data fraction, with std bars from the 5 test WSIs for CPA MAE.}
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=\linewidth]{images/combined_metrics}
+  \caption{%
+    All four evaluation metrics across the 54 scaling configurations
+    ($6~\text{models} \times 3~\text{sizes} \times 3~\text{data fractions}$).
+    Colour encodes training data fraction (blue: 25\%, orange: 50\%, green: 100\%);
+    marker shape encodes generator size (circle: small, square: medium, triangle: large).
+    Large star markers indicate the best-performing model size at the 100\% data fraction
+    per model family, selected for ensemble uncertainty estimation in
+    Section~\ref{sec:uncertainty}.
+    Error bars on Patch-SSIM, LPIPS, and PSR-MAE denote $\pm$\,std over $N{=}5$ test
+    WSIs; FID is a set-level statistic with no per-sample variance.
+    Vertical axis directions: Patch-SSIM higher is better; LPIPS, FID, PSR-MAE lower
+    is better.%
+  }
+  \label{fig:results_overview}
+\end{figure*}
 
 % -------------------------------------------------------
-\subsubsection{Effect of Model Size}
 \label{sec:results_size}
 
-Referring to Figure~\ref{fig:results_overview}, we examine how each metric responds to
-increasing generator capacity within each model family.
+We first examine how all four metrics respond to changes in generator capacity,
+reporting each model family's nine configurations across the three data fractions.
 
 \paragraph{CycleGAN.}
-At 25\% and 50\% training data, FID and CPA MAE are relatively stable across model
-sizes (FID: 109.0–118.4 and 107.2–138.6 respectively; MAE: 0.045–0.053 and 0.055–0.063),
-with no consistent directional trend.
-At full data, the medium model achieves the lowest FID of any CycleGAN configuration
-(103.7) and the lowest CPA MAE overall ($0.008~{\pm}~0.007$, Spearman $\rho{=}1.0$,
-Pearson $r{=}0.997$).
-The large model at full data produces the highest CPA MAE of any configuration tested
-($0.085~{\pm}~0.032$), despite the small and medium models both performing well at the
-same data fraction.
-LPIPS ($0.0476$–$0.0480$) and patch-based SSIM ($0.00119$–$0.00133$) are
-effectively constant across all CycleGAN size configurations.
+Patch-SSIM ($0.312$--$0.342$) and LPIPS ($0.038$--$0.040$) are near-invariant across
+all nine CycleGAN configurations.
+FID ranges from $193.3$ to $245.4$ with no monotonic size trend.
+CPA MAE is the most size-sensitive metric: at the 100\% data fraction, the small,
+medium, and large generators yield $0.049 \pm 0.042$, $0.008 \pm 0.007$, and
+$0.085 \pm 0.032$ respectively.
+At reduced data fractions, no consistent size-dependent trend in CPA MAE is observed.
 
 \paragraph{UNIT.}
-FID decreases with model size at 25\% data (small: 183.7, medium: 179.6, large: 172.9)
-and the large model achieves the lowest FID at full data (170.8 vs.\ 190.0 for medium
-and 187.2 for small), giving a consistent directional trend across data fractions.
-CPA MAE also favours the large model at 25\% and 50\% data (large/small: $0.024~{\pm}~0.041$;
-large/medium: $0.023~{\pm}~0.030$), while at full data all three sizes produce
-comparable MAE values in the range $0.037$–$0.046$.
-LPIPS ($0.0532$–$0.0535$) and patch-based SSIM are flat across all UNIT size configurations.
+Patch-SSIM ($0.298$--$0.338$), LPIPS ($0.037$--$0.040$), and FID ($195$--$211$) show
+no systematic variation with generator size.
+At the 100\% data fraction, CPA MAE is $0.046 \pm 0.039$, $0.037 \pm 0.033$, and
+$0.043 \pm 0.047$ for small, medium, and large generators.
+Across all data fractions, CPA MAE ranges from $0.017$ to $0.050$ with no consistent
+advantage for any single size.
 
 \paragraph{MUNIT.}
-Neither FID nor CPA MAE shows a consistent directional response to model size for MUNIT.
-FID ranges from 163.7 to 210.0 with no monotonic trend within any data fraction.
-CPA MAE values lie in the range $0.039$–$0.059$ across all configurations, with no model
-size consistently outperforming the others across data fractions.
-LPIPS ($0.0536$–$0.0541$) and patch-based SSIM remain flat.
+All four metrics remain within narrow ranges across the full $3{\times}3$ grid:
+Patch-SSIM $0.305$--$0.331$, LPIPS $0.039$--$0.040$, FID $193$--$210$, and CPA MAE
+$0.040$--$0.059$.
+At the 100\% data fraction, CPA MAE is $0.051 \pm 0.023$, $0.043 \pm 0.014$, and
+$0.055 \pm 0.051$ for small, medium, and large generators respectively.
 
 \paragraph{DCLGAN.}
-\textcolor{red}{[TODO]}
+At the 100\% data fraction, all three sizes produce stable output: Patch-SSIM
+$0.322$--$0.349$, LPIPS $0.038$--$0.039$, FID $190$--$212$, and CPA MAE
+$0.028$--$0.042$.
+The large generator achieves the lowest FID of any configuration in the study
+($190.0$, CPA MAE $0.039 \pm 0.034$).
+At the 50\% and 25\% data fractions, the large generator produces collapsed output:
+Patch-SSIM $0.126$--$0.143$, LPIPS $0.046$--$0.049$, FID $327$--$363$, and CPA MAE
+$0.082$--$0.091$.
+Small and medium generators remain stable at all three data fractions.
 
 \paragraph{UVCGAN.}
-\textcolor{red}{[TODO]}
+The small generator is stable across all data fractions: Patch-SSIM $0.311$--$0.337$,
+LPIPS $0.038$--$0.039$, FID $208$--$253$, and CPA MAE $0.035$--$0.077$.
+Medium and large generators show substantially degraded performance: Patch-SSIM falls
+to $0.142$--$0.222$, FID rises to $286$--$395$, and CPA MAE reaches $0.063$--$0.118$.
+At the 100\% data fraction specifically, the medium and large generators yield CPA MAE
+of $0.118 \pm 0.053$ and $0.063 \pm 0.037$ alongside FID of $343.2$ and $286.5$.
 
 \paragraph{CycleDiffusion.}
-\textcolor{red}{[TODO]}
+CycleDiffusion produces consistently lower Patch-SSIM ($0.200$--$0.293$) and higher
+LPIPS ($0.041$--$0.048$) than all GAN-based families across all nine configurations.
+At the 100\% data fraction, CPA MAE is $0.051 \pm 0.029$, $0.082 \pm 0.071$, and
+$0.055 \pm 0.043$ for small, medium, and large generators.
+The large generator at 100\% data also shows elevated FID ($322.1$).
 
 \paragraph{Cross-model observation.}
-\textcolor{red}{[TODO]}
-The three model families respond differently to increases in generator capacity.
-UNIT shows the most consistent trend: FID improves with model size across data fractions.
-For CycleGAN, the effect of model size on CPA MAE is conditional on data fraction,
-with a strong divergence between medium and large models only apparent at full data.
-MUNIT shows no consistent response to model size on either metric.
+For the four families without training instability (CycleGAN, UNIT, MUNIT,
+CycleDiffusion), Patch-SSIM ($0.298$--$0.349$) and LPIPS ($0.037$--$0.048$) remain
+within a narrow band across generator sizes, while CPA MAE spans a considerably
+wider range ($0.008$--$0.087$) across the same configurations.
+
 
 % -------------------------------------------------------
-\subsubsection{Effect of Training Data Size}
 \label{sec:results_data}
 
-Referring again to Figure~\ref{fig:results_overview}, we examine how each metric responds
-to increasing training data fraction within each model family.
+We next examine the effect of training data fraction on all four metrics, with
+particular attention to the 100\% fraction from which one model size per family is
+selected for ensemble uncertainty estimation in Section~\ref{sec:uncertainty}.
 
 \paragraph{CycleGAN.}
-For the medium model, FID decreases from 138.6 at 50\% data to 103.7 at full data, the
-largest single-step FID improvement observed across all CycleGAN configurations.
-CPA MAE for the medium model drops sharply from $0.057$ at 50\% to $0.008$ at full data,
-while the small model MAE remains in the range $0.045$–$0.063$ across all data fractions
-with no clear trend.
-The large model shows the opposite pattern: MAE at full data ($0.085~{\pm}~0.032$) is
-substantially worse than at 25\% ($0.052~{\pm}~0.062$) or 50\% ($0.055~{\pm}~0.061$).
+Patch-SSIM, LPIPS, and FID show no consistent improvement with additional training
+data across any generator size.
+At the 100\% data fraction, the medium generator yields CPA MAE $0.008 \pm 0.007$,
+compared with $0.057 \pm 0.033$ at 50\% and $0.053 \pm 0.051$ at 25\%.
+For the small and large generators, CPA MAE shows no consistent trend with data
+fraction, ranging $0.045$--$0.063$ and $0.052$--$0.085$ respectively.
 
 \paragraph{UNIT.}
-FID shows no consistent improvement with additional training data for UNIT; values
-distribute in the range 170.4–190.0 with no directional trend within any model size.
-CPA MAE is lowest at 50\% data for both the small model (small/medium: $0.017~{\pm}~0.020$)
-and the large model (large/medium: $0.023~{\pm}~0.030$).
-At full data, MAE values for the small and large models are higher than at 50\%, while
-the medium model shows a modest improvement from 50\% ($0.047$) to full data ($0.037$).
-Additional training data beyond 50\% does not consistently reduce CPA MAE for UNIT.
+Patch-SSIM, LPIPS, and FID are stable across all data fractions for all three sizes.
+At the 100\% data fraction, CPA MAE is $0.046 \pm 0.039$, $0.037 \pm 0.033$, and
+$0.043 \pm 0.047$ for small, medium, and large generators.
+The small generator achieves a lower CPA MAE at 50\% data ($0.017 \pm 0.020$) than at
+100\%, and the large generator yields $0.023$--$0.024$ at 50\% and 25\% data.
 
 \paragraph{MUNIT.}
-FID increases with data fraction for MUNIT: the two highest FID values across all
-configurations are both at full data (small/large: 209.0; large/large: 210.0), compared
-to a minimum of 163.7 at 25\% data (medium/small).
-This represents a consistent degradation in distributional realism with additional
-training data, a pattern not observed in either CycleGAN or UNIT.
-CPA MAE remains within a narrow band ($0.041$–$0.059$) across all data fractions and
-model sizes, with no configuration benefiting consistently from more training data.
+Patch-SSIM, LPIPS, and FID remain stable across data fractions for all three sizes.
+At the 100\% data fraction, CPA MAE is $0.051 \pm 0.023$, $0.043 \pm 0.014$, and
+$0.055 \pm 0.051$ for small, medium, and large generators.
+The medium generator shows a monotonic decrease in CPA MAE from 25\% to 100\% data
+($0.059 \to 0.053 \to 0.043$); the small and large generators do not follow this
+pattern.
 
 \paragraph{DCLGAN.}
-\textcolor{red}{[TODO]}
+At the 100\% data fraction, all three generators are stable: Patch-SSIM $0.322$--$0.349$,
+LPIPS $0.038$--$0.039$, FID $190$--$212$, and CPA MAE $0.028$--$0.042$.
+At the 50\% data fraction, the large generator collapses (Patch-SSIM $0.126$, FID
+$326.9$, CPA MAE $0.082 \pm 0.061$), and at 25\% the collapse persists (Patch-SSIM
+$0.143$, FID $362.8$, CPA MAE $0.091 \pm 0.078$).
+Small and medium generators remain stable across all three data fractions, with CPA
+MAE ranging $0.019$--$0.049$.
 
 \paragraph{UVCGAN.}
-\textcolor{red}{[TODO]}
+At the 100\% data fraction, the small generator yields Patch-SSIM $0.311$, LPIPS
+$0.039$, FID $242.5$, and CPA MAE $0.035 \pm 0.021$.
+The medium generator is degraded at all data fractions, with its highest CPA MAE
+occurring at 100\% data ($0.118 \pm 0.053$, FID $343.2$).
+The large generator also remains degraded across data fractions (CPA MAE
+$0.063$--$0.095$, FID $286$--$395$).
 
 \paragraph{CycleDiffusion.}
-\textcolor{red}{[TODO]}
+At the 100\% data fraction, CPA MAE is $0.051 \pm 0.029$, $0.082 \pm 0.071$, and
+$0.055 \pm 0.043$ for small, medium, and large generators, with Patch-SSIM
+$0.217$--$0.270$ and FID $210$--$322$.
+The small generator's CPA MAE rises from $0.051$ at 100\% data to $0.171 \pm 0.045$
+at 25\%.
+The medium generator achieves its lowest CPA MAE at 25\% data ($0.035 \pm 0.017$)
+rather than at 100\% ($0.082 \pm 0.071$).
 
 \paragraph{Cross-model observation.}
-\textcolor{red}{[TODO]}
-The benefit of additional training data differs across model families.
-CycleGAN shows a strong but model-size-dependent improvement at full data, concentrated
-in the medium model.
-UNIT reaches its best CPA MAE at 50\% data and does not improve further with the full
-training set.
-MUNIT is the only family where FID degrades as training data increases, while CPA MAE
-remains insensitive to data fraction throughout.
+At the 100\% data fraction, CPA MAE for stable configurations ranges from $0.008$
+(CycleGAN\,M) to $0.085$ (CycleGAN\,L), while Patch-SSIM and LPIPS remain within a
+narrow band.
+Moving from 50\% to 100\% data does not produce a consistent CPA MAE improvement
+across model families or generator sizes.
+
 
 % -------------------------------------------------------
-\subsubsection{Joint Scaling Behaviour}
 \label{sec:results_joint}
 
-\textcolor{red}{TODO: Figure — heatmaps (model size $\times$ data fraction) per model
-family, one heatmap per metric (FID, CPA MAE).}
+\paragraph{Joint scaling behaviour.}
+Figure~\ref{fig:results_overview} shows per-model results across the full
+size~$\times$~data-fraction grid.
+CycleGAN and UNIT each display a single low-MAE cell (medium/100\% and small/50\%
+respectively), rather than a monotonically improving surface across the grid.
+MUNIT shows the flattest landscape, with all metrics varying within a narrow range
+across all nine cells.
+DCLGAN's grid contains a sharp discontinuity at the large/50\% and large/25\% cells,
+where FID and CPA MAE values are far outside the range of the remaining seven cells.
+UVCGAN presents a two-region structure: the three small-size cells have substantially
+lower FID and CPA MAE than the six medium and large-size cells.
+For CycleDiffusion, the small/25\% and small/50\% cells are outliers with CPA MAE
+exceeding $0.15$.
 
-\textcolor{red}{[TODO]}
-The joint view of both scaling axes reveals that capacity and data fraction interact
-differently across model families.
-For CycleGAN, the best configuration (medium/full data) is an isolated point in the
-$3{\times}3$ grid: neither increasing model size nor increasing data fraction alone
-predicts performance, and the interaction between the two axes is required to identify
-it.
-For UNIT, model capacity is the dominant axis: the large model achieves lower FID across
-all data fractions, and the data fraction axis provides limited additional signal.
-For MUNIT, neither axis produces a consistent effect on CPA MAE, and the data axis
-produces a counterintuitive FID increase.
 
 % -------------------------------------------------------
-\subsubsection{Metric Observations}
 \label{sec:results_metric_agreement}
 
-\textcolor{red}{TODO: Spearman rank correlation table between FID/LPIPS/SSIM rankings
-and CPA MAE ranking across all 27 configurations.}
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.85\linewidth]{images/ranking_correlation}
+  \caption{%
+    Spearman rank correlation matrix between the four metric orderings computed over
+    all 54 configurations (rank~1 = best per metric; $***$ $p < 0.001$).%
+  }
+  \label{fig:ranking_correlation}
+\end{figure}
 
-\textcolor{red}{[TODO]}
-LPIPS and patch-based SSIM show negligible variation across all 27~configurations
-(LPIPS: $0.0476$–$0.0541$; patch-SSIM: below $0.002$ throughout), indicating that
-these metrics do not distinguish between model families or scaling configurations at the
-ranges explored here.
-FID provides separation at the level of model families — CycleGAN configurations
-(103.7–138.6) score consistently lower than UNIT (170.4–190.0) and MUNIT
-(163.7–210.0) — reflecting distributional differences in the generated stain
-appearance across architectures.
-CPA MAE, as the primary benchmark, captures the scaling-dependent performance
-differences reported in Sections~\ref{sec:results_size} and~\ref{sec:results_data}:
-it distinguishes configurations within a model family and across data fractions in
-ways that the distributional measures do not resolve.
-For instance, MUNIT achieves the single lowest per-configuration FID of any family
-(medium/small: 163.7), while its best CPA MAE ($0.040~{\pm}~0.030$) remains
-substantially above the best CycleGAN configuration ($0.008~{\pm}~0.007$),
-underscoring that FID and CPA MAE each capture a distinct aspect of model behaviour.
+\paragraph{Metric agreement.}
+Figure~\ref{fig:ranking_correlation} shows Spearman rank correlations between the four
+metric orderings over all 54 configurations (rank~1 assigned to the best-performing
+configuration per metric; all pairs significant at $p{<}0.001$).
+Patch-SSIM and LPIPS rankings agree most strongly with each other ($\rho{=}0.82$).
+FID shows weaker agreement with both Patch-SSIM ($\rho{=}0.60$) and LPIPS
+($\rho{=}0.49$).
+CPA MAE shows only moderate agreement with all three perceptual metrics:
+$\rho{=}0.63$ with Patch-SSIM, $\rho{=}0.64$ with LPIPS, and $\rho{=}0.55$ with FID.
