@@ -7,18 +7,15 @@
 \label{sec:training_inference}
 
 \paragraph{Training Protocol.}
-All models are trained with the Adam optimiser~\cite{kingma2015adam} using a learning
-rate of $2{\times}10^{-4}$, $\beta_1{=}0.5$, and $\beta_2{=}0.999$, with a batch size
-of~1.
-Training is \textit{step-based} rather than epoch-based: each optimiser update
-constitutes one step, ensuring a fair comparison across data-fraction configurations
-that differ in the number of available tiles.
-CycleGAN, UNIT, MUNIT, and DCLGAN are each trained for $750{,}000$~steps.
-CycleDiffusion is trained for the same number of steps, with both DDPMs optimised
-simultaneously in a single run and no fine-tuning phase.
-UVCGAN follows a two-stage schedule: $250{,}000$~steps of masked image
-pretraining~(Stage~1) followed by $500{,}000$~steps of cycle-consistent
-finetuning~(Stage~2), with Stage~2 initialised from the Stage~1 checkpoint.
+All models are trained with the Adam optimiser~\cite{kingma2015adam} (full hyperparameters
+in Supplementary Sec.~8), using step-based training so that each optimiser update
+constitutes one step, ensuring a fair comparison across data-fraction configurations that
+differ in tile count.
+CycleGAN, UNIT, MUNIT, and DCLGAN are each trained for $750{,}000$~steps; CycleDiffusion
+for the same number of steps with both DDPMs optimised simultaneously.
+UVCGAN follows a two-stage schedule: $250{,}000$~steps of masked-image pretraining
+followed by $500{,}000$~steps of cycle-consistent finetuning initialised from the
+Stage~1 checkpoint.
 
 \paragraph{Scaling Study Design.}
 To systematically characterise how model capacity and data volume jointly affect

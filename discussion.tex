@@ -6,101 +6,61 @@
 \section{Discussion}
 \label{sec:discussion}
 
-This study has addressed two complementary questions: which unsupervised I2I
-configuration yields the most faithful H\&E~$\to$~SR virtual stain for quantitative
-collagen assessment, and whether deep ensemble uncertainty can reliably flag regions
-of low translational confidence without access to pixel-level ground truth.
-The scaling study across 54 configurations and the subsequent ensemble analysis
-together reveal that answering the first question requires task-based evaluation,
+The scaling study across 54 configurations and the subsequent ensemble analysis reveal
 that the optimal scaling point is model-family-specific and non-trivially predictable
-from perceptual metrics alone, and that the second question is contingent on
+from perceptual metrics alone, and that uncertainty calibration is contingent on
 architectural properties that differ substantially across families.
 
 \paragraph{Perceptual metric saturation and the indispensability of task-based evaluation.}
-The most consequential methodological finding is that perceptual and distributional
-metrics saturate within a narrow band across the majority of well-behaved GAN
-configurations: Patch-SSIM spans only $0.30$--$0.35$, LPIPS $0.037$--$0.040$, and FID
-$190$--$215$ across the corresponding stable configurations.
-Spearman rank correlations between these perceptual orderings and the CPA MAE ordering
-are only $\rho{=}0.63$, $0.64$, and $0.55$ respectively.
-The practical consequence is direct: a practitioner selecting model configurations
-based on Patch-SSIM or LPIPS alone would have no reliable means to identify the best
-configuration for collagen quantification.
-As a concrete example, CycleGAN\,M/100\% and CycleGAN\,L/100\% produce nearly
-identical Patch-SSIM ($0.334$ vs.\ $0.342$) and LPIPS ($0.038$), yet their CPA MAE
-values differ by more than an order of magnitude ($0.008$ vs.\ $0.085$), a discrepancy
-that would translate to a systematic bias in fibrosis staging.
-Patch-SSIM and LPIPS rankings are therefore only moderately predictive of CPA MAE
-rankings, and optimising for either perceptual metric is a necessary but not sufficient
-condition for low CPA MAE.
-These findings reinforce the case for task-based evaluation as a non-negotiable
-component of any virtual staining benchmark~\cite{trustworthy_i2i2025}.
+Perceptual metrics saturate within a narrow band across well-behaved GAN configurations
+(Patch-SSIM $0.30$--$0.35$, LPIPS $0.037$--$0.040$, FID $190$--$215$), with Spearman
+rank correlations against CPA~MAE of only $\rho{=}0.63$, $0.64$, and $0.55$.
+As a concrete illustration, CycleGAN\,M/100\% and CycleGAN\,L/100\% are nearly
+indistinguishable by Patch-SSIM ($0.334$ vs.\ $0.342$) yet their CPA~MAE differs by
+more than an order of magnitude ($0.008$ vs.\ $0.085$) — a discrepancy that would
+translate to systematic fibrosis staging bias.
+These findings confirm that task-based evaluation is non-negotiable for virtual staining
+model selection~\cite{trustworthy_i2i2025}.
 
 \paragraph{Practical implications of scaling: minimum viable configurations.}
-The CPA MAE landscape across the $3{\times}3$ scaling grids is non-smooth: isolated
-low-error cells appear within otherwise moderate surfaces rather than monotonically
-improving with scale.
-This pattern reflects sensitivity to how the specific training slides in each
-data-fraction subset sample the fibrosis distribution, amplified by the small held-out
-test set ($N{=}5$ WSIs) which gives CPA MAE estimates high variance.
-For UNIT and CycleGAN specifically, some generator sizes achieve lower CPA MAE at
-reduced data fractions than at 100\%, a counter-intuitive result that is most plausibly
-explained by the high variance of CPA MAE over five test WSIs rather than a genuine
-regularisation benefit of withheld data.
-Despite this, some practically useful generalisations hold across families.
-When the full training set is available, medium-capacity generators are the most
-reliable choice: CycleGAN\,M, UNIT\,M, and MUNIT\,M all achieve their best CPA MAE at
-100\% data.
-MUNIT is the most stable family overall, with all nine configurations spanning a
-narrow CPA MAE range of $0.040$--$0.059$ and no generator size yielding a systematic
-advantage; this insensitivity to both capacity and data scaling is consistent with
-AdaIN-based style disentanglement acting as an implicit regulariser on the generator.
-DCLGAN\,S is stable and competitive at all three data fractions (CPA MAE
-$0.028$--$0.049$), making it a reliable choice even when training data is limited.
-CycleGAN and UNIT show non-monotonic data-fraction dependence that makes their
-behaviour at reduced data fractions harder to predict, and are therefore not
-recommended when training data is scarce.
+The CPA~MAE landscape is non-smooth: isolated low-error cells appear within otherwise
+moderate surfaces rather than monotonically improving with scale, partly due to the high
+variance of CPA~MAE over $N{=}5$ test WSIs.
+When the full training set is available, medium-capacity generators are the most reliable
+choice across families.
+MUNIT is the most stable family overall (CPA~MAE $0.040$--$0.059$ across all nine
+conditions), consistent with AdaIN-based style disentanglement acting as an implicit
+regulariser.
+DCLGAN\,S is competitive across all data fractions (CPA~MAE $0.028$--$0.049$), making
+it a sound choice under limited data.
+CycleGAN and UNIT show non-monotonic data-fraction dependence and are less reliable when
+training data is scarce.
 
 \paragraph{Training instability as a deployment risk.}
-Two families exhibit catastrophic failure modes under specific scaling conditions, and
-both failures are invisible until they occur.
-DCLGAN's dual patch-level InfoNCE contrastive objective requires a sufficient density
-of training patches to populate the contrastive memory buffer at high generator
-capacity: reducing the data fraction to 50\% or 25\% causes the large-capacity variant
-to collapse (FID $327$--$363$, Patch-SSIM $0.13$--$0.14$) while leaving smaller
-variants unaffected.
-UVCGAN's two-stage schedule, masked-image pretraining followed by cycle-consistent
-fine-tuning~\cite{torbunov2022uvcgan}, does not scale gracefully beyond the small
-generator in this dataset regime: medium and large variants fail across most data
-fractions, achieving FID as high as $395$ and Patch-SSIM as low as $0.14$.
-The most practically important observation is that both failure modes manifest as
-sharp discontinuities in the scaling grid rather than gradual degradation, meaning
-that an evaluation conducted at a single (model size, data fraction) point can give a
-misleadingly optimistic or pessimistic impression of a family's capabilities.
-Monitoring FID and Patch-SSIM jointly throughout training, rather than relying on
-training loss alone, is essential for detecting these failures early.
+DCLGAN and UVCGAN each exhibit catastrophic failure modes that are invisible until they
+occur.
+DCLGAN's large generator collapses at reduced data fractions (FID $327$--$363$,
+Patch-SSIM $0.13$--$0.14$) while smaller variants remain stable, reflecting insufficient
+patch density for the dual InfoNCE contrastive buffer.
+UVCGAN's two-stage schedule~\cite{torbunov2022uvcgan} does not scale beyond the small
+generator in this data regime; medium and large variants fail across most data fractions
+(FID up to $395$, Patch-SSIM as low as $0.14$).
+Both failures manifest as sharp discontinuities rather than gradual degradation, so
+monitoring FID and Patch-SSIM throughout training is essential for early detection.
 
 \paragraph{CycleDiffusion as a distinct generative paradigm.}
-CycleDiffusion's behaviour diverges from GAN-based families along several dimensions
-that are attributable to its shared DDPM noise space~\cite{wu2022cyclediffusion} rather
-than to failure.
-Its consistently lower Patch-SSIM ($0.200$--$0.293$ vs.\ $0.298$--$0.349$ for stable
-GANs) and higher LPIPS reflect the different inductive bias of DDPM generation: the
-DDIM inversion bottleneck enforces domain-invariant structure at the cost of per-tile
-pixel sharpness relative to an adversarially trained generator.
-The small generator's extreme sensitivity to data fraction (CPA MAE rising from
-$0.051$ at 100\% data to $0.171$ at 25\%) reflects the dependence of DDIM inversion
-on stable noise representations that require well-covered training distributions to
-learn; insufficient coverage causes the inversion to map test tiles to out-of-distribution
-noise codes, producing unreliable translations even when the forward DDPM loss has
-converged.
-The medium generator achieves its lowest CPA MAE at the 25\% data fraction ($0.035$)
-rather than at 100\% ($0.082$); this counter-intuitive outcome is consistent with
-limited training-set diversity acting as a regulariser that prevents the model from
-overfitting stain-specific colour or texture artefacts in individual training slides.
-When the full training set is available, the small generator yields the lowest CPA
-MAE for CycleDiffusion ($0.051$) and is therefore selected for ensemble uncertainty
-estimation; the medium generator is a more capable option at reduced data fractions.
+CycleDiffusion's consistently lower Patch-SSIM ($0.200$--$0.293$ vs.\ $0.298$--$0.349$
+for stable GANs) and higher LPIPS reflect the DDIM inversion inductive bias rather
+than failure: the noise-space bottleneck enforces domain-invariant structure at the cost
+of per-tile pixel sharpness.
+The small generator's CPA~MAE rises sharply with data reduction ($0.051$ at 100\%
+$\to$ $0.171$ at 25\%), consistent with DDIM inversion requiring well-covered training
+distributions to produce stable noise representations.
+Counter-intuitively, the medium generator achieves its lowest CPA~MAE at 25\% data
+($0.035$ vs.\ $0.082$ at 100\%), suggesting limited diversity acts as a regulariser
+against slide-specific colour artefacts.
+At 100\% data, the small generator (CPA~MAE $0.051$) is selected for ensemble
+uncertainty estimation; the medium generator is preferable under data reduction.
 
 \paragraph{Ensemble uncertainty and deployment readiness.}
 \textcolor{red}{[TODO: write once uncertainty results (Section~\ref{sec:unc_results})
@@ -115,59 +75,14 @@ translation errors) and the irreducible noise floor from cross-section biologica
 variation between the H\&E and SR sections.]}
 
 \paragraph{Limitations.}
-Several limitations bound the generalisability and precision of the conclusions.
-
-The dataset comprises a single tissue type~(mouse liver), a single disease model
-(bile-duct ligation), and a single staining laboratory; generalisability to human liver
-tissue, other fibrosis aetiologies, or slides acquired with different scanners or
-staining protocols is unknown and requires multi-centre validation.
-
-The held-out test set consists of $N{=}5$ WSIs, providing limited statistical power for
-CPA MAE estimation: configurations with a headline MAE of $0.008$ carry a standard
-deviation of $0.007$, making the apparent ordering between the very best configurations
-sensitive to the specific test slides included.
-A formal sample-size analysis was not conducted prior to the study; future benchmarks
-in this setting should target at least 15--20 test WSIs for stable CPA MAE estimation.
-
-H\&E and Sirius Red sections are cut from the same tissue block but are physically
-distinct sections, introducing irremovable spatial misalignment from tissue deformation.
-This precludes pixel-level paired ground truth and means that Patch-SSIM and LPIPS
-are computed on loosely registered tile pairs, inflating apparent perceptual error
-for translations that are structurally correct but misaligned.
-
-The uncertainty framework estimates epistemic uncertainty only.
-Aleatoric uncertainty arising from staining variability, section thickness differences,
-and biological heterogeneity between adjacent sections is not modelled, meaning that
-the uncertainty maps cannot distinguish between regions that are genuinely ambiguous
-in the H\&E input and regions that are consistently misstained across ensemble members.
-
-Finally, ten ensemble members may be insufficient to resolve uncertainty variance for
-large or highly non-convex models; the ensemble-size sensitivity was not ablated in
-this study.
-
-\paragraph{Future directions.}
-The most immediate extension is multi-centre validation on human liver tissue with
-standardised fibrosis stage annotations~(Ishak or METAVIR) from multiple institutions
-and scanners, which would establish whether the scaling and stability findings
-generalise beyond the current single-lab mouse dataset.
-
-Registration-assisted evaluation, using deformable image registration to align
-adjacent H\&E and SR sections at the patch level, would replace the loose-registration
-compromise currently adopted for Patch-SSIM and LPIPS and enable more direct
-per-tile paired ground truth for calibration.
-
-Decomposing predictive uncertainty into epistemic and aleatoric components,
-for example via a latent variable model layered over the ensemble~\cite{kendall2017uncertainties},
-would allow pathologists to distinguish regions that require more training data from
-regions that are inherently ambiguous due to staining variability.
-
-Replacing convolutional generator backbones with pre-trained histopathology foundation
-models~(e.g., UNI, CONCH) could mitigate data-fraction sensitivity by providing
-a strong morphological prior, which may be particularly beneficial for CycleDiffusion
-and UVCGAN where large-capacity generators currently underperform in limited-data
-regimes.
-
-Finally, extending the benchmark to include additional histochemical stains used in
-liver fibrosis assessment, such as Masson's trichrome and periodic acid--Schiff, would
-establish whether the relative model rankings reported here are stain-specific or
-reflect more general H\&E translation characteristics.
+The dataset covers a single tissue type, disease model, and staining laboratory;
+multi-centre validation on human liver tissue is required to establish generalisability.
+The held-out test set of $N{=}5$ WSIs provides limited statistical power: configurations
+with CPA~MAE $0.008$ carry a standard deviation of $0.007$, so fine-grained rankings
+among the best configurations should be interpreted with caution.
+Patch-SSIM and LPIPS are computed on loosely registered adjacent-section pairs,
+inflating apparent perceptual error for structurally correct but misaligned translations.
+The uncertainty framework captures epistemic uncertainty only; aleatoric uncertainty
+from staining variability and biological heterogeneity between sections is not modelled.
+Finally, ensemble-size sensitivity was not ablated, and ten members may be insufficient
+for large or highly non-convex generators.

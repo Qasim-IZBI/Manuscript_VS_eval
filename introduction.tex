@@ -61,68 +61,42 @@ histochemical stain translation in liver tissue, and it remains unclear which mo
 within the increasingly diverse family of unpaired image-to-image~(I2I) approaches
 performs best for this task.
 
-Since the introduction of cycle-consistent adversarial networks~(CycleGAN;~\cite{zhu2017unpaired}),
-the unpaired I2I field has diversified considerably.
-UNIT~\cite{liu2017unsupervised} couples domain translation via a shared VAE latent space;
-MUNIT~\cite{huang2018multimodal} disentangles content from style to enable multimodal
-generation; DCLGAN~\cite{han2021dual} adds a dual contrastive objective to improve
-patch-level correspondence; UVCGAN~\cite{torbunov2022uvcgan} replaces the convolutional
-generator with a UNet--Vision Transformer hybrid; and CycleDiffusion~\cite{wu2022cyclediffusion} enforces cycle consistency through a
-shared diffusion noise space via DDIM inversion and sampling.
-These architectures differ substantially in capacity, inductive bias, and data requirements,
-yet comparative studies have focused almost exclusively on H\&E~$\to$~IHC or skin tissue
-staining~\cite{visgab2025, adib2024dual}, leaving their relative suitability for
-histochemical stain translation in liver tissue uncharacterised.
+Comparative studies have focused almost exclusively on H\&E~$\to$~IHC or skin tissue
+staining~\cite{visgab2025, adib2024dual}, leaving the relative suitability of the diverse
+family of unpaired I2I approaches for histochemical stain translation in liver tissue
+uncharacterised.
 Moreover, existing benchmarks typically fix a single model scale and data budget,
 providing no insight into how model capacity and training set size jointly determine
 translation quality, a practically important question given that liver biopsy cohorts
 vary enormously in size across clinical centres.
 
-Reliable deployment of virtual staining also requires an understanding of predictive
-confidence.
-Epistemic uncertainty, the component of model uncertainty reducible with more
-data, can be estimated via Monte Carlo~(MC) dropout or deep
-ensembles~\cite{gal2016dropout, lakshminarayanan2017simple}, and both techniques have been
-applied to H\&E-based classification and SR collagen segmentation~\cite{uncertainty_informed_hist2022, liverfibrosis2025}.
-Yet uncertainty quantification has not been applied to unpaired I2I translation for
-histological staining: existing uncertainty-aware cycle-consistency work targets MRI
-modality translation~\cite{ugac2021}, and a recent calibration study found standard
-MC~dropout poorly suited to unpaired generation~\cite{trustworthy_i2i2025}, motivating
-the use of deep ensembles.
-Without spatially resolved uncertainty maps, a pathologist has no means to identify
-which regions of a virtually stained slide should be treated with caution, a critical
-gap for clinical adoption.
+Reliable deployment also requires spatially resolved predictive confidence.
+Epistemic uncertainty can be estimated via MC~dropout or deep
+ensembles~\cite{gal2016dropout, lakshminarayanan2017simple}, both applied to H\&E
+classification and SR collagen segmentation~\cite{uncertainty_informed_hist2022,
+liverfibrosis2025}, yet neither approach has been applied to unpaired I2I histological
+stain translation. A recent calibration study found MC~dropout poorly suited to unpaired
+generation~\cite{trustworthy_i2i2025}, motivating deep ensembles as the more reliable
+estimator for this setting.
 
-To address these open questions, this paper makes four contributions.
-
-First, we introduce and openly publish a whole-slide image dataset of mouse liver tissue
-sections from a bile-duct ligation~(BDL) model of cholestatic liver disease~\cite{ghallab2025asbt},
-comprising paired H\&E and Sirius Red~(SR) stains, providing the first dedicated resource
-for unsupervised H\&E~$\to$~SR translation research in mouse liver tissue.
-
-Building on this dataset, we conduct a systematic scaling study in which CycleGAN, UNIT,
-MUNIT, DCLGAN, UVCGAN, and CycleDiffusion are each trained at three generator capacities
-(${\sim}10$M, ${\sim}50$M, and ${\sim}100$M parameters) and on three data fractions
-(25\%, 50\%, and 100\% of the training tiles), yielding 54 experimental configurations.
-This design directly characterises how model capacity and data volume jointly govern
-stain translation quality, an aspect not addressed by prior benchmarks.
-
-To evaluate all 54 configurations rigorously, we combine perceptual and task-based
-measures. Because adjacent-section pairs are only loosely registered, we report
-patch-based SSIM alongside FID and LPIPS as distributional and perceptual measures.
-We further apply a collagen segmentation model to both real and virtual SR images and
-compute the mean absolute error~(MAE) of paired collagen proportionate area~(CPA)
-values, providing a biologically grounded criterion that exploits the paired structure
-of our dataset.
-
-Finally, from the top-performing configuration per model family we train deep ensembles
-of ten independently initialised models and compute spatially resolved epistemic
-uncertainty maps. To our knowledge, this constitutes the first systematic uncertainty
-analysis for unpaired virtual histological staining, and reveals how predictive
-confidence correlates with target-stain segmentation fidelity across model families.
-Together, these contributions establish a reproducible framework, including an open
-dataset and public benchmark, for future work on virtual histochemical staining and
-uncertainty-aware virtual histopathology.
+To address these open questions, this paper makes four contributions:
+\begin{enumerate}
+  \item \textbf{Open dataset.} We introduce a whole-slide image dataset of paired H\&E
+    and Sirius Red sections from a mouse bile-duct ligation~(BDL) model of cholestatic
+    liver disease~\cite{ghallab2025asbt}, the first dedicated resource for unsupervised
+    H\&E~$\to$~SR translation in mouse liver tissue.
+  \item \textbf{Scaling study.} CycleGAN, UNIT, MUNIT, DCLGAN, UVCGAN, and
+    CycleDiffusion are each trained at three generator capacities (${\sim}10$M,
+    ${\sim}50$M, ${\sim}100$M parameters) and three data fractions (25\%, 50\%, 100\%),
+    yielding 54 independently evaluated configurations.
+  \item \textbf{Task-based evaluation.} We apply a frozen collagen segmentation model to
+    both real and virtual SR images and report CPA~MAE as the primary biologically
+    grounded benchmark, supplemented by FID, LPIPS, and patch-SSIM.
+  \item \textbf{Uncertainty analysis.} Deep ensembles of ten independently initialised
+    models yield spatially resolved epistemic uncertainty maps for the best configuration
+    per family, constituting the first systematic uncertainty analysis for unpaired
+    virtual histological staining.
+\end{enumerate}
 
 
 % ============================================================

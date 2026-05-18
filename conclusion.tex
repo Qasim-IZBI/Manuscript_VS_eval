@@ -6,29 +6,16 @@
 \section{Conclusion}
 \label{sec:conclusion}
 
-Obtaining a Sirius Red stain for hepatic fibrosis assessment requires a separate tissue
-section, consuming limited biopsy material and introducing spatial misalignment between
-staining layers.
-Virtual staining via unsupervised image-to-image translation offers a practical
-alternative, yet no systematic benchmark had compared competing architectures for
-H\&E~$\to$~SR translation or characterised how model capacity and training data volume
-jointly affect translation quality in this setting.
-
-We introduced an open whole-slide image dataset of paired H\&E and Sirius Red sections
-from a mouse bile-duct ligation model of cholestatic liver disease~\cite{ghallab2025asbt},
-providing the first dedicated resource for this translation task.
-Building on this dataset, we conducted a full-factorial scaling study across six
-unsupervised I2I architectures (CycleGAN, UNIT, MUNIT, DCLGAN, UVCGAN, and
-CycleDiffusion), three generator capacities, and three training data fractions, yielding
-54 independently evaluated configurations.
-We evaluated all configurations with a combination of perceptual metrics (Patch-SSIM,
-LPIPS, FID) and a task-based collagen proportionate area MAE, the latter exploiting the
-paired tissue-block structure of the dataset to provide a biologically grounded
-benchmark.
-Finally, we trained deep ensembles of ten independently initialised models for the
-best-performing configuration per family and constructed spatially resolved epistemic
-uncertainty maps, constituting the first uncertainty analysis for unpaired virtual
-histological staining.
+We introduced an open dataset of paired H\&E and Sirius Red WSIs from a mouse
+bile-duct ligation model~\cite{ghallab2025asbt} and conducted a full-factorial scaling
+study across six unsupervised I2I architectures, three generator capacities, and three
+training data fractions, yielding 54 independently evaluated configurations.
+All configurations are assessed with perceptual metrics (Patch-SSIM, LPIPS, FID) and a
+task-based CPA~MAE that exploits the paired tissue-block structure to provide a
+biologically grounded benchmark.
+Deep ensembles of ten models per best-performing family configuration yield spatially
+resolved epistemic uncertainty maps, constituting the first uncertainty analysis for
+unpaired virtual histological staining.
 
 The scaling study reveals that perceptual metrics saturate within a narrow band across
 the majority of well-behaved configurations and correlate only moderately with CPA MAE

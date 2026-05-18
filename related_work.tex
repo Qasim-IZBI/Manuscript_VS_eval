@@ -22,58 +22,28 @@ motivating the shift towards unsupervised, unpaired learning
 frameworks~\cite{aatresh2024virtual, chen2025challenges}.
 
 \paragraph{Unsupervised Image-to-Image Translation.}
-Cycle-consistent adversarial networks~(CycleGAN;~\cite{zhu2017unpaired}) established the
-dominant paradigm for unpaired stain translation by training two generators with a
-cycle-consistency loss that enforces invertibility without pixel-level supervision.
-UNIT~\cite{liu2017unsupervised} extended this idea with a shared VAE bottleneck,
-encouraging both domains to occupy a common latent space and enabling more coherent
-cross-domain mappings.
-MUNIT~\cite{huang2018multimodal} introduced a content--style disentanglement, separating
-domain-invariant spatial structure from domain-specific appearance via Adaptive Instance
-Normalisation, enabling multimodal generation from a single source image.
-DCLGAN~\cite{han2021dual} augmented the CycleGAN framework with a dual contrastive
-objective that maximises mutual information between corresponding patches in both
-translation directions, improving embedding quality without increasing generator
-complexity.
-UVCGAN~\cite{torbunov2022uvcgan} revisited cycle-consistent training with a
-UNet--Vision Transformer hybrid generator and self-supervised masked image pretraining,
-achieving stronger preservation of long-range structural correlations.
-More recently, diffusion models have been applied to this problem.
-Wu and De la Torre~\cite{wu2022cyclediffusion} proposed CycleDiffusion, which enforces
-cycle consistency through a shared diffusion noise space: a source image is
-deterministically encoded to a latent noise vector via DDIM inversion using a
-source-domain DDPM, then decoded into the target domain by a separately trained
-target-domain DDPM, with cycle consistency recovered by requiring that the re-inverted
-translation reconstructs the original source.
+CycleGAN~\cite{zhu2017unpaired} established the dominant paradigm for unpaired translation
+via cycle-consistent adversarial training.
+Subsequent methods diversified the framework: UNIT~\cite{liu2017unsupervised} couples
+domains through a shared VAE bottleneck; MUNIT~\cite{huang2018multimodal} disentangles
+content from style via AdaIN for multimodal generation; DCLGAN~\cite{han2021dual} adds a
+dual contrastive patch objective; and UVCGAN~\cite{torbunov2022uvcgan} replaces the ResNet
+generator with a UNet--ViT hybrid augmented by masked-image pretraining.
+CycleDiffusion~\cite{wu2022cyclediffusion} departs from the GAN paradigm by enforcing
+cycle consistency through a shared diffusion noise space, encoding source images via DDIM
+inversion and decoding into the target domain via DDIM sampling.
 
 \paragraph{Applications to Histopathology Stain Translation.}
-These architectures have been adopted for a growing range of histopathological stain
-conversion tasks.
-CycleGAN remains the most widely deployed backbone: Liu~\etal~\cite{liu2021virtual}
-reported the first virtual Ki-67 IHC staining from H\&E in breast cancer, incorporating
-a pathological representation network to penalise deviations in tumour-cell spatial
-predictions between the forward and backward generators.
-MVFStain~\cite{chen2022mvfstain} drew on MUNIT's style--content separation to train a
-single network producing nine IHC and functional stains from H\&E across lung and breast
-tissue.
-In liver histopathology, an early large-scale validation study~\cite{kieffer2020largescale}
-% [TBC]: verify first author of the Modern Pathology 2020 NASH trichrome paper
-demonstrated that an unsupervised GAN could translate H\&E to Masson's trichrome on
-$n{=}574$ NASH whole-slide images~(WSIs), with pathologists unable to distinguish virtual
-from chemically stained slides in a Turing test.
-A subsequent prior-guided GAN~(PG-GAN;~\cite{li2023unpaired})
-% [TBC]: verify first author of the Medical Image Analysis 2023 PG-GAN paper
-embedded pathology-feature constraints directly into the generator for
-H\&E\,$\to$\,trichrome translation on liver biopsy WSIs, achieving a Spearman
-correlation of $\rho{=}0.82$ between virtual and real stain fibrosis scores.
-DCLGAN was applied to a bespoke virtual staining task by Adib~\etal~\cite{adib2024dual},
-translating autofluorescence images of unstained skin tissue to H\&E with 90.2\%
-diagnostic concordance among dermatopathologists.
-UVCGAN has been included as a strong unpaired baseline in multi-domain staining studies,
-though recent comparisons for H\&E\,$\to$\,fibre-stain translation\~\cite{vifit2025} found
-it struggled to generate valid fibre texture.
-Despite these advances, no study to date has directly compared these six model families
-on unpaired H\&E\,$\to$\,histochemical stain translation in mouse liver tissue.
+In liver histopathology specifically, an unsupervised GAN validated on $n{=}574$ NASH
+WSIs~\cite{kieffer2020largescale} achieved a Turing-test pass rate among pathologists for
+H\&E~$\to$~trichrome translation, and a prior-guided GAN~\cite{li2023unpaired} reached a
+Spearman correlation of $\rho{=}0.82$ between virtual and real fibrosis scores for the
+same task.
+Recent benchmarks covering a broader set of models and stains~\cite{visgab2025,
+staindiffuser2024, klockner2025he} consistently find that quantitative rankings disagree
+with pathologist assessments, underscoring the need for task-based criteria.
+Despite these advances, no study has directly compared the six model families evaluated
+here on unpaired H\&E~$\to$~histochemical stain translation in mouse liver tissue.
 
 \paragraph{Evaluation Frameworks for Virtual Staining.}
 Evaluating virtual staining models poses unique challenges.
@@ -97,30 +67,15 @@ from a bile-duct ligation model of cholestatic liver disease~\cite{ghallab2025as
 assessing all six models with CPA MAE as the primary task-based benchmark,
 complemented by perceptual and distributional measures.
 
-A growing body of work argues that image quality metrics alone are insufficient and
-advocates for \textit{task-based evaluation}, in which downstream clinical tasks are
-applied to virtually generated images to test whether diagnostically relevant content
-is faithfully reproduced.
-This paradigm has been applied in several staining contexts.
-In renal histopathology, a recent study used CycleGAN-based H\&E\,$\to$\,PAS virtual
-staining as a prerequisite for glomerular segmentation across multiple
-centres~\cite{renal_seg2025}: segmentation models trained on real PAS slides were
-applied to virtually stained test images, and the resulting glomerular detection
-performance served as the primary quality criterion.
-In the IHC domain, task-based evaluation has been formalised for HER2 scoring:
-virtual H\&E\,$\to$\,HER2 IHC images were assessed not by pixel similarity but by
-whether a downstream HER2 classifier produced concordant scores with those obtained on
-real IHC~\cite{her2task2024}.
-For collagen quantification specifically, deep learning models have been developed to
-segment positive Sirius Red areas in liver WSIs and score fibrosis severity~\cite{sirius_fibrosis2024},
-and U-Net-based collagen segmentation on Sirius Red achieves Dice scores of
-$0.83$--$0.90$ across heterogeneous staining conditions~\cite{liverfibrosis2025}.
-We adopt this task-based paradigm by applying a frozen SR collagen segmentation model
-identically to real and virtual SR images, computing the mean absolute error between
-paired real-SR and virtual-SR collagen proportionate area~(CPA) values at the
-WSI level across all six translation models.
-CPA MAE serves as the primary biologically grounded benchmark in this study, with FID,
-LPIPS, and patch-based SSIM as complementary distributional and perceptual measures.
+A growing body of work argues for \textit{task-based evaluation}, in which downstream
+clinical tasks are applied to virtual images to verify that diagnostically relevant
+content is faithfully reproduced~\cite{renal_seg2025, her2task2024}.
+For collagen quantification specifically, deep learning models achieve Dice scores of
+$0.83$--$0.90$ on Sirius Red~\cite{liverfibrosis2025}, enabling automated CPA measurement
+as a task-based quality criterion.
+We adopt this paradigm by applying a frozen SR collagen segmentation model identically to
+real and virtual SR images, computing CPA~MAE as the primary benchmark, complemented by
+FID, LPIPS, and patch-based SSIM.
 
 \paragraph{Epistemic Uncertainty in Virtual Staining and I2I Translation.}
 Epistemic uncertainty, referring to the component of predictive uncertainty attributable
@@ -140,22 +95,14 @@ out-of-distribution regions~\cite{liverfibrosis2025}, demonstrating that ensembl
 uncertainty is a practical quality-control signal for SR-based analysis.
 
 Within the I2I translation literature, uncertainty-awareness in the \textit{unpaired}
-setting remains substantially underexplored.
-Upadhyay~\etal~\cite{ugac2021} introduced an uncertainty-aware CycleGAN~(UGAC) that
-replaces the standard $\ell_1$ cycle-consistency with a generalised Gaussian loss,
-producing per-pixel epistemic uncertainty estimates that correlate with prediction error
-and improve robustness to unseen test-time perturbations in MRI modality translation.
-A systematic calibration study~\cite{trustworthy_i2i2025} subsequently evaluated
-MC~dropout applied to CycleGAN and a diffusion-based model for unpaired mammography
-translation, finding that standard MC~dropout is poorly calibrated in this regime and
-proposing dedicated protocols for assessing trustworthiness when ground-truth pairs are
-unavailable; poor MC~dropout calibration has been independently confirmed in biomedical
-instance segmentation, where deep ensembles achieve well-calibrated estimates with
-substantially less hyperparameter tuning~\cite{siddiqui2024uncertainty}.
-In the closely related domain of virtual fluorescence staining of cultured cells,
-ensemble-based image translation has been shown to produce uncertainty estimates that
-predict per-tile translation error with a Pearson correlation of $r{\approx}0.83$ and
-identify non-cellular artefacts as high-uncertainty regions~\cite{insilicolabeling2023}.
+setting remains underexplored.
+UGAC~\cite{ugac2021} extended CycleGAN with a generalised Gaussian cycle-consistency loss
+to produce per-pixel epistemic uncertainty estimates for MRI modality translation.
+A calibration study~\cite{trustworthy_i2i2025} found MC~dropout poorly calibrated for
+unpaired image translation, while deep ensembles yield well-calibrated estimates with
+minimal tuning~\cite{lakshminarayanan2017simple, siddiqui2024uncertainty}.
+In virtual cell staining, ensemble-based translation produced uncertainty estimates with
+Pearson $r{\approx}0.83$ against per-tile translation error~\cite{insilicolabeling2023}.
 
 To our knowledge, no prior study has applied MC~dropout or deep ensembles to quantify
 epistemic uncertainty in unpaired GAN- or diffusion-based \textit{histological stain}

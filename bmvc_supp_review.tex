@@ -18,6 +18,20 @@ A Systematic Study of Scaling and Uncertainty in Unpaired Generative Models}
 
 \runninghead{Blind Review}{Supplementary — Towards Reliable AI-Based Histological Staining}
 
+% Packages required by supplementary content
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{amssymb}
+\usepackage{stmaryrd}
+
+% Redefine \paragraph: bold run-in title, no extra vertical space, no indent
+\makeatletter
+\renewcommand\paragraph{\@startsection{paragraph}{4}{\z@}%
+  {0ex \@plus 0ex \@minus 0ex}%
+  {-0.5em}%
+  {\normalfont\normalsize\bfseries}}
+\makeatother
+
 % Standard BMVC macros (not in the class file to avoid name collisions)
 \def\eg{\emph{e.g}\bmvaOneDot}
 \def\Eg{\emph{E.g}\bmvaOneDot}

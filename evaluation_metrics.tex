@@ -14,29 +14,18 @@ to both real and virtual images.
 We supplement this with distributional and perceptual measures that characterise the
 visual quality of the generated stains.
 
-A practical constraint shapes how task-based evaluation is constructed here.
-H\&E and Sirius Red sections are cut from the same tissue block but are not the same
-physical section; direct pixel-level or segmentation-map comparison between the real SR
-and virtual SR output is therefore not a meaningful ground truth, as tissue deformation,
-section thickness variation, and independent staining introduce irremovable misalignment.
-Crucially, however, because both sections originate from the same tissue block, they
-share the same underlying biological content: collagen density, fibrosis stage, and
-tissue architecture are preserved across sections from the same block.
-This tissue-block correspondence enables a meaningful paired comparison at the level of
-biological quantity rather than pixel intensity, and motivates using CPA agreement with
-the paired real SR image as the primary evaluation benchmark.
+H\&E and SR sections originate from the same tissue block but are physically distinct;
+direct pixel-level comparison is not meaningful ground truth due to irremovable tissue
+deformation. However, both sections share the same underlying collagen content, enabling
+a meaningful paired comparison at the level of biological quantity rather than pixel
+intensity.
 
-As distributional and perceptual measures, we report FID~\cite{heusel2017fid},
-LPIPS~\cite{zhang2018lpips}, and patch-based SSIM~\cite{wang2004ssim}.
-FID compares the statistics of real and generated SR tile distributions using
-InceptionV3~\cite{szegedy2016inception} features without requiring any pairing,
-making it insensitive to inter-section misalignment.
-LPIPS measures deep feature distance via a VGG16~\cite{simonyan2015vgg} backbone for
-tile-matched pairs, while patch-based SSIM computes structural similarity over randomly
-sampled local patches rather than the full image to reduce sensitivity to global
+As distributional and perceptual measures we report FID~\cite{heusel2017fid},
+LPIPS~\cite{zhang2018lpips}, and patch-based SSIM~\cite{wang2004ssim}: FID compares real
+and generated SR distributions using InceptionV3 features without requiring pairing; LPIPS
+measures VGG-based deep feature distance for tile-matched pairs; and patch-based SSIM
+computes structural similarity over local patches to reduce sensitivity to
 misregistration.
-These three metrics characterise the visual quality and distributional realism of the
-generated stains.
 
 \paragraph{Task-Based Evaluation: Collagen Proportionate Area Agreement.}
 A frozen nnU-Net~v2 collagen segmentation model~\cite{isensee2021nnunet} trained

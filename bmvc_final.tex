@@ -23,6 +23,14 @@ A Systematic Study of Scaling and Uncertainty in Unpaired Generative Models}
 \def\Eg{\emph{E.g}\bmvaOneDot}
 \def\etal{\emph{et al}\bmvaOneDot}
 
+% Redefine \paragraph: bold run-in title, no extra vertical space, no indent
+\makeatletter
+\renewcommand\paragraph{\@startsection{paragraph}{4}{\z@}%
+  {0ex \@plus 0ex \@minus 0ex}%
+  {-0.5em}%
+  {\normalfont\normalsize\bfseries}}
+\makeatother
+
 %-------------------------------------------------------------------------
 \begin{document}
 
