@@ -6,6 +6,21 @@
 
 \section{Introduction}
 
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=0.92\linewidth]{images/Intro_GM}
+  \caption{%
+    Overview of the virtual H\&E~$\to$~SR staining pipeline studied in this work.
+    A whole-slide image acquired with H\&E staining is decomposed into
+    $256{\times}256$\,pixel tiles, which are passed through an unpaired
+    image-to-image translation model to produce virtual Sirius Red tiles.
+    The translated tiles are reassembled into a virtual SR WSI, from which
+    collagen proportionate area~(CPA) can be quantified without consuming
+    an additional tissue section.%
+  }
+  \label{fig:pipeline_overview}
+\end{figure*}
+
 Histopathological diagnosis relies on a panel of specialised stains, each designed to
 highlight a distinct tissue component: haematoxylin and eosin~(H\&E) provides general
 morphological context, while dedicated stains target specific biological questions by
@@ -45,21 +60,6 @@ therefore better suited to this setting. However, no study has directly applied 
 histochemical stain translation in liver tissue, and it remains unclear which model
 within the increasingly diverse family of unpaired image-to-image~(I2I) approaches
 performs best for this task.
-
-\begin{figure*}[t]
-  \centering
-  \includegraphics[width=0.92\linewidth]{images/Intro_GM}
-  \caption{%
-    Overview of the virtual H\&E~$\to$~SR staining pipeline studied in this work.
-    A whole-slide image acquired with H\&E staining is decomposed into
-    $256{\times}256$\,pixel tiles, which are passed through an unpaired
-    image-to-image translation model to produce virtual Sirius Red tiles.
-    The translated tiles are reassembled into a virtual SR WSI, from which
-    collagen proportionate area~(CPA) can be quantified without consuming
-    an additional tissue section.%
-  }
-  \label{fig:pipeline_overview}
-\end{figure*}
 
 Since the introduction of cycle-consistent adversarial networks~(CycleGAN;~\cite{zhu2017unpaired}),
 the unpaired I2I field has diversified considerably.
