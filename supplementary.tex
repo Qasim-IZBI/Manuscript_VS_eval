@@ -4,7 +4,7 @@
 \section{Dataset Details}
 \label{sec:supp-dataset}
 
-\paragraph{Animal Model and Tissue Collection.}
+\textbf{Animal Model and Tissue Collection:}
 \label{sec:supp-animal_model}
 
 As described in~\cite{ghallab2025asbt}, obstructive cholestasis was induced in
@@ -45,7 +45,7 @@ from~\cite{ghallab2025asbt}, spanning four post-surgical time points and both
 treatment conditions~(BDL+vehicle and sham+vehicle), with four to five animals
 per cohort.
 
-\paragraph{Histological Staining.}
+\textbf{Histological Staining:}
 \label{sec:supp-staining}
 
 Histological procedures followed those reported in~\cite{ghallab2025asbt}.
@@ -70,7 +70,7 @@ between the two cuts introduces inter-section deformation and a degree of spatia
 misalignment that precludes exact pixel-level correspondence
 (see Section~4 of the main paper).
 
-\paragraph{WSI Acquisition.}
+\textbf{WSI Acquisition:}
 \label{sec:supp-wsi_acquisition}
 
 Slide digitisation was performed as part of the study reported
@@ -87,7 +87,7 @@ a minor staining variability that does not affect PSR-positive signal,
 were retained in the training set, as this appearance is present in the real SR
 distribution and is accounted for by the downstream segmentation model.
 
-\paragraph{Tiling and Preprocessing.}
+\textbf{Tiling and Preprocessing:}
 \label{sec:supp-dataset_tiling}
 
 Tissue masks were generated for each WSI using a pixel classifier in
@@ -124,7 +124,7 @@ Test          &  5 &  16{,}285 &  16{,}285 & ---   \\
 \end{tabular}
 \end{table}
 
-\paragraph{Data Splits and Subsets.}
+\textbf{Data Splits and Subsets:}
 \label{sec:supp-splits}
 
 The dataset was partitioned at the \textit{animal level} to prevent data leakage:
@@ -164,7 +164,7 @@ Test  &  5 &  5 & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor
 \end{tabular}
 \end{table}
 
-\paragraph{Public Release.}
+\textbf{Public Release:}
 \label{sec:supp-public_release}
 
 The original H\&E and Sirius Red WSIs were collected and digitised as part of
@@ -185,10 +185,10 @@ same repository to enable full reproduction of the reported results.
 \section{Model Details}
 \label{sec:supp-models}
 
-\paragraph{Shared Building Blocks.}
+\textbf{Shared Building Blocks:}
 \label{sec:supp-shared_blocks}
 
-\paragraph{ResNet generator.}
+\textbf{ResNet generator:}
 The encoder begins with a $7{\times}7$ convolution (with reflection padding) mapping the
 input to $n_{gf}$ feature channels, followed by $n_{down}{=}2$ stride-2 convolutional
 downsampling layers that double the channel count at each step, producing a bottleneck
@@ -200,7 +200,7 @@ layers restores the spatial resolution and reduces the channel count back to
 $n_{gf}$, before a final $7{\times}7$ convolution and Tanh activation produce the
 translated image in $[-1,\,1]$.
 
-\paragraph{PatchGAN discriminator.}
+\textbf{PatchGAN discriminator:}
 All GAN-based models use a $70{\times}70$ PatchGAN discriminator~\cite{isola2017image}:
 an initial $4{\times}4$ stride-2 convolution, three further strided blocks with Instance
 Normalisation and Leaky-ReLU ($\alpha{=}0.2$), and a final convolution to a single-channel
@@ -208,7 +208,7 @@ score map.
 The discriminator is trained with a Least-Squares GAN~(LSGAN) objective~\cite{mao2017lsgan}
 throughout.
 
-\paragraph{CycleGAN.}
+\textbf{CycleGAN:}
 \label{sec:supp-cyclegan}
 
 CycleGAN~\cite{zhu2017unpaired} learns two independent generators $G_{A \to B}$ and
@@ -232,7 +232,7 @@ The total generator objective is:
     \lambda_{\text{id}}\,\mathcal{L}_{\text{id}}.
 \end{equation}
 
-\paragraph{UNIT.}
+\textbf{UNIT:}
 \label{sec:supp-unit}
 
 UNIT~\cite{liu2017unsupervised} assumes a shared latent space across domains: images
@@ -257,7 +257,7 @@ terms:
 with $\lambda_{\text{GAN}}{=}1$, $\lambda_{\text{recon}}{=}10$, and
 $\lambda_{\text{KL}}{=}0.01$.
 
-\paragraph{MUNIT.}
+\textbf{MUNIT:}
 \label{sec:supp-munit}
 
 MUNIT~\cite{huang2018multimodal} disentangles each image into a domain-invariant
@@ -284,7 +284,7 @@ consistency, and style consistency terms:
 \end{equation}
 with $\lambda_{\text{img}}{=}10$, $\lambda_{\text{c}}{=}1$, $\lambda_{\text{s}}{=}1$.
 
-\paragraph{DCLGAN.}
+\textbf{DCLGAN:}
 \label{sec:supp-dclgan}
 
 DCLGAN~\cite{han2021dual} augments the CycleGAN framework with a dual contrastive
@@ -312,7 +312,7 @@ with $\lambda_{\text{id}}{=}1$, $\lambda_{\text{DCL}}{=}1$.
 Cycle-consistency is disabled by default, as the DCL objective provides sufficient
 cross-domain structural constraint; the identity loss serves as a colour-space anchor.
 
-\paragraph{UVCGAN.}
+\textbf{UVCGAN:}
 \label{sec:supp-uvcgan}
 
 UVCGAN~\cite{torbunov2022uvcgan} replaces the standard ResNet generator with a
@@ -337,7 +337,7 @@ In \textbf{Stage~2 (finetuning)}, the pretrained generator is used as initialisa
 for standard cycle-consistent GAN training ($\lambda_{\text{cyc}}{=}10$,
 $\lambda_{\text{id}}{=}0.5$) with both discriminators active.
 
-\paragraph{CycleDiffusion.}
+\textbf{CycleDiffusion:}
 \label{sec:supp-cyclediffusion}
 
 CycleDiffusion~\cite{wu2022cyclediffusion} performs unpaired image-to-image translation
@@ -352,7 +352,7 @@ The channel progression is controlled by a base channel count $c_{\text{base}}$ 
 multiplier sequence $\text{mult}$; self-attention blocks are inserted at the
 $16{\times}16$ resolution level.
 
-\paragraph{Training.}
+\textbf{Training:}
 Both DDPMs are trained simultaneously in a single training run, each with its own
 domain loss and no gradient coupling between them, using the standard epsilon-prediction
 objective~\cite{ho2020ddpm}:
@@ -365,7 +365,7 @@ where $x_t = \sqrt{\bar\alpha_t}\,x_0 + \sqrt{1-\bar\alpha_t}\,\varepsilon$ is t
 noisy image at timestep $t$ under a linear noise schedule
 ($\beta_1{=}10^{-4}$, $\beta_T{=}2{\times}10^{-2}$, $T{=}1000$).
 
-\paragraph{Translation.}
+\textbf{Translation:}
 At inference, DDIM inversion~\cite{song2021ddim} maps $x_A$ to a shared latent code $z$
 via $\mathcal{M}_A$, which $\mathcal{M}_B$ then decodes into the target domain:
 \begin{equation}
@@ -379,7 +379,7 @@ without any training signal enforcing it.
 Both encoding and decoding use deterministic DDIM ($\eta{=}0$) over $T_{\text{DDIM}}{=}200$
 steps, incurring approximately twice the cost of a single DDIM run.
 
-\paragraph{Model Size Configurations.}
+\textbf{Model Size Configurations:}
 \label{sec:supp-model_sizes}
 
 To assess the effect of model capacity, each architecture is trained at three scales.
@@ -542,7 +542,7 @@ is better.}
 \section{Implementation Details}
 \label{sec:supp-implementation}
 
-\paragraph{Shared training hyperparameters.}
+\textbf{Shared training hyperparameters:}
 All models use the Adam optimiser~\cite{kingma2015adam} with learning rate
 $2{\times}10^{-4}$, $\beta_1{=}0.5$, $\beta_2{=}0.999$, and a batch size of~1.
 A linear learning-rate decay schedule is applied from the halfway point of training
@@ -551,7 +551,7 @@ Training is step-based~(one optimiser update per step) rather than epoch-based,
 ensuring a fair comparison across data-fraction configurations that differ in the
 number of available tiles.
 
-\paragraph{Per-model training steps and schedules.}
+\textbf{Per-model training steps and schedules:}
 \begin{itemize}
   \item \textbf{CycleGAN, UNIT, MUNIT, DCLGAN}: $750{,}000$ steps with a single
     Adam optimiser update alternating between the generator and discriminator.
@@ -569,7 +569,7 @@ number of available tiles.
     No fine-tuning phase or post-training step-count adjustment is applied.
 \end{itemize}
 
-\paragraph{Loss weights.}
+\textbf{Loss weights:}
 Table~\ref{tab:supp-loss-weights} summarises the loss coefficient used by each
 model family.
 
@@ -594,12 +594,12 @@ CycleDiffusion & ---  & --- & ---  & ---  \\
 \end{tabular}
 \end{table}
 
-\paragraph{Hardware and software.}
+\textbf{Hardware and software:}
 \textcolor{red}{[TODO: specify GPU type, number of GPUs, CUDA version, and
 framework (PyTorch version). Also note approximate training time per
 configuration.]}
 
-\paragraph{Inference details.}
+\textbf{Inference details:}
 At test time, all GAN-based models perform a single forward pass through the
 trained $G_{A \to B}$ generator per tile.
 CycleDiffusion requires two sequential DDIM passes per tile: $\mathcal{M}_A$
@@ -620,7 +620,7 @@ $\{G^{(k)}_{A \to B}\}_{k=1}^{K}$ for a selected configuration, we derive a per-
 mean prediction and a spatially resolved epistemic uncertainty map for each H\&E test
 tile $x \in \mathcal{D}_{\mathrm{test}}$.
 
-\paragraph{Ensemble mean prediction.}
+\textbf{Ensemble mean prediction:}
 The ensemble mean image $\bar{y}(x)$ is the pixel-wise arithmetic mean of the ten
 generator outputs:
 \begin{equation}
@@ -629,7 +629,7 @@ generator outputs:
 This mean image is used as the primary virtual stain prediction for all downstream
 metric computations.
 
-\paragraph{Epistemic uncertainty map.}
+\textbf{Epistemic uncertainty map:}
 Epistemic uncertainty at pixel $(x,y)$ is estimated as the pixel-wise unbiased sample
 variance across ensemble members, computed independently per colour channel
 $c \in \{R,G,B\}$:
@@ -650,7 +650,7 @@ Summing rather than averaging channels preserves the total disagreement signal: 
 pixel where all three channels disagree registers higher uncertainty than one where
 only a single channel varies.
 
-\paragraph{Tile-level scalar uncertainty.}
+\textbf{Tile-level scalar uncertainty:}
 Tile-level uncertainty is the spatial mean over tissue pixels:
 $\bar{\sigma}^2(x) = \frac{1}{|\Omega|}\sum_{(i,j)\in\Omega} U(i,j)$,
 where $\Omega$ denotes the set of tissue-masked pixel locations.
@@ -659,7 +659,7 @@ This scalar is used in the across-tile calibration analyses.
 \subsection{Calibration Methodology: Full Definitions}
 \label{sec:supp-unc-calibration}
 
-\paragraph{Error proxy: cycle-reconstruction error.}
+\textbf{Error proxy: cycle-reconstruction error:}
 In the unpaired setting no pixel-level ground truth exists, as the H\&E and SR
 images originate from different physical sections.
 We therefore use cycle-reconstruction error as a proxy for per-pixel translation
@@ -677,7 +677,7 @@ All calibration results in this work are stated as ``calibration with respect to
 cycle-reconstruction error''; they do not measure calibration against true
 translation error, which is unavailable.
 
-\paragraph{Tile preparation and tissue masking.}
+\textbf{Tile preparation and tissue masking:}
 Calibration is computed on a version of the test set re-tiled with zero overlap
 (stride equal to tile size, $256{\times}256$ pixels) to avoid double-counting
 border pixels under overlapping tiling.
@@ -685,7 +685,7 @@ All per-pixel metrics are restricted to tissue pixels identified by the
 preprocessing tissue mask; background pixels --- where both $U$ and $E$ are
 near-zero --- are excluded to prevent spurious inflation of rank correlations.
 
-\paragraph{Calibration metric 1: within-tile Spearman $\rho$ (spatial calibration).}
+\textbf{Calibration metric 1: within-tile Spearman $\rho$ (spatial calibration):}
 For each tile, $U$ and $E$ are flattened over tissue pixels and their Spearman rank
 correlation $\rho$ is computed.
 A value near $+1$ indicates that high-uncertainty pixels co-locate with high-error
@@ -696,8 +696,7 @@ calibration figure.
 Spearman rank correlation is preferred over Pearson because $U$ and $E$ are on
 different scales and only their ordinal relationship is of interest.
 
-\paragraph{Calibration metric 2: across-tile Spearman and Pearson $\rho$
-(tile-level calibration).}
+\textbf{Calibration metric 2: across-tile Spearman and Pearson $\rho$ (tile-level calibration):}
 Each tile is reduced to two scalars --- $\overline{U}$ and $\overline{E}$, the
 spatial means over tissue pixels --- and both Spearman and Pearson correlations are
 computed across all tiles in the test set.
@@ -707,7 +706,7 @@ flagging unreliable tiles for pathologist review.
 Both coefficients are reported because tile-mean values tend to be more linearly
 related than per-pixel values, making Pearson a complementary diagnostic.
 
-\paragraph{Calibration metric 3: ECE and reliability diagram (pixel and tile level).}
+\textbf{Calibration metric 3: ECE and reliability diagram (pixel and tile level):}
 Calibration is evaluated at two spatial scales using the same normalisation scheme:
 $U$ and $E$ are jointly rescaled to $[0,1]$ using dataset-global $p_1$--$p_{99}$
 percentile bounds, making the diagonal of the reliability diagram a meaningful
@@ -744,7 +743,7 @@ The tile-level diagram catches the failure mode where a model appears pixel-cali
 within tiles but assigns uniform mean uncertainty across tiles regardless of their
 overall error level.
 
-\paragraph{Calibration caveats.}
+\textbf{Calibration caveats:}
 The three calibration metrics characterise the same underlying property from
 complementary angles and should be read as a converging picture rather than
 independent evidence.
@@ -758,15 +757,35 @@ irreducible noise floor to ECE that no model can overcome.
 \subsection{Per-Model Uncertainty and Calibration Results}
 \label{sec:supp-unc-results}
 
-\textcolor{red}{[TODO: For each of the six model families, include:
-\begin{itemize}
-  \item Representative uncertainty maps (H\&E input, ensemble mean output,
-    pixel-wise $\mathbf{U}(x)$ map) for at least one tile per fibrosis stage.
-  \item Pixel-level and tile-level reliability diagrams.
-  \item Distribution of within-tile Spearman~$\rho$ across all test tiles
-    (histogram or box-plot).
-  \item A summary row in a per-family calibration table:
-    within-tile $\rho$ (mean$\pm$std), across-tile Spearman and Pearson~$\rho$,
-    $\mathrm{ECE}_{\mathrm{pixel}}$, $\mathrm{ECE}_{\mathrm{tile}}$.
-\end{itemize}
-]}
+\begin{figure}[t!]
+  \centering
+  \includegraphics[width=\linewidth, height=0.82\textheight, keepaspectratio]{calibration_combined/combined_spearman_hist}
+  \caption{Distribution of within-tile Spearman~$\rho$ between pixel-level uncertainty
+    $U$ and cycle-reconstruction error $E$ across all $N{=}9{,}365$ test tiles for each
+    model family (top row: CycleGAN, UNIT, MUNIT; bottom row: DCLGAN, UVCGAN,
+    CycleDiffusion).
+    The dashed vertical line marks the mean~$\rho$.
+    GAN-based families peak around $\rho \approx 0.15$--$0.17$; UVCGAN and
+    CycleDiffusion are centred near zero, confirming near-absent spatial calibration.
+    The broad spread in all panels reflects high tile-to-tile variability.}
+  \label{fig:calibration_spearman}
+\end{figure}
+
+\begin{figure}[t!]
+  \centering
+  \includegraphics[width=\linewidth]{calibration_combined/combined_across_tile}
+  \caption{Across-tile scatter plots of tile-mean uncertainty $\overline{U}$ ($x$-axis)
+    versus tile-mean cycle-reconstruction error $\overline{E}$ ($y$-axis) for each
+    model family (top row: CycleGAN, UNIT, MUNIT; bottom row: DCLGAN, UVCGAN,
+    CycleDiffusion).
+    Pearson~$\rho$ and Spearman~$r_s$ are annotated per panel.
+    GAN-based families show moderate Pearson correlations ($0.42$--$0.60$) driven by
+    high-leverage tiles at large uncertainty values; Spearman correlations are
+    substantially weaker, indicating the relationship is non-monotonic.
+    CycleDiffusion (bottom right) shows no meaningful correlation in either metric.}
+  \label{fig:calibration_across_tile}
+\end{figure}
+
+\textcolor{red}{[TODO: For each of the six model families, add representative
+uncertainty maps (H\&E input, ensemble mean output, pixel-wise $\mathbf{U}(x)$ map)
+for at least one tile per fibrosis stage.]}
