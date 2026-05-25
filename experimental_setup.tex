@@ -6,55 +6,46 @@
 \subsection{Training and Inference}
 \label{sec:training_inference}
 
-\paragraph{Training Protocol.}
+\textbf{Training Protocol:}
 All models are trained with the Adam optimiser~\cite{kingma2015adam} (full hyperparameters
-in Supplementary Sec.~8), using step-based training so that each optimiser update
-constitutes one step, ensuring a fair comparison across data-fraction configurations that
-differ in tile count.
-CycleGAN, UNIT, MUNIT, and DCLGAN are each trained for $750{,}000$~steps; CycleDiffusion
-for the same number of steps with both DDPMs optimised simultaneously.
+in Supplementary Sec.~8). We count training in optimiser steps rather than epochs,
+ensuring fair comparison across data-fraction configurations with different tile counts.
+CycleGAN, UNIT, MUNIT, DCLGAN, and CycleDiffusion are each trained for $750{,}000$~steps.
 UVCGAN follows a two-stage schedule: $250{,}000$~steps of masked-image pretraining
 followed by $500{,}000$~steps of cycle-consistent finetuning initialised from the
 Stage~1 checkpoint.
 
-\paragraph{Scaling Study Design.}
-To systematically characterise how model capacity and data volume jointly affect
-translation quality, we conduct a full factorial experiment across the six architectures
-described in Section~\ref{sec:models}, three generator capacity scales, and three
-training data fractions.
+\textbf{Scaling Study Design:}
+We conduct a full factorial experiment over the six architectures of
+Section~\ref{sec:models}, three generator capacity scales, and three training data
+fractions.
 
-\paragraph{Generator capacity.}
-Each model is trained at three generator sizes, Small~(${\approx}10$\,M),
-Medium~(${\approx}50$\,M), and Large~(${\approx}100$\,M) parameters, by adjusting the
+\textbf{Generator capacity:}
+Each model is trained at three generator sizes, Small~(${\sim}10$M),
+Medium~(${\sim}50$M), and Large~(${\sim}100$M) parameters, by adjusting the
 base channel width $n_{gf}$ and depth $n_{\text{blocks}}$ (or equivalent per model
 family; see Supplementary Sec.~2).
-All size variants within a model family share the same training protocol, data, and
-random seed, so that any performance difference is attributable solely to generator
-capacity.
+All size variants within a family share the same training protocol, data, and random
+seed, so any difference reflects capacity alone.
 
-\paragraph{Training data fraction.}
+\textbf{Training data fraction:}
 The training set is partitioned into three nested subsets comprising 25\%, 50\%, and
-100\% of the 30 training WSIs, constructed via contiguous WSI folder ranges to avoid data leakage.
+100\% of the 30 training WSIs, constructed via contiguous WSI ranges to avoid data leakage.
 Smaller subsets are strict subsets of larger ones, so differences across data fractions
 are not confounded by variation in which slides are included.
-The same fixed test set of held-out WSIs is used for evaluation across all configurations.
-
+The same fixed test set of $N{=}5$ held-out WSIs is used for evaluation across all configurations.
 Together, these axes yield $6\text{ models} \times 3\text{ sizes} \times 3\text{ data
 fractions} = \mathbf{54}$ experimental configurations, each trained and evaluated
 independently.
 
-\paragraph{Inference.}
+\textbf{Inference:}
 At test time, all GAN-based models perform a single forward pass through the trained
 $G_{A \to B}$ generator per tile.
 CycleDiffusion requires two sequential DDIM passes per tile~\cite{song2021ddim}:
 $\mathcal{M}_A$ encodes the source tile into the shared noise latent via DDIM inversion
-over $T_{\text{encode}}{=}$\textcolor{red}{[TODO]}~steps, and $\mathcal{M}_B$ then
+over $T_{\text{encode}}{=}$200~steps, and $\mathcal{M}_B$ then
 decodes it into the target domain via DDIM sampling over
-$T_{\text{sample}}{=}$\textcolor{red}{[TODO]}~steps.
-For all models, generated tiles are denormalised to $[0,\,1]$ and saved with their
-original tile identifiers to enable downstream metric computation.
-
-
+$T_{\text{sample}}{=}$200~steps.
 
 % ============================================================
 %  New bibliography entries for this section

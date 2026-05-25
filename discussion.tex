@@ -8,35 +8,37 @@
 
 The scaling study across 54 configurations and the subsequent ensemble analysis reveal
 that the optimal scaling point is model-family-specific and non-trivially predictable
-from perceptual metrics alone, and that uncertainty calibration is contingent on
-architectural properties that differ substantially across families.
+from perceptual metrics alone, and that inter-seed agreement across deep ensembles
+separates the six families along an axis distinct from CPA~MAE.
 
-\paragraph{Perceptual metric saturation and the indispensability of task-based evaluation.}
+\textbf{Perceptual saturation and the case for task-specific evaluation:}
 Perceptual metrics saturate within a narrow band across well-behaved GAN configurations
 (Patch-SSIM $0.30$--$0.35$, LPIPS $0.037$--$0.040$, FID $190$--$215$), with Spearman
-rank correlations against CPA~MAE of only $\rho{=}0.63$, $0.64$, and $0.55$.
-As a concrete illustration, CycleGAN\,M/100\% and CycleGAN\,L/100\% are nearly
-indistinguishable by Patch-SSIM ($0.334$ vs.\ $0.342$) yet their CPA~MAE differs by
-more than an order of magnitude ($0.008$ vs.\ $0.085$) — a discrepancy that would
-translate to systematic fibrosis staging bias.
-These findings confirm that task-based evaluation is non-negotiable for virtual staining
-model selection~\cite{trustworthy_i2i2025}.
+rank correlations against CPA~MAE of only $r_s{=}0.63$, $0.64$, and $0.55$.
+As a concrete illustration, CycleGAN's medium and large generators at 100\% data are
+nearly indistinguishable by Patch-SSIM ($0.334$ vs.\ $0.342$), yet their CPA~MAE
+differs by more than an order of magnitude ($0.008$ vs.\ $0.085$).
+A perceptual-only selection workflow would treat the two as equivalent and propagate
+the 10-fold CPA~MAE gap into any downstream fibrosis staging readout.
+Consistent with prior calibration analyses of unpaired
+translation~\cite{trustworthy_i2i2025}, these findings confirm that task-specific
+evaluation is non-negotiable for virtual staining model selection.
 
-\paragraph{Practical implications of scaling: minimum viable configurations.}
-The CPA~MAE landscape is non-smooth: isolated low-error cells appear within otherwise
-moderate surfaces rather than monotonically improving with scale, partly due to the high
-variance of CPA~MAE over $N{=}5$ test WSIs.
+\textbf{Minimum viable configurations across scaling:}
+CPA~MAE does not improve smoothly with scale: a few configurations record substantially
+lower error than their neighbours, partly because the metric carries high variance over
+the $N{=}5$ test WSIs.
 When the full training set is available, medium-capacity generators are the most reliable
 choice across families.
 MUNIT is the most stable family overall (CPA~MAE $0.040$--$0.059$ across all nine
 conditions), consistent with AdaIN-based style disentanglement acting as an implicit
 regulariser.
-DCLGAN\,S is competitive across all data fractions (CPA~MAE $0.028$--$0.049$), making
+DCLGAN\,S remains stable across all data fractions (CPA~MAE $0.019$--$0.049$), making
 it a sound choice under limited data.
 CycleGAN and UNIT show non-monotonic data-fraction dependence and are less reliable when
 training data is scarce.
 
-\paragraph{Training instability as a deployment risk.}
+\textbf{Training instability:}
 DCLGAN and UVCGAN each exhibit catastrophic failure modes that are invisible until they
 occur.
 DCLGAN's large generator collapses at reduced data fractions (FID $327$--$363$,
@@ -46,9 +48,9 @@ UVCGAN's two-stage schedule~\cite{torbunov2022uvcgan} does not scale beyond the 
 generator in this data regime; medium and large variants fail across most data fractions
 (FID up to $395$, Patch-SSIM as low as $0.14$).
 Both failures manifest as sharp discontinuities rather than gradual degradation, so
-monitoring FID and Patch-SSIM throughout training is essential for early detection.
+monitoring FID throughout training is essential for early detection.
 
-\paragraph{CycleDiffusion as a distinct generative paradigm.}
+\textbf{CycleDiffusion as a distinct generative paradigm:}
 CycleDiffusion's consistently lower Patch-SSIM ($0.200$--$0.293$ vs.\ $0.298$--$0.349$
 for stable GANs) and higher LPIPS reflect the DDIM inversion inductive bias rather
 than failure: the noise-space bottleneck enforces domain-invariant structure at the cost
@@ -62,21 +64,34 @@ against slide-specific colour artefacts.
 At 100\% data, the small generator (CPA~MAE $0.051$) is selected for ensemble
 uncertainty estimation; the medium generator is preferable under data reduction.
 
-\paragraph{Ensemble uncertainty and deployment readiness.}
-\textcolor{red}{[TODO: write once uncertainty results (Section~\ref{sec:unc_results})
-are available. Points to cover: which model families achieve well-calibrated spatial
-uncertainty (within-tile Spearman $\rho$); which families can reliably flag
-unreliable tiles for pathologist review (tile-level calibration); whether GAN-based
-and diffusion-based models differ systematically in calibration shape (ECE and
-reliability diagrams); and what the ensemble results imply about deployment readiness
-relative to the CPA MAE rankings from the scaling study.
-Also discuss the self-cycle proxy caveat (shared systematic biases can mask
-translation errors) and the irreducible noise floor from cross-section biological
-variation between the H\&E and SR sections.]}
+\textbf{Inter-seed agreement across families:}
+The per-tile mean ensemble variance (Sec.~\ref{sec:unc_variance_results}) separates
+the six families along an axis that CPA~MAE alone does not surface.
+Among GAN families, DCLGAN's IQR ($0.043$) is roughly half that of any other GAN
+variant, consistent with the dual InfoNCE objective acting as an architectural
+regulariser that anchors translations to shared content features across seeds.
+Paired with its leading across-tile calibration (Pearson $\rho = 0.61$, ECE $0.081$;
+Supplementary Sec.~\ref{sec:supp-unc-results}), DCLGAN combines low task error with the most informative
+ensemble-variance signal among the six families.
+CycleGAN's selected medium configuration pairs the study-low CPA~MAE with moderate
+inter-seed spread, making it the primary candidate when raw task accuracy outweighs
+fine-grained uncertainty information.
+MUNIT's highest median uncertainty among GAN families ($3.69$) is the inter-seed
+counterpart of the AdaIN-based stability noted above: style disentanglement preserves
+task accuracy while admitting inter-seed style variation.
+CycleDiffusion's profile is qualitatively different: it records the lowest median
+uncertainty ($3.16$) yet the widest IQR ($0.238$).
+The shared-noise-space conditioning of DDIM inversion drives ensemble members toward
+a near-deterministic output where the conditioning is unambiguous, suppressing
+inter-seed variation more strongly than any GAN.
+On structurally ambiguous tiles the same reverse process diverges sharply, and the
+resulting uncertainty signal is uncorrelated with cycle error ($\rho = {-}0.03$).
+The diffusion family is therefore best read as conditionally consistent rather than
+uniformly more reliable than the GAN alternatives.
 
-\paragraph{Limitations.}
+\textbf{Limitations:}
 The dataset covers a single tissue type, disease model, and staining laboratory;
-multi-centre validation on human liver tissue is required to establish generalisability.
+multi-centre validation is required to establish generalisability.
 The held-out test set of $N{=}5$ WSIs provides limited statistical power: configurations
 with CPA~MAE $0.008$ carry a standard deviation of $0.007$, so fine-grained rankings
 among the best configurations should be interpreted with caution.
@@ -84,5 +99,3 @@ Patch-SSIM and LPIPS are computed on loosely registered adjacent-section pairs,
 inflating apparent perceptual error for structurally correct but misaligned translations.
 The uncertainty framework captures epistemic uncertainty only; aleatoric uncertainty
 from staining variability and biological heterogeneity between sections is not modelled.
-Finally, ensemble-size sensitivity was not ablated, and ten members may be insufficient
-for large or highly non-convex generators.

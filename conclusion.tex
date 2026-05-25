@@ -6,36 +6,43 @@
 \section{Conclusion}
 \label{sec:conclusion}
 
-We introduced an open dataset of paired H\&E and Sirius Red WSIs from a mouse
-bile-duct ligation model~\cite{ghallab2025asbt} and conducted a full-factorial scaling
-study across six unsupervised I2I architectures, three generator capacities, and three
-training data fractions, yielding 54 independently evaluated configurations.
-All configurations are assessed with perceptual metrics (Patch-SSIM, LPIPS, FID) and a
-task-based CPA~MAE that exploits the paired tissue-block structure to provide a
-biologically grounded benchmark.
-Deep ensembles of ten models per best-performing family configuration yield spatially
-resolved epistemic uncertainty maps, constituting the first uncertainty analysis for
-unpaired virtual histological staining.
+We conduct a full-factorial scaling study across six unsupervised I2I architectures,
+three generator capacities, and three training data fractions, yielding 54
+configurations.
+Each configuration is evaluated on perceptual metrics (Patch-SSIM, LPIPS, FID) and a
+task-specific CPA~MAE grounded in the paired tissue-block structure.
+Building on this study, deep ensembles of ten models per best-performing family
+configuration yield spatially resolved epistemic uncertainty maps, constituting the
+first systematic comparison of epistemic uncertainty across unsupervised stain-to-stain
+architectures.
+To support this benchmark, we release the paired H\&E and Sirius Red WSI dataset from
+the mouse bile-duct ligation experiment of~\cite{ghallab2025asbt}.
 
 The scaling study reveals that perceptual metrics saturate within a narrow band across
-the majority of well-behaved configurations and correlate only moderately with CPA MAE
-($\rho{=}0.55$--$0.64$), confirming that task-based evaluation is indispensable for
-model selection in this domain.
-CPA MAE spans over an order of magnitude across the 54 configurations ($0.008$--$0.171$),
+the majority of well-behaved configurations and correlate only moderately with CPA~MAE
+($r_s{=}0.55$--$0.64$), confirming that task-specific evaluation is indispensable for
+model selection.
+CPA~MAE ranges from $0.008$ to $0.171$ across the 54 configurations (a 21-fold span),
 with medium-capacity generators trained on the full dataset performing most reliably
 across families.
-MUNIT is the most stable architecture, maintaining a narrow CPA MAE range of
+MUNIT is the most stable architecture, maintaining a narrow CPA~MAE range of
 $0.040$--$0.059$ across all nine scaling conditions.
-DCLGAN and UVCGAN exhibit catastrophic training failures at high generator capacity
-under limited data, underscoring that over-parameterisation is as significant a
-deployment risk as under-training.
-CycleDiffusion produces competitive CPA MAE despite systematically lower Patch-SSIM
+DCLGAN's large generator collapses at reduced data fractions, while UVCGAN's
+medium and large variants fail across all data fractions; both underscore that
+over-parameterisation can degrade translation as severely as under-training.
+CycleDiffusion produces competitive CPA~MAE despite systematically lower Patch-SSIM
 than GAN-based families, demonstrating that perceptual sharpness and biological
 accuracy are not equivalent objectives.
-\textcolor{red}{[TODO: add one to two sentences summarising the headline uncertainty
-findings once Section~\ref{sec:unc_results} is complete: which model families produce
-well-calibrated epistemic uncertainty maps, and what the ensemble analysis reveals
-about deployment readiness relative to the CPA MAE rankings.]}
+Per-family ensemble variance separates the six families along an axis distinct from
+CPA~MAE: DCLGAN pairs low task error with the narrowest inter-seed spread
+(IQR $0.043$) and the most informative variance signal among GAN families, while
+CycleDiffusion records the lowest mean ensemble variance ($3.16$) but the widest spread
+and is uncorrelated with cycle-reconstruction error.
+Uncertainty signals are informative only at tile resolution; pixel-level uncertainty
+does not reliably co-locate with high-error regions within a tile
+(Supplementary Sec.~\ref{sec:supp-unc-results}).
+These findings indicate that perceptual quality, task accuracy, and epistemic
+uncertainty are three independent evaluation axes for unsupervised stain translation.
 
 The dataset, model implementations, and evaluation code are released publicly to
 support reproducible benchmarking and future work on virtual histochemical staining.

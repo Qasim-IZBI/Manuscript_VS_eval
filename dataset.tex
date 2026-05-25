@@ -2,30 +2,24 @@
 %  Section 4: Dataset
 %  H&E to Sirius Red Virtual Staining Paper
 % ============================================================
-
 \section{Dataset}
 \label{sec:dataset}
 
-The dataset used in this study comprises whole-slide images of mouse liver tissue
-from a bile-duct ligation~(BDL) model of cholestatic liver disease~\cite{ghallab2025asbt},
-spanning four post-surgical time points that recapitulate a progression from minimal
-to advanced hepatic fibrosis.
-For each of 36 C57BL/6N mice, serial sections from the same tissue block were
-stained with H\&E and Sirius Red~(SR), the diagnostic gold standard for hepatic
-collagen quantification~\cite{huang2013sirius}.
-Because the two sections are non-adjacent cuts, the dataset is inherently \emph{unpaired}.
-After whole-slide digitisation at $\times$20 magnification, WSIs were tiled into
-non-overlapping $512{\times}512$\,pixel patches and downsampled to $256{\times}256$\,pixels,
-yielding an effective resolution of $0.442\,\mu$m/pixel; the final collection comprises approximately
-192{,}847 H\&E and 183{,}253 SR training tiles across 30 WSIs, with 16{,}285
-tiles per domain reserved for testing, partitioned at the animal level to
-prevent data leakage.
-To the best of our knowledge, this constitutes the first publicly available resource
-for unsupervised H\&E~$\to$~SR translation in liver tissue; full acquisition and
-preprocessing details, including animal model, histological staining protocol,
-WSI acquisition, tiling, and data splits, are provided in Supplementary Sec.~1.
-
-
+The dataset used in this study comprises whole-slide images of mouse liver tissue from
+a bile-duct ligation experiment of cholestatic liver disease~\cite{ghallab2025asbt},
+covering four post-surgical time points from minimal to advanced hepatic fibrosis.
+For each of 36 C57BL/6N mice, serial sections from the same tissue block were stained
+with H\&E and SR. Because the two sections are non-adjacent cuts, the dataset is
+inherently \emph{unpaired}.
+WSIs were acquired at $\times$20 magnification, tiled into non-overlapping
+$512{\times}512$\,pixel patches, and downsampled to $256{\times}256$\,pixels, yielding
+an effective resolution of $0.442\,\mu$m/pixel.
+The final collection comprises 201{,}257 H\&E and 196{,}415 SR training tiles across
+30 WSIs, with 16{,}290 tiles per domain reserved for testing, partitioned at the animal
+level to prevent data leakage.
+To the best of our knowledge, this constitutes the first open resource for unsupervised
+H\&E~$\to$~SR translation in mouse liver tissue; full acquisition, staining, and
+preprocessing details are in Supplementary Sec.~1.
 % ============================================================
 %  New bibliography entries for this section
 %  (merge with references.bib)

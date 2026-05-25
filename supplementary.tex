@@ -10,8 +10,7 @@
 As described in~\cite{ghallab2025asbt}, obstructive cholestasis was induced in
 eight-to-ten-week-old male C57BL/6N mice (Janvier Labs, France) by ligation of
 the extrahepatic common bile duct~(BDL) at a position between the gallbladder and
-the duodenum, following previously established
-procedures~\textcolor{red}{[TODO: cite original BDL protocol paper]}.
+the duodenum, following the procedure reported in~\cite{ghallab2025asbt}.
 Sham-operated control mice underwent the identical surgical procedure without
 bile-duct ligation.
 Both BDL and sham animals received vehicle as part of a larger pharmacological
@@ -27,9 +26,6 @@ this work focuses exclusively on liver sections with H\&E and Sirius Red: hepati
 fibrosis graded by Sirius Red is the primary clinical endpoint of the cholestasis
 model, and Sirius Red is the diagnostic gold standard for collagen quantification
 in liver pathology~\cite{huang2013sirius}.
-\textcolor{red}{[TODO: Consider including the AS0369-treated arms in the epistemic
-uncertainty analysis as an out-of-distribution probe.
-Confirm availability of AS0369 liver WSIs before committing to this.]}
 The model recapitulates the progressive hepatic fibrosis observed in cholestatic
 liver disease~\cite{bataller2005liver}, with fibrosis severity increasing systematically
 across four post-surgical time points: day~3 (early stage, minimal fibrosis),
@@ -51,15 +47,10 @@ per cohort.
 Histological procedures followed those reported in~\cite{ghallab2025asbt}.
 Serial 4\,$\mu$m-thick sections were cut from paraformaldehyde-fixed,
 paraffin-embedded~(PFPE) liver tissue blocks.
-One section per block was stained with haematoxylin and eosin~(H\&E) using the
-Discovery Ultra Automated Slide Preparation System (Ventana Medical Systems / Roche)
-\textcolor{red}{[TODO: confirm which section number in the cutting sequence was
-designated for H\&E staining]}.
-A non-adjacent section from the same block
-\textcolor{red}{[TODO: confirm the number of intervening sections between the
-H\&E and SR cuts]} was stained with Sirius Red using a
-commercially available kit according to the manufacturer's
-instructions\textcolor{red}{[TODO: specify kit name/manufacturer if available]}.
+One section per block was stained with H\&E using the
+Discovery Ultra Automated Slide Preparation System (Ventana Medical Systems / Roche).
+A non-adjacent section from the same block was stained with Sirius Red using a
+commercially available kit according to the manufacturer's instructions.
 Sirius Red binds selectively to fibrillar collagens (types I and III) through
 electrostatic interactions between the sulphonic acid groups of the dye and the
 basic amino acids of collagen, providing high-specificity collagen
@@ -68,7 +59,7 @@ Because both sections originate from the same PFPE block, macroscopic tissue
 morphology is consistent across the H\&E and SR stains; however, the separation
 between the two cuts introduces inter-section deformation and a degree of spatial
 misalignment that precludes exact pixel-level correspondence
-(see Section~4 of the main paper).
+(see Section~3 of the main paper).
 
 \textbf{WSI Acquisition:}
 \label{sec:supp-wsi_acquisition}
@@ -83,7 +74,7 @@ QuPath~\cite{bankhead2017qupath} prior to tiling.
 Slides with severe tissue artefacts (folds, air bubbles, or scanning failures
 affecting the majority of the section) were excluded prior to tiling.
 Slides exhibiting a mild yellow background tinge in non-collagen tissue areas,
-a minor staining variability that does not affect PSR-positive signal,
+a minor staining variability that does not affect SR-positive signal,
 were retained in the training set, as this appearance is present in the real SR
 distribution and is accounted for by the downstream segmentation model.
 
@@ -116,10 +107,10 @@ strict subsets of the full 100\% training set.}
 \toprule
 \textbf{Split} & \textbf{WSIs} & \textbf{H\&E tiles} & \textbf{SR tiles} & \textbf{Data fraction} \\
 \midrule
-Train (100\%) & 30 & 192{,}847 & 183{,}253 & 100\% \\
+Train (100\%) & 30 & 201{,}257 & 196{,}415 & 100\% \\
 Train (50\%)  & 15 & 109{,}049 &  96{,}292 & 50\%  \\
 Train (25\%)  &  7 &  49{,}312 &  49{,}293 & 25\%  \\
-Test          &  5 &  16{,}285 &  16{,}285 & ---   \\
+Test          &  5 &  16{,}290 &  16{,}290 & ---   \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -151,15 +142,15 @@ distribution.
 \caption{Dataset split summary. BDL stage indicates post-ligation day at which
 tissue was harvested; sham = control mice without bile-duct ligation.}
 \label{tab:supp-split_stats}
-\begin{tabular}{lcccccc}
+\begin{tabular}{lccccccc}
 \toprule
 \textbf{Split} & \textbf{Animals} & \textbf{WSIs} &
-\multicolumn{4}{c}{\textbf{BDL stage (WSIs)}} \\
-\cmidrule(lr){4-7}
-& & & Sham & Day 3 & Day 21/42 & Day 63 \\
+\multicolumn{5}{c}{\textbf{BDL stage (WSIs)}} \\
+\cmidrule(lr){4-8}
+& & & Sham & Day 3 & Day 21 & Day 42 & Day 63 \\
 \midrule
-Train & 28 & 30 & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} \\
-Test  &  5 &  5 & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} \\
+Train & 28 & 30 & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} \\
+Test  &  5 &  5 & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -171,12 +162,8 @@ The original H\&E and Sirius Red WSIs were collected and digitised as part of
 the study reported in~\cite{ghallab2025asbt}.
 The derived dataset used in this work, comprising tissue masks, tile-level
 metadata, data-split assignments, and tiled image patches, will be released
-publicly under a \textcolor{red}{[TODO: licence, e.g.\ Creative Commons
-Attribution 4.0 (CC~BY~4.0)]} licence alongside the publication of this paper,
-subject to the data-sharing terms of the source study.
-The derived data will be deposited at \textcolor{red}{[TODO: repository,
-e.g.\ Zenodo / BioImage Archive]} and assigned a persistent digital object
-identifier~(DOI) \textcolor{red}{[TODO: DOI once assigned]}.
+publicly upon acceptance of this paper, subject to the data-sharing terms of the
+source study.
 Pre-trained model checkpoints and all training scripts will be released in the
 same repository to enable full reproduction of the reported results.
 
@@ -242,7 +229,8 @@ $\text{Dec}_B$ reconstruct or translate images.
 The shared bottleneck is partitioned into three segments of residual blocks:
 domain-private pre-shared blocks ($n_{\text{priv}}^{\text{pre}}{=}3$), shared blocks
 ($n_{\text{shared}}{=}2$--$3$ depending on size), and domain-private post-shared blocks
-($n_{\text{priv}}^{\text{post}}{=}3$), totalling $n_{\text{blocks}}{=}9$.
+($n_{\text{priv}}^{\text{post}}{=}3$), totalling $n_{\text{blocks}}{=}8$--$9$
+depending on size.
 Stochasticity is introduced via VAE reparameterisation:
 $1{\times}1$ convolutions produce per-pixel $\mu$ and $\log\sigma^2$ maps, and a latent
 code $z = \mu + \varepsilon\sigma$, $\varepsilon \sim \mathcal{N}(0,I)$, is passed to the
@@ -305,12 +293,12 @@ directions:
 The full generator loss is:
 \begin{equation}
   \mathcal{L}_G = \mathcal{L}_{\text{GAN}} +
-    \lambda_{\text{id}}\,\mathcal{L}_{\text{id}} +
+    \lambda_{\text{cyc}}\,\mathcal{L}_{\text{cyc}} +
     \lambda_{\text{DCL}}\,\mathcal{L}_{\text{DCL}},
 \end{equation}
-with $\lambda_{\text{id}}{=}1$, $\lambda_{\text{DCL}}{=}1$.
-Cycle-consistency is disabled by default, as the DCL objective provides sufficient
-cross-domain structural constraint; the identity loss serves as a colour-space anchor.
+with $\lambda_{\text{cyc}}{=}10$ and $\lambda_{\text{DCL}}{=}1$.
+Cycle-consistency and the DCL contrastive objective are active together; the
+identity loss is disabled ($\lambda_{\text{id}}{=}0$).
 
 \textbf{UVCGAN:}
 \label{sec:supp-uvcgan}
@@ -452,82 +440,82 @@ are highlighted in grey.
 \begin{table}[h]
 \centering
 \caption{All 54 scaling configurations. S/M/L = Small/Medium/Large generator.
-Data fraction is percentage of training WSIs used. Collapsed configurations
-(failure mode) are shaded. $\downarrow$ = lower is better; $\uparrow$ = higher
-is better.}
+Data fraction is the percentage of training WSIs used. Configurations meeting
+FID~$>300$ and Patch-SSIM~$<0.20$ are flagged as collapsed (asterisk).
+$\downarrow$ = lower is better; $\uparrow$ = higher is better.}
 \label{tab:supp-scaling}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{llccccc}
 \toprule
 \textbf{Model} & \textbf{Size} & \textbf{Data \%} &
 \textbf{FID} $\downarrow$ & \textbf{LPIPS} $\downarrow$ &
-\textbf{Patch-SSIM} $\uparrow$ & \textbf{CPA MAE} $\downarrow$ \\
+\textbf{Patch-SSIM} $\uparrow$ & \textbf{CPA~MAE} $\downarrow$ \\
 \midrule
 \multirow{9}{*}{CycleGAN}
- & S & 25  & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} \\
- & S & 50  & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} \\
- & S & 100 & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & $0.049 \pm 0.042$ \\
- & M & 25  & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & $0.053 \pm 0.051$ \\
- & M & 50  & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & $0.057 \pm 0.033$ \\
- & M & 100 & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & $0.008 \pm 0.007$ \\
- & L & 25  & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} \\
- & L & 50  & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} \\
- & L & 100 & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & $0.085 \pm 0.032$ \\
+ & S & 25  & $206$ & $0.039 \pm 0.001$ & $0.331 \pm 0.041$ & $0.045 \pm 0.052$ \\
+ & S & 50  & $219$ & $0.039 \pm 0.001$ & $0.329 \pm 0.039$ & $0.063 \pm 0.058$ \\
+ & S & 100 & $210$ & $0.039 \pm 0.001$ & $0.339 \pm 0.040$ & $0.049 \pm 0.042$ \\
+ & M & 25  & $217$ & $0.039 \pm 0.001$ & $0.331 \pm 0.046$ & $0.053 \pm 0.051$ \\
+ & M & 50  & $245$ & $0.038 \pm 0.002$ & $0.323 \pm 0.039$ & $0.057 \pm 0.033$ \\
+ & M & 100 & $202$ & $0.038 \pm 0.001$ & $0.334 \pm 0.041$ & $0.008 \pm 0.007$ \\
+ & L & 25  & $207$ & $0.039 \pm 0.001$ & $0.323 \pm 0.045$ & $0.052 \pm 0.062$ \\
+ & L & 50  & $193$ & $0.040 \pm 0.001$ & $0.312 \pm 0.036$ & $0.055 \pm 0.061$ \\
+ & L & 100 & $201$ & $0.038 \pm 0.001$ & $0.342 \pm 0.041$ & $0.085 \pm 0.032$ \\
 \midrule
 \multirow{9}{*}{UNIT}
- & S & 25  & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} \\
- & S & 50  & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & $0.017 \pm 0.020$ \\
- & S & 100 & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & $0.046 \pm 0.039$ \\
- & M & 25  & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} \\
- & M & 50  & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} \\
- & M & 100 & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & $0.037 \pm 0.033$ \\
- & L & 25  & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & $0.024$ \\
- & L & 50  & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & $0.023$ \\
- & L & 100 & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & $0.043 \pm 0.047$ \\
+ & S & 25  & $201$ & $0.040 \pm 0.001$ & $0.321 \pm 0.044$ & $0.049 \pm 0.061$ \\
+ & S & 50  & $208$ & $0.038 \pm 0.002$ & $0.338 \pm 0.041$ & $0.017 \pm 0.020$ \\
+ & S & 100 & $206$ & $0.038 \pm 0.001$ & $0.324 \pm 0.037$ & $0.046 \pm 0.039$ \\
+ & M & 25  & $203$ & $0.040 \pm 0.001$ & $0.316 \pm 0.045$ & $0.050 \pm 0.051$ \\
+ & M & 50  & $196$ & $0.039 \pm 0.001$ & $0.326 \pm 0.042$ & $0.047 \pm 0.050$ \\
+ & M & 100 & $195$ & $0.038 \pm 0.002$ & $0.333 \pm 0.041$ & $0.037 \pm 0.033$ \\
+ & L & 25  & $199$ & $0.039 \pm 0.001$ & $0.333 \pm 0.041$ & $0.024 \pm 0.041$ \\
+ & L & 50  & $210$ & $0.038 \pm 0.002$ & $0.334 \pm 0.043$ & $0.023 \pm 0.030$ \\
+ & L & 100 & $211$ & $0.039 \pm 0.001$ & $0.298 \pm 0.034$ & $0.043 \pm 0.047$ \\
 \midrule
 \multirow{9}{*}{MUNIT}
- & S & 25  & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} \\
- & S & 50  & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} \\
- & S & 100 & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & $0.051 \pm 0.023$ \\
- & M & 25  & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & $0.059$ \\
- & M & 50  & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & $0.053$ \\
- & M & 100 & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & $0.043 \pm 0.014$ \\
- & L & 25  & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} \\
- & L & 50  & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} \\
- & L & 100 & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & $0.055 \pm 0.051$ \\
+ & S & 25  & $194$ & $0.039 \pm 0.001$ & $0.328 \pm 0.037$ & $0.044 \pm 0.028$ \\
+ & S & 50  & $196$ & $0.039 \pm 0.001$ & $0.331 \pm 0.033$ & $0.041 \pm 0.019$ \\
+ & S & 100 & $207$ & $0.040 \pm 0.001$ & $0.308 \pm 0.022$ & $0.051 \pm 0.023$ \\
+ & M & 25  & $197$ & $0.039 \pm 0.001$ & $0.316 \pm 0.027$ & $0.059 \pm 0.046$ \\
+ & M & 50  & $194$ & $0.039 \pm 0.001$ & $0.321 \pm 0.026$ & $0.053 \pm 0.027$ \\
+ & M & 100 & $210$ & $0.040 \pm 0.001$ & $0.310 \pm 0.022$ & $0.043 \pm 0.014$ \\
+ & L & 25  & $203$ & $0.039 \pm 0.001$ & $0.325 \pm 0.032$ & $0.040 \pm 0.030$ \\
+ & L & 50  & $198$ & $0.039 \pm 0.001$ & $0.312 \pm 0.022$ & $0.055 \pm 0.025$ \\
+ & L & 100 & $209$ & $0.040 \pm 0.001$ & $0.305 \pm 0.021$ & $0.055 \pm 0.051$ \\
 \midrule
 \multirow{9}{*}{DCLGAN}
- & S & 25  & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} \\
- & S & 50  & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} \\
- & S & 100 & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} \\
- & M & 25  & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} \\
- & M & 50  & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} \\
- & M & 100 & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} \\
- & L & 25  & $362.8$ & \textcolor{red}{[TODO]} & $0.143$ & $0.091 \pm 0.078$ \\
- & L & 50  & $326.9$ & \textcolor{red}{[TODO]} & $0.126$ & $0.082 \pm 0.061$ \\
- & L & 100 & $190.0$ & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & $0.039 \pm 0.034$ \\
+ & S & 25  & $212$ & $0.039 \pm 0.002$ & $0.322 \pm 0.039$ & $0.049 \pm 0.044$ \\
+ & S & 50  & $203$ & $0.038 \pm 0.001$ & $0.341 \pm 0.042$ & $0.049 \pm 0.030$ \\
+ & S & 100 & $207$ & $0.039 \pm 0.001$ & $0.339 \pm 0.040$ & $0.028 \pm 0.037$ \\
+ & M & 25  & $196$ & $0.039 \pm 0.001$ & $0.316 \pm 0.039$ & $0.047 \pm 0.057$ \\
+ & M & 50  & $207$ & $0.038 \pm 0.001$ & $0.327 \pm 0.034$ & $0.019 \pm 0.017$ \\
+ & M & 100 & $208$ & $0.039 \pm 0.001$ & $0.334 \pm 0.042$ & $0.042 \pm 0.058$ \\
+ & L & 25$^\ast$  & $363$ & $0.046 \pm 0.000$ & $0.143 \pm 0.002$ & $0.091 \pm 0.078$ \\
+ & L & 50$^\ast$  & $327$ & $0.049 \pm 0.000$ & $0.126 \pm 0.001$ & $0.082 \pm 0.061$ \\
+ & L & 100 & $190$ & $0.038 \pm 0.002$ & $0.349 \pm 0.045$ & $0.039 \pm 0.034$ \\
 \midrule
 \multirow{9}{*}{UVCGAN}
- & S & 25  & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} \\
- & S & 50  & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} \\
- & S & 100 & $242.5$ & $0.039$ & $0.311$ & $0.035 \pm 0.021$ \\
- & M & 25  & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} \\
- & M & 50  & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} \\
- & M & 100 & $343.2$ & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & $0.118 \pm 0.053$ \\
- & L & 25  & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} \\
- & L & 50  & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} \\
- & L & 100 & $286.5$ & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & $0.063 \pm 0.037$ \\
+ & S & 25  & $208$ & $0.039 \pm 0.002$ & $0.329 \pm 0.036$ & $0.039 \pm 0.039$ \\
+ & S & 50  & $253$ & $0.038 \pm 0.001$ & $0.337 \pm 0.038$ & $0.077 \pm 0.071$ \\
+ & S & 100 & $242$ & $0.039 \pm 0.001$ & $0.311 \pm 0.032$ & $0.035 \pm 0.021$ \\
+ & M & 25$^\ast$  & $310$ & $0.043 \pm 0.000$ & $0.152 \pm 0.003$ & $0.094 \pm 0.078$ \\
+ & M & 50  & $337$ & $0.041 \pm 0.001$ & $0.222 \pm 0.009$ & $0.084 \pm 0.071$ \\
+ & M & 100$^\ast$ & $343$ & $0.043 \pm 0.000$ & $0.142 \pm 0.004$ & $0.118 \pm 0.053$ \\
+ & L & 25  & $290$ & $0.042 \pm 0.001$ & $0.218 \pm 0.009$ & $0.095 \pm 0.077$ \\
+ & L & 50$^\ast$  & $395$ & $0.040 \pm 0.001$ & $0.147 \pm 0.004$ & $0.086 \pm 0.076$ \\
+ & L & 100 & $287$ & $0.038 \pm 0.001$ & $0.219 \pm 0.009$ & $0.063 \pm 0.037$ \\
 \midrule
 \multirow{9}{*}{CycleDiffusion}
- & S & 25  & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & $0.171 \pm 0.045$ \\
- & S & 50  & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} \\
- & S & 100 & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & $0.051 \pm 0.029$ \\
- & M & 25  & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & $0.035 \pm 0.017$ \\
- & M & 50  & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} \\
- & M & 100 & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & $0.082 \pm 0.071$ \\
- & L & 25  & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} \\
- & L & 50  & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} \\
- & L & 100 & $322.1$ & \textcolor{red}{[TODO]} & \textcolor{red}{[TODO]} & $0.055 \pm 0.043$ \\
+ & S & 25  & $229$ & $0.044 \pm 0.000$ & $0.200 \pm 0.006$ & $0.171 \pm 0.045$ \\
+ & S & 50  & $224$ & $0.044 \pm 0.000$ & $0.221 \pm 0.012$ & $0.158 \pm 0.053$ \\
+ & S & 100 & $210$ & $0.044 \pm 0.000$ & $0.217 \pm 0.009$ & $0.051 \pm 0.029$ \\
+ & M & 25  & $208$ & $0.042 \pm 0.000$ & $0.255 \pm 0.020$ & $0.035 \pm 0.017$ \\
+ & M & 50  & $209$ & $0.042 \pm 0.001$ & $0.276 \pm 0.032$ & $0.043 \pm 0.028$ \\
+ & M & 100 & $218$ & $0.042 \pm 0.000$ & $0.245 \pm 0.022$ & $0.082 \pm 0.071$ \\
+ & L & 25  & $219$ & $0.041 \pm 0.000$ & $0.244 \pm 0.014$ & $0.087 \pm 0.064$ \\
+ & L & 50  & $228$ & $0.042 \pm 0.001$ & $0.293 \pm 0.015$ & $0.079 \pm 0.057$ \\
+ & L & 100 & $322$ & $0.048 \pm 0.001$ & $0.270 \pm 0.025$ & $0.055 \pm 0.043$ \\
 \bottomrule
 \end{tabular}%
 }
@@ -575,72 +563,64 @@ model family.
 
 \begin{table}[h]
 \centering
-\caption{Loss weights used for each model family. $\lambda_{\mathrm{cyc}}$:
-cycle-consistency; $\lambda_{\mathrm{id}}$: identity; $\lambda_{\mathrm{NCE}}$:
-contrastive (DCLGAN); $\lambda_{\mathrm{KL}}$: KL divergence (UNIT/MUNIT).}
+\caption{Loss weights used for each model family. Loss terms vary across
+architectures; each row lists only the weights applicable to that family.}
 \label{tab:supp-loss-weights}
-\begin{tabular}{lcccc}
+\begin{tabular}{ll}
 \toprule
-\textbf{Model} & $\lambda_{\mathrm{cyc}}$ & $\lambda_{\mathrm{id}}$ &
-$\lambda_{\mathrm{NCE}}$ & $\lambda_{\mathrm{KL}}$ \\
+\textbf{Model} & \textbf{Loss weights} \\
 \midrule
-CycleGAN     & 10.0 & 5.0 & ---  & ---  \\
-UNIT         & 10.0 & 5.0 & ---  & 0.01 \\
-MUNIT        & 10.0 & ---  & ---  & 0.01 \\
-DCLGAN       & 10.0 & 5.0 & 1.0  & ---  \\
-UVCGAN       & 10.0 & 5.0 & ---  & ---  \\
-CycleDiffusion & ---  & --- & ---  & ---  \\
+CycleGAN       & $\lambda_{\mathrm{cyc}}{=}10$, $\lambda_{\mathrm{id}}{=}0.5$ \\
+UNIT           & $\lambda_{\mathrm{GAN}}{=}1$, $\lambda_{\mathrm{recon}}{=}10$, $\lambda_{\mathrm{KL}}{=}0.01$ \\
+MUNIT          & $\lambda_{\mathrm{img}}{=}10$, $\lambda_{c}{=}1$, $\lambda_{s}{=}1$ \\
+DCLGAN         & $\lambda_{\mathrm{cyc}}{=}10$, $\lambda_{\mathrm{id}}{=}0$, $\lambda_{\mathrm{DCL}}{=}1$ \\
+UVCGAN         & $\lambda_{\mathrm{cyc}}{=}10$, $\lambda_{\mathrm{id}}{=}0.5$ \\
+CycleDiffusion & $\varepsilon$-prediction objective only (no auxiliary weights) \\
 \bottomrule
 \end{tabular}
 \end{table}
-
-\textbf{Hardware and software:}
-\textcolor{red}{[TODO: specify GPU type, number of GPUs, CUDA version, and
-framework (PyTorch version). Also note approximate training time per
-configuration.]}
 
 \textbf{Inference details:}
 At test time, all GAN-based models perform a single forward pass through the
 trained $G_{A \to B}$ generator per tile.
 CycleDiffusion requires two sequential DDIM passes per tile: $\mathcal{M}_A$
 encodes the source tile into the shared noise latent via DDIM inversion over
-$T_{\mathrm{encode}}{=}$\textcolor{red}{[TODO]}~steps, and $\mathcal{M}_B$ decodes
-it via DDIM sampling over $T_{\mathrm{sample}}{=}$\textcolor{red}{[TODO]}~steps.
+$T_{\mathrm{encode}}{=}200$~steps, and $\mathcal{M}_B$ decodes
+it via DDIM sampling over $T_{\mathrm{sample}}{=}200$~steps.
 Generated tiles are denormalised from $[-1,1]$ to $[0,1]$ and saved with their
 original tile identifiers to enable downstream metric computation.
 
-\section{Uncertainty Analysis -- Methodology and Additional Results}
+\section{Uncertainty Analysis: Methodology and Additional Results}
 \label{sec:supp-uncertainty}
 
-\subsection{Uncertainty Quantification: Full Definitions}
+\textbf{Uncertainty Quantification: Full Definitions:}
 \label{sec:supp-unc-equations}
 
-Given an ensemble of $K{=}10$ independently trained generators
-$\{G^{(k)}_{A \to B}\}_{k=1}^{K}$ for a selected configuration, we derive a per-tile
-mean prediction and a spatially resolved epistemic uncertainty map for each H\&E test
-tile $x \in \mathcal{D}_{\mathrm{test}}$.
+Given an ensemble of $K{=}10$ independently trained generators $\{G_k\}_{k=1}^{K}$
+for a selected configuration, we derive a per-tile mean prediction and a spatially
+resolved epistemic uncertainty map for each H\&E test tile
+$x \in \mathcal{D}_{\mathrm{test}}$.
 
 \textbf{Ensemble mean prediction:}
 The ensemble mean image $\bar{y}(x)$ is the pixel-wise arithmetic mean of the ten
 generator outputs:
 \begin{equation}
-  \bar{y}(x) = \frac{1}{K} \sum_{k=1}^{K} G^{(k)}_{A \to B}(x).
+  \bar{y}(x) = \frac{1}{K} \sum_{k=1}^{K} G_k(x).
 \end{equation}
 This mean image is used as the primary virtual stain prediction for all downstream
 metric computations.
 
 \textbf{Epistemic uncertainty map:}
-Epistemic uncertainty at pixel $(x,y)$ is estimated as the pixel-wise unbiased sample
-variance across ensemble members, computed independently per colour channel
-$c \in \{R,G,B\}$:
+At pixel location $p$, the unbiased sample variance across ensemble members is
+computed independently for each colour channel $c \in \{R,G,B\}$:
 \begin{equation}
-  \sigma^2_c(x, y) = \frac{1}{K-1} \sum_{k=1}^{K}
-    \bigl(G^{(k)}_{A \to B}(x)_{c,x,y} - \bar{y}(x)_{c,x,y}\bigr)^2.
+  \sigma^2_c(p) = \frac{1}{K-1} \sum_{k=1}^{K}
+    \bigl(G_k(x)_{c, p} - \bar{y}(x)_{c, p}\bigr)^2.
 \end{equation}
 The three per-channel variance maps are summed to a single-channel scalar
 uncertainty map:
 \begin{equation}
-  U(x, y) = \sigma^2_R(x,y) + \sigma^2_G(x,y) + \sigma^2_B(x,y),
+  \mathbf{U}(x)_p = \sigma^2_R(p) + \sigma^2_G(p) + \sigma^2_B(p),
 \end{equation}
 giving $\mathbf{U}(x) \in \mathbb{R}^{H \times W}$ where $H{\times}W{=}256{\times}256$
 pixels.
@@ -651,12 +631,12 @@ pixel where all three channels disagree registers higher uncertainty than one wh
 only a single channel varies.
 
 \textbf{Tile-level scalar uncertainty:}
-Tile-level uncertainty is the spatial mean over tissue pixels:
-$\bar{\sigma}^2(x) = \frac{1}{|\Omega|}\sum_{(i,j)\in\Omega} U(i,j)$,
-where $\Omega$ denotes the set of tissue-masked pixel locations.
+Tile-level uncertainty is the spatial mean of $\mathbf{U}(x)$ over tissue pixels
+$\mathcal{T}$:
+$\bar{\sigma}^2(x) = \frac{1}{|\mathcal{T}|}\sum_{p \in \mathcal{T}} \mathbf{U}(x)_p$.
 This scalar is used in the across-tile calibration analyses.
 
-\subsection{Calibration Methodology: Full Definitions}
+\textbf{Calibration Methodology: Full Definitions:}
 \label{sec:supp-unc-calibration}
 
 \textbf{Error proxy: cycle-reconstruction error:}
@@ -681,24 +661,27 @@ translation error, which is unavailable.
 Calibration is computed on a version of the test set re-tiled with zero overlap
 (stride equal to tile size, $256{\times}256$ pixels) to avoid double-counting
 border pixels under overlapping tiling.
+Tiles with at least $0.1\%$ tissue mask coverage are retained, yielding
+$N{=}9{,}365$ tiles across the 5 test WSIs; predominantly-background tiles are
+excluded.
 All per-pixel metrics are restricted to tissue pixels identified by the
-preprocessing tissue mask; background pixels --- where both $U$ and $E$ are
-near-zero --- are excluded to prevent spurious inflation of rank correlations.
+preprocessing tissue mask; background pixels, where both $U$ and $E$ are
+near-zero, are excluded to prevent spurious inflation of rank correlations.
 
-\textbf{Calibration metric 1: within-tile Spearman $\rho$ (spatial calibration):}
+\textbf{Calibration metric 1: within-tile Spearman $r_s$ (spatial calibration):}
 For each tile, $U$ and $E$ are flattened over tissue pixels and their Spearman rank
-correlation $\rho$ is computed.
+correlation $r_s$ is computed.
 A value near $+1$ indicates that high-uncertainty pixels co-locate with high-error
 pixels within the tile; near $0$ means the spatial structure of uncertainty is
 uninformative; a negative value indicates anti-calibration.
-We report mean~$\pm$~std of $\rho$ across all test tiles as the headline spatial
+We report mean~$\pm$~std of $r_s$ across all test tiles as the headline spatial
 calibration figure.
 Spearman rank correlation is preferred over Pearson because $U$ and $E$ are on
 different scales and only their ordinal relationship is of interest.
 
-\textbf{Calibration metric 2: across-tile Spearman and Pearson $\rho$ (tile-level calibration):}
-Each tile is reduced to two scalars --- $\overline{U}$ and $\overline{E}$, the
-spatial means over tissue pixels --- and both Spearman and Pearson correlations are
+\textbf{Calibration metric 2: across-tile Spearman~$r_s$ and Pearson~$\rho$ (tile-level calibration):}
+Each tile is reduced to two scalars, $\overline{U}$ and $\overline{E}$, the
+spatial means over tissue pixels; both Spearman and Pearson correlations are then
 computed across all tiles in the test set.
 This catches the failure mode where a model is spatially well-calibrated within each
 tile but assigns identical mean uncertainty to all tiles, making it useless for
@@ -706,30 +689,18 @@ flagging unreliable tiles for pathologist review.
 Both coefficients are reported because tile-mean values tend to be more linearly
 related than per-pixel values, making Pearson a complementary diagnostic.
 
-\textbf{Calibration metric 3: ECE and reliability diagram (pixel and tile level):}
-Calibration is evaluated at two spatial scales using the same normalisation scheme:
+\textbf{Calibration metric 3: ECE and reliability diagram (tile level):}
 $U$ and $E$ are jointly rescaled to $[0,1]$ using dataset-global $p_1$--$p_{99}$
 percentile bounds, making the diagonal of the reliability diagram a meaningful
-reference and ECE scores directly comparable across architectures within this dataset.
+reference and ECE scores directly comparable across architectures within this
+dataset.
 
-\textit{Pixel-level.}
-All tissue pixels across the test set are pooled and binned by $U$-quantile into
-$B{=}10$ equal-mass bins.
-Within each bin $b$, the mean normalised uncertainty $\overline{U_n}_b$ and mean
-normalised error $\overline{E_n}_b$ are computed and plotted against each other;
-perfect calibration corresponds to the identity diagonal.
-The pixel-level ECE is~\cite{guo2017ece}:
-\begin{equation}
-  \mathrm{ECE}_{\mathrm{pixel}} = \sum_{b=1}^{B} \frac{n_b}{N_{\mathrm{px}}}
-    \bigl|\overline{U_n}_b - \overline{E_n}_b\bigr|,
-\end{equation}
-where $n_b$ is the number of pixels in bin $b$ and $N_{\mathrm{px}}$ is the total
-number of tissue pixels.
-
-\textit{Tile-level.}
 Each tile is represented by scalars $\overline{U_n}$ and $\overline{E_n}$ (spatial
 means of the normalised maps over tissue pixels) and tiles are binned by
 $\overline{U_n}$-quantile into $B{=}10$ equal-mass bins.
+Within each bin $b$, the mean normalised uncertainty $\overline{U_n}_b$ and mean
+normalised error $\overline{E_n}_b$ are computed and plotted against each other;
+perfect calibration corresponds to the identity diagonal.
 The tile-level ECE is:
 \begin{equation}
   \mathrm{ECE}_{\mathrm{tile}} = \sum_{b=1}^{B} \frac{m_b}{M}
@@ -739,33 +710,154 @@ where $m_b$ is the number of tiles in bin $b$ and $M$ is the total number of tes
 tiles.
 This adapts the classification ECE of~\cite{guo2017ece} to the regression setting;
 values are not directly comparable to ECE from classification contexts.
-The tile-level diagram catches the failure mode where a model appears pixel-calibrated
-within tiles but assigns uniform mean uncertainty across tiles regardless of their
-overall error level.
+
+\textbf{Choice of estimator: deep ensembles vs.\ MC dropout:}
+MC~dropout~\cite{gal2016dropout} was not adopted as an alternative to deep ensembles
+because its uncertainty estimates require extensive dropout-rate tuning to achieve
+calibration, and miscalibration persists even after tuning in complex
+tasks~\cite{siddiqui2024uncertainty,trustworthy_i2i2025}; deep ensembles yield
+well-calibrated estimates with minimal hyperparameter
+sensitivity~\cite{lakshminarayanan2017simple,siddiqui2024uncertainty}.
 
 \textbf{Calibration caveats:}
 The three calibration metrics characterise the same underlying property from
 complementary angles and should be read as a converging picture rather than
 independent evidence.
 Cycle-reconstruction error is a proxy, not a ground truth: self-cycle error can be
-underestimated when the forward and inverse generators share systematic biases ---
-both directions may ignore the same tissue feature and the round trip still
-reconstructs the source faithfully despite a poor forward translation.
+underestimated when the forward and inverse generators share systematic biases, in
+which case both directions may ignore the same tissue feature and the round trip
+still reconstructs the source faithfully despite a poor forward translation.
 Cross-section biological differences between the H\&E and SR sections add an
 irreducible noise floor to ECE that no model can overcome.
 
-\subsection{Per-Model Uncertainty and Calibration Results}
+\textbf{Per-Model Uncertainty and Calibration Results:}
 \label{sec:supp-unc-results}
+
+Tile-level calibration of the per-pixel uncertainty maps against cycle-reconstruction
+error, evaluated on $N{=}9{,}365$ tiles from 5 test WSIs.
+Table~\ref{tab:calibration} summarises within-tile Spearman, across-tile Pearson and
+Spearman, and ECE for the six selected configurations;
+Figure~\ref{fig:calibration_reliability} shows the corresponding reliability diagrams.
+
+\begin{table}[h!]
+\centering
+\caption{Uncertainty calibration results. Within-tile $r_s$: mean~$\pm$~std of
+  per-tile Spearman rank correlation between pixel-level uncertainty $U$ and
+  cycle-reconstruction error $E$ over tissue pixels.
+  Across-tile Pearson and Spearman: correlations between tile-mean $\overline{U}$
+  and tile-mean $\overline{E}$.
+  ECE: tile-level expected calibration error after joint $p_1$--$p_{99}$ normalisation.
+  All results on $N{=}9{,}365$ tiles from 5 test WSIs.}
+\label{tab:calibration}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{llcccc}
+\toprule
+\textbf{Model} & \textbf{Size} &
+\textbf{Within-tile $r_s$} &
+\textbf{Across-tile Pearson} &
+\textbf{Across-tile Spearman} &
+\textbf{ECE\textsubscript{tile}} \\
+\midrule
+CycleGAN       & M & $0.147 \pm 0.109$ & $0.422$ & $-0.163$ & $0.164$ \\
+UNIT           & M & $0.139 \pm 0.088$ & $0.439$ & $ 0.206$ & $0.260$ \\
+MUNIT          & M & $0.165 \pm 0.173$ & $0.584$ & $ 0.175$ & $0.097$ \\
+DCLGAN         & S & $0.157 \pm 0.084$ & $0.605$ & $-0.032$ & $0.081$ \\
+UVCGAN         & S & $0.069 \pm 0.130$ & $0.489$ & $ 0.173$ & $0.168$ \\
+CycleDiffusion & S & $0.058 \pm 0.095$ & $-0.027$ & $-0.038$ & $0.191$ \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\begin{figure}[t!]
+  \centering
+  \includegraphics[width=\linewidth]{calibration_combined/combined_reliability}
+  \caption{Tile-level reliability diagrams for all six model families (top row:
+    CycleGAN, UNIT, MUNIT; bottom row: DCLGAN, UVCGAN, CycleDiffusion).
+    Each panel plots mean normalised cycle-reconstruction error per uncertainty bin
+    ($y$-axis) against mean normalised uncertainty ($x$-axis); the dashed diagonal is
+    the identity line.
+    ECE is annotated in each panel title.
+    Reliability curves lying below the identity indicate that ensembles assign higher
+    uncertainty than the cycle-reconstruction error warrants; the lowest-uncertainty bin
+    is an exception for CycleGAN, MUNIT, and DCLGAN, where error exceeds uncertainty.
+    CycleDiffusion shows a near-flat error line across all bins, indicating
+    uninformative uncertainty.}
+  \label{fig:calibration_reliability}
+\end{figure}
+
+\textbf{Within-tile spatial calibration.}
+All six families produce weak within-tile Spearman correlations ($r_s = 0.058$--$0.165$),
+indicating that high-uncertainty pixels are only loosely co-located with high-error
+pixels within a tile.
+MUNIT ($r_s = 0.165 \pm 0.173$) and DCLGAN ($r_s = 0.157 \pm 0.084$) are the
+strongest, though MUNIT's large standard deviation reflects marked tile-to-tile
+inconsistency.
+UVCGAN ($r_s = 0.069$) and CycleDiffusion ($r_s = 0.058$) show near-zero spatial
+calibration.
+These values rule out pixel-level uncertainty as a reliable quality gate.
+
+\textbf{Across-tile calibration.}
+GAN-based families exhibit moderate across-tile Pearson correlations between tile-mean
+uncertainty and tile-mean error ($\rho = 0.42$--$0.61$), with DCLGAN and MUNIT ranking
+highest.
+The across-tile Spearman correlations are substantially weaker and inconsistent
+($r_s = {-}0.16$--$0.21$), revealing that the linear covariation is driven by a
+small number of high-leverage tiles rather than a robust monotonic ordering.
+CycleDiffusion is wholly uncorrelated (Pearson $\rho = {-}0.03$, Spearman $r_s = {-}0.04$).
+
+\textbf{Reliability diagrams and ECE.}
+DCLGAN achieves the lowest tile-level ECE ($0.081$; Figure~\ref{fig:calibration_reliability}),
+followed by MUNIT ($0.097$); UNIT is the worst ($0.260$).
+All six reliability curves lie predominantly \emph{below} the identity line: ensembles
+assign higher uncertainty than the normalised cycle error warrants.
+This systematic bias is partly structural, as all models minimise cycle-reconstruction
+loss, compressing the error proxy relative to inter-member disagreement.
+The lowest-uncertainty bin is an exception for CycleGAN, MUNIT, and DCLGAN, where
+error exceeds uncertainty, confirming that high-confidence tiles are not guaranteed to
+be error-free.
+
+\textbf{CycleDiffusion: categorically uninformative uncertainty.}
+CycleDiffusion's reliability diagram presents a flat error line across all ten
+uncertainty bins ($\overline{E_n} \approx 0.44$--$0.49$, constant), with near-zero
+across-tile correlation in both Pearson and Spearman.
+The underlying cause is the DDIM inversion cycle error, which is an order of magnitude
+larger than for GAN families (tile-mean $p_1$--$p_{99}$: 30.0--38.6 vs.\ 0.7--6.7
+for GAN models in unnormalised units) and varies so little across tiles that it
+cannot be predicted from ensemble variance.
+The uncertainty signal therefore carries no information about translation quality for
+CycleDiffusion.
+
+\textbf{Interpretation.}
+GAN-based families with moderate across-tile Pearson correlations
+($\rho = 0.42$--$0.61$) suggest that tiles with elevated ensemble disagreement tend
+on average to exhibit greater reconstruction difficulty and may be flagged for
+pathologist review; DCLGAN and MUNIT, which rank highest in both across-tile Pearson
+and ECE, are the most defensible choices if soft uncertainty-based triage is adopted in
+practice.
+These calibration rankings align only partially with the CPA~MAE rankings from the
+scaling study: CycleGAN achieves the study-best CPA~MAE ($0.008$) despite only
+moderate calibration scores, underscoring that perceptual quality, task accuracy,
+and uncertainty calibration are three independent axes of evaluation that must each
+be considered for reliable, uncertainty-aware evaluation.
+
+\textbf{Summary.}
+GAN-based ensembles produce a weak but non-trivial tile-level triage signal (across-tile
+Pearson $\rho = 0.42$--$0.61$), with DCLGAN and MUNIT as the most reliable candidates.
+No family achieves meaningful within-tile spatial calibration, and CycleDiffusion
+uncertainty is wholly uninformative.
+These results indicate that task-specific CPA~MAE evaluation cannot be replaced by
+uncertainty screening alone.
 
 \begin{figure}[t!]
   \centering
   \includegraphics[width=\linewidth, height=0.82\textheight, keepaspectratio]{calibration_combined/combined_spearman_hist}
-  \caption{Distribution of within-tile Spearman~$\rho$ between pixel-level uncertainty
-    $U$ and cycle-reconstruction error $E$ across all $N{=}9{,}365$ test tiles for each
+  \caption{Distribution of within-tile Spearman~$r_s$ between pixel-level uncertainty
+    $U$ and cycle-reconstruction error $E$ across the $N{=}9{,}365$ test tiles for each
     model family (top row: CycleGAN, UNIT, MUNIT; bottom row: DCLGAN, UVCGAN,
     CycleDiffusion).
-    The dashed vertical line marks the mean~$\rho$.
-    GAN-based families peak around $\rho \approx 0.15$--$0.17$; UVCGAN and
+    The dashed vertical line marks the mean~$r_s$.
+    GAN-based families peak around $r_s \approx 0.15$--$0.17$; UVCGAN and
     CycleDiffusion are centred near zero, confirming near-absent spatial calibration.
     The broad spread in all panels reflects high tile-to-tile variability.}
   \label{fig:calibration_spearman}

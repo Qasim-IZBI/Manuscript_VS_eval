@@ -7,42 +7,38 @@
 \label{sec:metrics}
 
 Since the ultimate objective of virtual staining is to support downstream biological
-analysis, task-based evaluation provides the most direct measure of model performance:
-a translation that faithfully preserves the relevant tissue signal will produce
+analysis, task-specific evaluation provides the most direct measure of model performance.
+A translation that faithfully preserves the relevant tissue signal will produce
 biologically consistent quantitative readouts when the same analysis pipeline is applied
 to both real and virtual images.
-We supplement this with distributional and perceptual measures that characterise the
-visual quality of the generated stains.
+We supplement this with structural, perceptual, and distributional measures that
+characterise the visual quality of the generated stains.
 
-H\&E and SR sections originate from the same tissue block but are physically distinct;
-direct pixel-level comparison is not meaningful ground truth due to irremovable tissue
-deformation. However, both sections share the same underlying collagen content, enabling
-a meaningful paired comparison at the level of biological quantity rather than pixel
-intensity.
+H\&E and SR sections originate from the same tissue block but are physically distinct,
+so direct pixel-level comparison cannot serve as ground truth due to irremovable tissue deformation.
+For evaluation, we loosely co-register the test-set H\&E and SR
+tiles to enable approximate pixel- and feature-level comparison; residual misalignment
+inevitably inflates apparent error. Both sections also share the same underlying
+collagen content, enabling a paired comparison at the level of biological quantity
+(the CPA~MAE described below).
 
-As distributional and perceptual measures we report FID~\cite{heusel2017fid},
-LPIPS~\cite{zhang2018lpips}, and patch-based SSIM~\cite{wang2004ssim}: FID compares real
-and generated SR distributions using InceptionV3 features without requiring pairing; LPIPS
-measures VGG-based deep feature distance for tile-matched pairs; and patch-based SSIM
-computes structural similarity over local patches to reduce sensitivity to
-misregistration.
+Specifically, we report patch-based SSIM~\cite{wang2004ssim},
+LPIPS~\cite{zhang2018lpips}, and FID~\cite{heusel2017fid}: patch-based SSIM computes
+structural similarity over local patches to reduce sensitivity to residual
+misregistration; LPIPS measures VGG-based deep feature distance over the
+co-registered tile pairs; and FID compares real and generated SR distributions using
+InceptionV3 features without requiring pairing.
 
-\paragraph{Task-Based Evaluation: Collagen Proportionate Area Agreement.}
-A frozen nnU-Net~v2 collagen segmentation model~\cite{isensee2021nnunet} trained
-exclusively on real SR tiles is applied identically to (i)~the real SR test tiles and
-(ii)~the virtual SR tiles produced by each model configuration.
-For each tile, the segmentation yields a binary collagen mask from which the
-\textit{collagen proportionate area}~(CPA), the fraction of tissue area occupied by
-Sirius Red-positive collagen, is computed.
+\textbf{Task-Specific Evaluation: Collagen Proportionate Area Agreement:}
+A frozen nnU-Net~v2 collagen segmentation model~\cite{isensee2021nnunet} trained on
+real SR WSIs is applied identically to (i)~the real SR test WSIs and (ii)~the virtual
+SR WSIs produced by each model configuration.
+For each WSI, CPA is computed as the fraction of tissue pixels labelled as SR-positive
+collagen (background excluded).
 CPA is the standard quantitative readout for hepatic fibrosis assessment and is
 directly comparable across slides~\cite{huang2013sirius}.
 
-Because each H\&E section and its paired real SR section originate from the same tissue
-block, a direct per-sample comparison is possible.
-For each test WSI, one CPA value per stain is derived by dividing the total
-PSR-labelled pixels by all tissue-labelled pixels across the reconstructed WSI
-(background excluded).
-The primary task-based metric is the \textit{mean absolute error}~(MAE) between
+The primary task-specific metric is the \textit{mean absolute error}~(MAE) between
 paired real-SR and virtual-SR CPA values:
 \begin{equation}
   \mathrm{MAE}_{\mathrm{CPA}} = \frac{1}{N}\sum_{i=1}^{N}
@@ -50,7 +46,7 @@ paired real-SR and virtual-SR CPA values:
   \label{eq:cpa_mae}
 \end{equation}
 where $N$ is the number of test WSIs.
-A lower CPA MAE indicates that the virtual stain supports collagen quantification
+A lower CPA~MAE indicates that the virtual stain supports collagen quantification
 consistent with the real stain, serving as the primary biologically grounded benchmark
 for model evaluation in this study.
 

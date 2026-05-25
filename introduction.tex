@@ -3,15 +3,14 @@
 %  Compile with: pdflatex + bibtex (or biblatex/biber)
 %  NOTE: [TBC] markers denote citations needing author verification
 % ============================================================
-
 \section{Introduction}
 
 \begin{figure*}[t!]
   \centering
-  \includegraphics[width=0.92\linewidth]{images/Intro_GM}
+  \includegraphics[width=0.92\linewidth]{images/translation.png}
   \caption{%
     Overview of the virtual H\&E~$\to$~SR staining pipeline studied in this work.
-    A whole-slide image acquired with H\&E staining is decomposed into
+    A whole-slide image~(WSI) acquired with H\&E staining is decomposed into
     $256{\times}256$\,pixel tiles, which are passed through an unpaired
     image-to-image translation model to produce virtual Sirius Red tiles.
     The translated tiles are reassembled into a virtual SR WSI, from which
@@ -21,84 +20,79 @@
   \label{fig:pipeline_overview}
 \end{figure*}
 
-Histopathological diagnosis relies on a panel of specialised stains, each designed to
-highlight a distinct tissue component: haematoxylin and eosin~(H\&E) provides general
-morphological context, while dedicated stains target specific biological questions by
-visualising collagen fibres, proliferating cells, or receptor-expressing
-cells~\cite{lefkowitch2006special, krishna2013role}.
-In clinical and preclinical practice, each additional stain requires a separate tissue
-section, consuming limited biopsy material~\cite{rivenson2020emerging, dehaan2021deep},
-extending laboratory processing time~\cite{dehaan2021deep}, and introducing inevitable
-spatial misalignment between staining layers due to tissue deformation during sectioning
-and mounting~\cite{gatenbee2023virtual, chen2022mvfstain}.
-This multiplies with every marker of interest: a comprehensive tissue characterisation
-panel may require four or more serial sections from a single biopsy~\cite{clark2017immunohistochemistry},
-placing practical limits on the breadth of analysis achievable from any given specimen.
+Histopathology relies on a panel of stains that highlight different tissue components:
+hematoxylin and eosin~(H\&E) shows overall tissue architecture, while specialised
+stains target specific features such as collagen fibres, proliferating cells, or
+receptor-expressing cells~\cite{lefkowitch2006special, krishna2013role}.
+In clinical and preclinical practice, however, each additional stain requires a separate
+tissue section. This consumes limited biopsy material~\cite{rivenson2020emerging, dehaan2021deep},
+extends laboratory processing time~\cite{dehaan2021deep}, and introduces spatial
+misalignment between stains because tissue deforms during sectioning and
+mounting~\cite{gatenbee2023virtual, chen2022mvfstain}.
+These costs grow with each marker: a full tissue characterisation panel may require four
+or more serial sections from a single biopsy~\cite{clark2017immunohistochemistry},
+limiting how much can be learnt from any given specimen.
 
-In liver pathology, Sirius Red~(SR) staining is of particular importance.
-SR binds collagen fibres with high specificity and is the histochemical gold standard
-for collagen proportionate area~(CPA) measurement and fibrosis staging, correlating more
-strongly with serum fibrosis markers than Masson's trichrome~\cite{huang2013sirius}.
-In practice, obtaining SR requires a separate tissue section from the same biopsy block,
-consuming limited material and introducing spatial misalignment between the SR and H\&E
-slides due to tissue deformation during sectioning.
+These costs are especially limiting in liver pathology, where Sirius Red~(SR) binds
+collagen with high specificity and serves as the gold-standard stain for measuring
+collagen proportionate area~(CPA) and grading fibrosis, correlating more strongly with
+serum fibrosis markers than Masson's trichrome~\cite{huang2013sirius}.
 
-Virtual staining, which uses deep learning to predict a target stain directly from an
-existing digitised slide, offers an attractive solution (Figure~\ref{fig:pipeline_overview}).
-By eliminating the need for additional sections, it conserves tissue,
-reduces turn-around time, and creates the possibility of retrospective stain analysis from
-H\&E archives~\cite{rivenson2020emerging, latonen2024virtual}.
-The field has advanced rapidly: supervised pixel-to-pixel translation models have been
-validated for H\&E~$\to$~trichrome on large liver cohorts~\cite{kieffer2020largescale},
-and a prior-guided GAN has achieved a Spearman correlation of $\rho{=}0.82$ between
-virtual and real trichrome-based fibrosis scores~\cite{li2023unpaired}.
-Yet supervised approaches require geometrically registered image pairs from adjacent
-sections, a requirement that is impractical at scale and introduces systematic bias from
-tissue deformation~\cite{aatresh2024virtual}.
-\textit{Unsupervised} methods, which learn domain mappings from unpaired collections, are
-therefore better suited to this setting. However, no study has directly applied them to
-histochemical stain translation in liver tissue, and it remains unclear which model
-within the increasingly diverse family of unpaired image-to-image~(I2I) approaches
-performs best for this task.
+Virtual staining offers an attractive solution: it uses deep learning to predict a
+target stain directly from an existing H\&E image (Figure~\ref{fig:pipeline_overview}).
+By avoiding the need for additional sections, it conserves tissue, reduces turn-around
+time, and enables retrospective analysis of H\&E
+archives~\cite{rivenson2020emerging, latonen2024virtual}.
+The field has advanced rapidly: supervised pixel-to-pixel models have been validated for
+H\&E~$\to$~trichrome on large liver cohorts~\cite{kieffer2020largescale}, and a
+prior-guided GAN has reached a Spearman correlation of $r_s{=}0.82$ between virtual and
+real trichrome fibrosis scores~\cite{li2023unpaired}.
+Yet supervised approaches require pixel-aligned image pairs from adjacent sections,
+which is impractical at scale and introduces bias from tissue
+deformation~\cite{aatresh2024virtual}.
+\textit{Unsupervised} methods, which learn from unpaired image collections, are better
+suited to this setting. However, to our knowledge, no prior work has systematically
+compared them for H\&E~$\to$~SR translation in liver tissue; existing comparisons focus
+almost entirely on H\&E~$\to$~IHC or skin staining~\cite{visgab2025, adib2024dual}.
+Existing benchmarks also fix a single model scale and data budget, leaving open how
+model capacity and training data jointly affect translation quality, an important
+question because liver biopsy cohorts vary widely in size across clinical centres.
 
-Comparative studies have focused almost exclusively on H\&E~$\to$~IHC or skin tissue
-staining~\cite{visgab2025, adib2024dual}, leaving the relative suitability of the diverse
-family of unpaired I2I approaches for histochemical stain translation in liver tissue
-uncharacterised.
-Moreover, existing benchmarks typically fix a single model scale and data budget,
-providing no insight into how model capacity and training set size jointly determine
-translation quality, a practically important question given that liver biopsy cohorts
-vary enormously in size across clinical centres.
-
-Reliable deployment also requires spatially resolved predictive confidence.
-Epistemic uncertainty can be estimated via MC~dropout or deep
+Beyond translation quality, ensemble variance provides an indirect check: where
+independently trained members disagree, the unsupervised objective does not pin down a
+unique answer for that input, an indicator of epistemic uncertainty that complements
+task-specific evaluation. Epistemic uncertainty can be
+estimated via MC~dropout or deep
 ensembles~\cite{gal2016dropout, lakshminarayanan2017simple}, both applied to H\&E
 classification and SR collagen segmentation~\cite{uncertainty_informed_hist2022,
-liverfibrosis2025}, yet neither approach has been applied to unpaired I2I histological
-stain translation. A recent calibration study found MC~dropout poorly suited to unpaired
-generation~\cite{trustworthy_i2i2025}, motivating deep ensembles as the more reliable
-estimator for this setting.
+liverfibrosis2025}, yet neither has been applied to unpaired image-to-image~(I2I) stain
+translation. A
+recent calibration study found MC~dropout poorly suited to unpaired
+generation~\cite{trustworthy_i2i2025}, leaving deep ensembles as the more reliable
+choice for this setting.
 
-To address these open questions, this paper makes four contributions:
-\begin{enumerate}
-  \item \textbf{Open dataset.} We introduce a whole-slide image dataset of paired H\&E
-    and Sirius Red sections from a mouse bile-duct ligation~(BDL) model of cholestatic
-    liver disease~\cite{ghallab2025asbt}, the first dedicated resource for unsupervised
-    H\&E~$\to$~SR translation in mouse liver tissue.
-  \item \textbf{Scaling study.} CycleGAN, UNIT, MUNIT, DCLGAN, UVCGAN, and
-    CycleDiffusion are each trained at three generator capacities (${\sim}10$M,
-    ${\sim}50$M, ${\sim}100$M parameters) and three data fractions (25\%, 50\%, 100\%),
-    yielding 54 independently evaluated configurations.
-  \item \textbf{Task-based evaluation.} We apply a frozen collagen segmentation model to
-    both real and virtual SR images and report CPA~MAE as the primary biologically
-    grounded benchmark, supplemented by FID, LPIPS, and patch-SSIM.
-  \item \textbf{Uncertainty analysis.} Deep ensembles of ten independently initialised
-    models yield spatially resolved epistemic uncertainty maps for the best configuration
-    per family, constituting the first systematic uncertainty analysis for unpaired
-    virtual histological staining.
-\end{enumerate}
+To address these open questions, this paper makes three contributions.
 
+First, we conduct a full-factorial scaling study of six unsupervised I2I architectures
+spanning GAN-based and diffusion-based families (CycleGAN~\cite{zhu2017unpaired},
+UNIT~\cite{liu2017unsupervised}, MUNIT~\cite{huang2018multimodal},
+DCLGAN~\cite{han2021dual}, UVCGAN~\cite{torbunov2022uvcgan}, and
+CycleDiffusion~\cite{wu2022cyclediffusion}) at three generator capacities (${\sim}10$M, ${\sim}50$M, ${\sim}100$M
+parameters) and three data fractions (25\%, 50\%, 100\%). Each of the 54 configurations
+is evaluated using a task-specific CPA mean absolute error~(CPA~MAE), computed by
+applying a frozen collagen segmentation model to real and virtual SR images, alongside
+FID, LPIPS, and patch-SSIM.
 
+Building on this study, we train deep ensembles of ten independently seeded models for
+the best configuration per family, producing spatially resolved uncertainty maps and the
+first systematic comparison of epistemic uncertainty across unsupervised stain-to-stain
+architectures.
+
+Finally, we release the whole-slide image dataset of paired H\&E and Sirius Red sections
+from a mouse bile-duct ligation~(BDL) experiment~\cite{ghallab2025asbt}, the first open
+resource for unsupervised H\&E~$\to$~SR translation in mouse liver tissue.
+Together, these three contributions move unsupervised stain translation toward
+reliable, uncertainty-aware evaluation.
 % ============================================================
 %  Bibliography entries specific to this section
 %  (merge with references.bib; shared entries already in related_work.tex)

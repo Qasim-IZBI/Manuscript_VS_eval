@@ -8,7 +8,7 @@
 
 \begin{figure*}[t!]
   \centering
-  \includegraphics[width=0.82\linewidth]{images/I2I_Models_02}
+  \includegraphics[width=0.82\linewidth]{images/models.png}
   \caption{%
     Schematic encoder--decoder architectures of the six evaluated unsupervised I2I models.
     \textit{CycleGAN} and \textit{DCLGAN} share a plain ResNet generator backbone;
@@ -26,17 +26,16 @@
 \end{figure*}
 
 We evaluate six unsupervised I2I architectures (Figure~\ref{fig:model_architectures}):
-\textbf{CycleGAN}~\cite{zhu2017unpaired}, \textbf{UNIT}~\cite{liu2017unsupervised},
-\textbf{MUNIT}~\cite{huang2018multimodal}, \textbf{DCLGAN}~\cite{han2021dual}, and
-\textbf{UVCGAN}~\cite{torbunov2022uvcgan} are GAN-based families that share a
+five GAN-based families (CycleGAN~\cite{zhu2017unpaired},
+UNIT~\cite{liu2017unsupervised}, MUNIT~\cite{huang2018multimodal},
+DCLGAN~\cite{han2021dual}, UVCGAN~\cite{torbunov2022uvcgan}) that share a
 cycle-consistency objective and differ in latent-space structure, contrastive objectives,
-and generator backbone (see Supplementary Sec.~2 for loss formulations);
-\textbf{CycleDiffusion}~\cite{wu2022cyclediffusion} instead enforces cycle consistency
-through a shared diffusion noise space via DDIM inversion~\cite{song2021ddim} and
-sampling.
-Each is trained at three capacity scales (${\sim}10$\,M, ${\sim}50$\,M, and ${\sim}100$\,M
-parameters), yielding 54 configurations in total; full architectural details are given in
-Supplementary Sec.~2.
+and generator backbone, and the diffusion-based
+CycleDiffusion~\cite{wu2022cyclediffusion}, which enforces cycle consistency in a shared
+diffusion noise space via DDIM~\cite{song2021ddim} inversion and sampling.
+Each is trained at three capacity scales (${\sim}10$M, ${\sim}50$M, and ${\sim}100$M
+parameters); full architectural details and loss formulations are in Supplementary
+Sec.~2.
 
 % ============================================================
 %  New bibliography entries for this section

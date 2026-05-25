@@ -6,231 +6,121 @@
 \section{Epistemic Uncertainty Analysis}
 \label{sec:uncertainty}
 
-The scaling study~(Section~\ref{sec:results_scaling}) identifies how model capacity and
-data volume jointly affect translation quality, but it treats each configuration as a
-deterministic predictor.
-In an unpaired setting, no ground-truth target constrains the generator: a model may
+The scaling study~(Section~\ref{sec:results_scaling}) characterises translation quality
+for each configuration but treats each as a deterministic predictor.
+In an unpaired setting, no paired SR target supervises the generator: a model may
 produce a stain that appears visually plausible yet does not faithfully reproduce the
-underlying tissue structure, a hallucination that is indistinguishable from a correct
-translation in a single forward pass.
-This is a critical concern for clinical adoption, as a hallucinated collagen pattern
-carries the same visual appearance as a true one.
-We address this gap by training deep ensembles for the best-performing generator size
-from each model family at the full training data volume, for reasons detailed in
-Section~\ref{sec:ens_selection}, and constructing spatially resolved epistemic
-uncertainty maps that flag regions of high inter-member disagreement, enabling
-pathologists to review low-confidence areas with appropriate caution.
+underlying tissue structure.
+Without ground truth we cannot directly detect such errors on a per-tile basis; we can,
+however, train independently seeded models and ask whether they converge on the same
+translation.
+To this end, we train deep ensembles of $K{=}10$ independently seeded models per family
+and treat the pixel-wise variance across ensemble members as an epistemic uncertainty
+signal: low variance indicates the unsupervised objective steers all members toward a
+common SR output, while persistent inter-seed disagreement marks inputs where the
+objective alone does not pin down a unique answer.
+Variance measures epistemic uncertainty, not correctness, and must be read alongside
+CPA~MAE from the scaling study: a model can be confidently wrong.
 
-% -------------------------------------------------------
-\subsection{Model Selection for Ensemble Analysis}
-\label{sec:ens_selection}
-% -------------------------------------------------------
-
+\textbf{Model selection:}
 For each family we select the generator size trained on the full training set (100\%
-data fraction) with the lowest CPA~MAE; FID serves as a secondary tiebreak.
-Fixing the data fraction ensures that ensemble uncertainty differences reflect
-architectural properties rather than training volume.
-Selected configurations are marked with a star ($\bigstar$) in
-Figure~\ref{fig:results_overview}.
+data fraction) with the lowest CPA~MAE (FID as tiebreak), marked with a star
+($\bigstar$) in Figure~\ref{fig:results_overview}.
 
 \textbf{Ensemble training:}
-For each selected configuration, ten models are trained independently from distinct
-random seeds, using the identical hyperparameters and training data as the corresponding
-scaling-study run.
-The ensemble size of $K{=}10$ is motivated by convergence analysis showing that
-calibration errors plateau at approximately ten members for deep ensembles in
-biomedical image segmentation~\cite{siddiqui2024uncertainty}, and is consistent
-with prior ensemble-based uncertainty work in virtual staining
-applications~\cite{trustworthy_cell_ensemble2023}.
+Each selected configuration is re-trained ten times with distinct random seeds;
+hyperparameters and training data match the corresponding scaling-study run.
+The ensemble size of $K{=}10$ matches convergence analysis showing calibration errors
+plateau near ten members for biomedical image
+segmentation~\cite{siddiqui2024uncertainty} and prior ensemble-based virtual staining
+work~\cite{trustworthy_cell_ensemble2023}.
 
-% -------------------------------------------------------
-\subsection{Uncertainty Quantification}
-\label{sec:unc_maps}
-% -------------------------------------------------------
-
-For each selected configuration, the ensemble mean image is the pixel-wise average
-of the $K{=}10$ generator outputs; the epistemic uncertainty map
-$\mathbf{U}(x) \in \mathbb{R}^{H \times W}$ is the sum of per-channel sample variances
-across ensemble members (unbiased, $K{-}1$ denominator)~\cite{lakshminarayanan2017simple}.
-Summing channels preserves the total disagreement signal; high values flag pixels where
-ensemble members disagree --- due to ambiguous texture, rare morphologies, or
-out-of-distribution artefacts.
-A tile-level scalar $\bar{\sigma}^2(x)$ is the spatial mean of $\mathbf{U}(x)$ over
-tissue pixels, used in the calibration analyses below.
-Full equations are given in Supplementary Sec.~9.
+\textbf{Uncertainty quantification:}
+For each selected configuration, given an H\&E input $x$ and the $K{=}10$
+independently trained generators $\{G_k\}_{k=1}^{K}$
+(Figure~\ref{fig:uncertainty_maps}), the ensemble mean is the
+pixel-wise average $\bar{y}(x) = \frac{1}{K}\sum_{k} G_k(x)$, and the epistemic
+uncertainty map $\mathbf{U}(x) \in \mathbb{R}^{H \times W}$ is the sum of per-channel
+sample variances across ensemble members~\cite{lakshminarayanan2017simple}:
+\begin{equation}
+  \mathbf{U}(x) = \sum_{c=1}^{C} \frac{1}{K-1}
+  \sum_{k=1}^{K} \bigl(G_k(x)_{c} - \bar{y}(x)_{c}\bigr)^{2},
+  \label{eq:uncertainty}
+\end{equation}
+where $C{=}3$ is the number of output channels (RGB).
+Summing channels preserves the total disagreement signal; high values of
+$\mathbf{U}(x)$ flag regions where the model fails to converge on a consistent
+translation across seeds, i.e., the inter-seed disagreement signal motivated above.
+A per-tile summary is the spatial mean
+$\bar{\sigma}^2(x) = \frac{1}{|\mathcal{T}|}\sum_{p \in \mathcal{T}} \mathbf{U}(x)_p$
+over tissue pixels $\mathcal{T}$, used as the per-family epistemic uncertainty
+statistic summarised in Figure~\ref{fig:uncertainty_boxplot}.
 
 \begin{figure*}[t!]
   \centering
-  \subfigure[]{%
-    \includegraphics[width=0.67\linewidth]{images/uncertainty (1).png}%
-    \label{fig:uncertainty_pipeline}%
-  }%
-  \hfill
-  \subfigure[]{%
-    \includegraphics[width=0.27\linewidth]{images/wsi.png}%
-    \label{fig:tissue_uncertainty}%
-  }%
+  \includegraphics[width=0.65\linewidth]{images/only_uncertainty.png}
   \caption{%
     Epistemic uncertainty estimation via deep ensembles.
-    \textbf{(a)}~Pipeline: an H\&E input tile is forwarded through $K{=}10$
-    independently trained generators; the pixel-wise sample variance across the $K$
-    SR outputs yields the uncertainty map $\mathbf{U}(x)$, and cycling the ensemble
-    mean back through $G_{B\to A}$ produces the cycle-reconstruction error map
-    $E(x,y)$ as a proxy for per-pixel translation difficulty.
-    \textbf{(b)}~Tissue-level visualisation: ensemble mean SR prediction, uncertainty
-    map $\mathbf{U}$, and error map $E$ projected onto a representative test WSI.
-    Spatial co-localisation of high-uncertainty and high-error regions indicates
-    well-calibrated predictions.%
+    An H\&E input tile is forwarded through $K{=}10$ independently trained generators;
+    the pixel-wise sample variance across the $K$ SR outputs yields the uncertainty
+    map $\mathbf{U}(x)$ (Eq.~\ref{eq:uncertainty}).%
   }
   \label{fig:uncertainty_maps}
 \end{figure*}
 
 % -------------------------------------------------------
-\subsection{Uncertainty Calibration}
-\label{sec:unc_calibration}
+\subsection{Results: Ensemble Variance}
+\label{sec:unc_variance_results}
 % -------------------------------------------------------
-
-A spatially resolved uncertainty map is only useful if it is \textit{calibrated}:
-when the model assigns high uncertainty to a pixel, the translation should be
-measurably worse at that pixel.
-Verifying this requires an independent per-pixel error signal.
-In a supervised setting this would be the absolute deviation from a known target;
-in the unpaired setting of this work no such target exists, because the H\&E and SR
-images originate from different physical sections.
-We therefore use \textit{cycle-reconstruction error} as a proxy for per-pixel
-translation difficulty.
-MC~dropout~\cite{gal2016dropout} was not adopted as an alternative to deep ensembles
-because its uncertainty estimates require extensive dropout-rate tuning to achieve
-calibration, and miscalibration persists even after tuning in complex
-tasks~\cite{siddiqui2024uncertainty,trustworthy_i2i2025}; deep ensembles yield
-well-calibrated estimates with minimal hyperparameter
-sensitivity~\cite{lakshminarayanan2017simple,siddiqui2024uncertainty}.
-
-\textbf{Calibration metrics:}
-Calibration is evaluated against cycle-reconstruction error $E(x,y) = |A(x,y) -
-G_{B\to A}(G_{A\to B}(A))(x,y)|$ as a proxy for per-pixel translation difficulty
-(ground-truth pixel targets are unavailable in the unpaired setting).
-Three complementary metrics are computed over tissue pixels (full definitions in
-Supplementary Sec.~9): (i)~within-tile Spearman~$\rho$ between $U$ and $E$ over tissue
-pixels~(spatial calibration); (ii)~across-tile Spearman and Pearson~$\rho$ between
-tile-mean $\overline{U}$ and tile-mean $\overline{E}$~(tile-level calibration, catching
-the failure mode where a model assigns uniform uncertainty across tiles); and
-(iii)~pixel-level and tile-level ECE~\cite{guo2017ece} computed after jointly rescaling
-$U$ and $E$ to $[0,1]$ via dataset-global $p_1$--$p_{99}$ bounds.
-Cycle-reconstruction error is a proxy: self-cycle error can be underestimated when
-forward and inverse generators share systematic biases, and cross-section biological
-variation between H\&E and SR sections adds an irreducible ECE noise floor.
-
-% -------------------------------------------------------
-\subsection{Results: Uncertainty Analysis}
-\label{sec:unc_results}
-\label{sec:unc_vs_error}
-% -------------------------------------------------------
-
-Table~\ref{tab:calibration} summarises all calibration metrics across the six selected
-configurations ($N{=}9{,}365$ tiles, 5 test WSIs each).
-Figure~\ref{fig:calibration_reliability} shows the reliability diagrams for each family;
-within-tile Spearman distributions and across-tile scatter plots are provided in
-Supplementary Sec.~9.3.
-
-\begin{table}[h!]
-\centering
-\caption{Uncertainty calibration results. Within-tile $\rho$: mean~$\pm$~std of
-  per-tile Spearman rank correlation between pixel-level uncertainty $U$ and
-  cycle-reconstruction error $E$ over tissue pixels.
-  Across-tile Pearson and Spearman: correlations between tile-mean $\overline{U}$
-  and tile-mean $\overline{E}$.
-  ECE: tile-level expected calibration error after joint $p_1$--$p_{99}$ normalisation.
-  All results on $N{=}9{,}365$ tiles from 5 test WSIs.}
-\label{tab:calibration}
-\resizebox{\linewidth}{!}{%
-\begin{tabular}{llcccc}
-\toprule
-\textbf{Model} & \textbf{Size} &
-\textbf{Within-tile $\rho$} &
-\textbf{Across-tile Pearson} &
-\textbf{Across-tile Spearman} &
-\textbf{ECE\textsubscript{tile}} \\
-\midrule
-CycleGAN       & M & $0.147 \pm 0.109$ & $0.422$ & $-0.163$ & $0.164$ \\
-UNIT           & M & $0.139 \pm 0.088$ & $0.439$ & $ 0.206$ & $0.260$ \\
-MUNIT          & M & $0.165 \pm 0.173$ & $0.584$ & $ 0.175$ & $0.097$ \\
-DCLGAN         & S & $0.157 \pm 0.084$ & $0.605$ & $-0.032$ & $0.081$ \\
-UVCGAN         & S & $0.069 \pm 0.130$ & $0.489$ & $ 0.173$ & $0.168$ \\
-CycleDiffusion & S & $0.058 \pm 0.095$ & $-0.027$ & $-0.038$ & $0.191$ \\
-\bottomrule
-\end{tabular}%
-}
-\end{table}
 
 \begin{figure*}[t!]
   \centering
-  \includegraphics[width=\linewidth]{calibration_combined/combined_reliability}
-  \caption{Tile-level reliability diagrams for all six model families (top row:
-    CycleGAN, UNIT, MUNIT; bottom row: DCLGAN, UVCGAN, CycleDiffusion).
-    Each panel plots mean normalised cycle-reconstruction error per uncertainty bin
-    ($y$-axis) against mean normalised uncertainty ($x$-axis); the dashed diagonal is
-    the identity line.
-    ECE is annotated in each panel title.
-    Reliability curves lying below the identity indicate that ensembles assign higher
-    uncertainty than the cycle-reconstruction error warrants; the lowest-uncertainty bin
-    is an exception for CycleGAN, MUNIT, and DCLGAN, where error exceeds uncertainty.
-    CycleDiffusion shows a near-flat error line across all bins, indicating
-    uninformative uncertainty.}
-  \label{fig:calibration_reliability}
+  \includegraphics[width=0.85\linewidth]{images/uncertainty_boxplot}
+  \caption{%
+    Distribution of per-tile epistemic uncertainty $\bar{\sigma}^2$ across $9{,}365$
+    test tiles (those with at least $0.1\%$ tissue mask coverage) for each of the six
+    model families; median values are annotated.
+    GAN-based families cluster within a narrow band (median $3.53$--$3.69$,
+    IQR $0.043$--$0.094$); CycleDiffusion sits below the cluster (median $3.16$) yet
+    shows substantially wider spread (IQR $0.238$).%
+  }
+  \label{fig:uncertainty_boxplot}
 \end{figure*}
 
-\textbf{Within-tile spatial calibration.}
-All six families produce weak within-tile Spearman correlations ($\rho = 0.058$--$0.165$),
-indicating that high-uncertainty pixels are only loosely co-located with high-error
-pixels within a tile.
-MUNIT ($\rho = 0.165 \pm 0.173$) and DCLGAN ($\rho = 0.157 \pm 0.084$) are the
-strongest, though MUNIT's large standard deviation reflects marked tile-to-tile
-inconsistency.
-UVCGAN ($\rho = 0.069$) and CycleDiffusion ($\rho = 0.058$) show near-zero spatial
-calibration.
-These values rule out pixel-level uncertainty as a reliable quality gate
-(per-family $\rho$ distributions are shown in Supplementary Sec.~9.3).
+Figure~\ref{fig:uncertainty_boxplot} reports the per-tile $\bar{\sigma}^2$ distribution
+across the $9{,}365$ test tiles for each model family.
 
-\textbf{Across-tile calibration.}
-GAN-based families exhibit moderate across-tile Pearson correlations between tile-mean
-uncertainty and tile-mean error ($r = 0.422$--$0.605$), with DCLGAN and MUNIT ranking
-highest.
-The across-tile Spearman correlations are substantially weaker and inconsistent
-($\rho = {-}0.163$--$0.206$), revealing that the linear covariation is driven by a
-small number of high-leverage tiles rather than a robust monotonic ordering.
-CycleDiffusion is wholly uncorrelated (Pearson $r = {-}0.027$, Spearman $\rho = {-}0.038$);
-per-family scatter plots are shown in Supplementary Sec.~9.3.
+\textbf{GAN families:}
+The five GAN-based methods cluster within a narrow uncertainty band, with medians
+ranging from $3.53$ (UNIT) to $3.69$ (MUNIT) and IQRs of $0.085$--$0.094$.
+DCLGAN is the exception within this group: its median ($3.58$) is comparable to the
+other GAN families, yet its IQR ($0.043$) is approximately half that of any other GAN
+family.
+MUNIT records the highest median ($3.69$) among GAN families.
 
-\textbf{Reliability diagrams and ECE.}
-DCLGAN achieves the lowest tile-level ECE ($0.081$; Figure~\ref{fig:calibration_reliability}),
-followed by MUNIT ($0.097$); UNIT is the worst ($0.260$).
-All six reliability curves lie predominantly \emph{below} the identity line: ensembles
-assign higher uncertainty than the normalised cycle error warrants.
-This systematic bias is partly structural — all models minimise cycle-reconstruction
-loss, compressing the error proxy relative to inter-member disagreement.
-The lowest-uncertainty bin is an exception for CycleGAN, MUNIT, and DCLGAN, where
-error exceeds uncertainty, confirming that high-confidence tiles are not guaranteed to
-be error-free.
+\textbf{CycleDiffusion:}
+CycleDiffusion sits distinctly below the GAN cluster in typical uncertainty (median
+$3.16$), yet its IQR ($0.238$) is $2.5$--$5.5\times$ wider than any GAN family.
+On many tiles the ten independently seeded diffusion models converge on a consistent
+SR translation, while on a substantial subset they diverge sharply, a tile-level
+variability absent in all GAN families.
 
-\textbf{CycleDiffusion: categorically uninformative uncertainty.}
-CycleDiffusion's reliability diagram presents a flat error line across all ten uncertainty
-bins ($\overline{E_n} \approx 0.44$--$0.49$, constant), with near-zero across-tile
-correlation in both Pearson and Spearman.
-The underlying cause is the DDIM inversion cycle error, which is an order of magnitude
-larger than for GAN families (tile-mean $p_1$--$p_{99}$: 30.0--38.6 vs.\ 0.7--6.7
-for GAN models in unnormalised units) and varies so little across tiles that it
-cannot be predicted from ensemble variance.
-The uncertainty signal therefore carries no information about translation quality for
-CycleDiffusion.
+\textbf{Joint reading with CPA~MAE:}
+Combining the per-tile uncertainty with the CPA~MAE values from
+Section~\ref{sec:results_scaling} gives a two-axis summary of each family.
+CycleGAN's selected medium generator records the study-low CPA~MAE
+($0.008 \pm 0.007$) at moderate per-tile uncertainty (median $3.62$, IQR $0.087$).
+DCLGAN combines low CPA~MAE ($0.028$) with the narrowest spread (IQR $0.043$).
+CycleDiffusion records moderate CPA~MAE ($0.051$) with the lowest median uncertainty
+($3.16$) but the widest spread (IQR $0.238$).
+UNIT, MUNIT, and UVCGAN occupy intermediate positions on both axes.
 
-\textbf{Summary.}
-GAN-based ensembles produce a weak but non-trivial tile-level triage signal (across-tile
-Pearson 0.42--0.61), with DCLGAN and MUNIT as the most reliable candidates.
-No family achieves meaningful within-tile spatial calibration, and CycleDiffusion
-uncertainty is wholly uninformative.
-These results indicate that task-based CPA MAE evaluation cannot be replaced by
-uncertainty screening alone.
+A complementary calibration analysis against cycle-reconstruction error
+(Supplementary Sec.~\ref{sec:supp-unc-results}) shows that GAN-based uncertainty maps moderately predict
+tile-level error (across-tile Pearson $\rho = 0.42$--$0.61$), with DCLGAN
+($\rho = 0.61$, ECE $0.081$) and MUNIT ($\rho = 0.58$, ECE $0.097$) leading.
+CycleDiffusion's uncertainty is uncorrelated with cycle error ($\rho = {-}0.03$),
+and no family achieves meaningful within-tile spatial calibration.
 
 % ============================================================
 %  New bibliography entries for this section

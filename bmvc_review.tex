@@ -1,7 +1,7 @@
 \documentclass{bmvc2k}
 
 %% Paper number assigned by OpenReview — replace ?? once you have it
-\bmvcreviewcopy{??}
+\bmvcreviewcopy{1516}
 
 \title{Towards Reliable AI-Based Histological Staining: 
 A Systematic Study of Scaling and Uncertainty in Unpaired Generative Models}
@@ -22,14 +22,7 @@ A Systematic Study of Scaling and Uncertainty in Unpaired Generative Models}
 % Prevent floats from crossing section boundaries
 \usepackage[section]{placeins}
 \usepackage{amssymb}
-
-% Redefine \paragraph: bold run-in title, no extra vertical space, no indent
-\makeatletter
-\renewcommand\paragraph{\@startsection{paragraph}{4}{\z@}%
-  {0ex \@plus 0ex \@minus 0ex}%
-  {-0.5em}%
-  {\normalfont\normalsize\bfseries}}
-\makeatother
+\usepackage{booktabs}
 
 % Standard BMVC macros (not in the class file to avoid name collisions)
 \def\eg{\emph{e.g}\bmvaOneDot}
@@ -42,37 +35,35 @@ A Systematic Study of Scaling and Uncertainty in Unpaired Generative Models}
 \maketitle
 
 \begin{abstract}
-Comprehensive histopathological analysis requires multiple specialised stains, yet
-each additional stain consumes a separate tissue section from a limited biopsy,
-extends laboratory turnaround time, and introduces spatial misalignment between
-staining layers.
-Virtual staining, which predicts a target stain directly from a digitised H\&E slide,
-eliminates this requirement and enables retrospective analysis from existing archives.
-In liver pathology, Sirius Red~(SR) is the histochemical gold standard for collagen
-proportionate area~(CPA) measurement and fibrosis staging, but no systematic benchmark
-has compared unsupervised image-to-image~(I2I) architectures for H\&E~$\to$~SR
-translation, characterised how model capacity and training data volume jointly govern
-staining quality, or quantified the predictive uncertainty of such models.
-We release an open whole-slide image dataset of paired H\&E and Sirius Red sections
-from a mouse bile-duct ligation model~\cite{ghallab2025asbt} and conduct a
-full-factorial scaling study across six architectures (CycleGAN, UNIT, MUNIT, DCLGAN,
-UVCGAN, CycleDiffusion), three generator capacities, and three training data fractions,
-yielding 54 configurations.
-All configurations are evaluated with perceptual metrics alongside a task-based CPA
-mean absolute error that exploits the paired tissue-block structure of the dataset
-to provide a biologically grounded benchmark.
-We additionally train deep ensembles for the best configuration per model family and
-derive spatially resolved epistemic uncertainty maps, the first such analysis for
-unpaired virtual histological staining.
-Perceptual metrics saturate across well-behaved configurations and correlate only
-moderately with CPA MAE (Spearman $\rho{=}0.55$--$0.64$), confirming that task-based
-evaluation is indispensable for model selection in this domain.
-CPA MAE spans over an order of magnitude ($0.008$--$0.171$) across the 54
-configurations; MUNIT is the most stable architecture across all scaling conditions,
-while DCLGAN and UVCGAN exhibit catastrophic training failures at high capacity
-with limited data.
-\textcolor{red}{[TODO: add one to two sentences on the headline uncertainty findings
-once Section~\ref{sec:unc_results} is complete.]}
+Virtual histological staining has advanced rapidly in recent years, yet
+systematic benchmarks for unsupervised stain-to-stain translation remain scarce,
+particularly for histochemical stains in liver tissue.
+Sirius Red~(SR), one such stain used for collagen proportionate area~(CPA) measurement
+in liver fibrosis staging, has received little attention as a virtual staining target.
+No study has jointly characterised how model capacity and training data volume govern
+Hematoxylin and Eosin~(H\&E) to SR translation quality, or quantified the predictive
+uncertainty of such models, which is essential since visually plausible outputs in the
+unpaired setting may not faithfully reproduce the underlying tissue structure.
+We conduct a full-factorial scaling study across six unsupervised image-to-image~(I2I)
+architectures (GAN-based and diffusion-based), three generator capacities, and three
+training data fractions, and evaluate each configuration using perceptual metrics
+and a task-specific CPA mean absolute error~(CPA~MAE).
+Building on this, deep ensembles of $K{=}10$ independently seeded models are trained
+for the best full-data configuration per family,
+yielding spatially resolved uncertainty maps and the first systematic comparison of
+epistemic uncertainty across unsupervised stain-to-stain architectures.
+To support this benchmark, we release a paired H\&E and SR whole-slide image dataset
+from a mouse bile-duct ligation experiment, the first open resource for unsupervised
+H\&E~$\to$~SR translation in mouse liver tissue.
+Our study demonstrates that perceptual metrics correlate only moderately with CPA~MAE
+(Spearman $r_s = 0.55$--$0.64$), and that CPA~MAE itself ranges from $0.008$ to
+$0.171$, a 21-fold span confirming that perceptual metrics alone cannot guide model
+selection.
+Ensemble variance separates families on a second axis beyond CPA~MAE.
+DCLGAN combines low task error with the narrowest inter-seed spread (IQR $0.043$) and
+the most informative variance signal.
+CycleDiffusion records the lowest mean variance ($3.16$) but is uncorrelated with
+cycle-reconstruction error.
 \end{abstract}
 
 %-------------------------------------------------------------------------
