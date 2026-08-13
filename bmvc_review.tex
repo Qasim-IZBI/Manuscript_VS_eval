@@ -35,35 +35,29 @@ A Systematic Study of Scaling and Uncertainty in Unpaired Generative Models}
 \maketitle
 
 \begin{abstract}
-Virtual histological staining has advanced rapidly in recent years, yet
-systematic benchmarks for unsupervised stain-to-stain translation remain scarce,
-particularly for histochemical stains in liver tissue.
-Sirius Red~(SR), one such stain used for collagen proportionate area~(CPA) measurement
-in liver fibrosis staging, has received little attention as a virtual staining target.
-No study has jointly characterised how model capacity and training data volume govern
-Hematoxylin and Eosin~(H\&E) to SR translation quality, or quantified the predictive
-uncertainty of such models, which is essential since visually plausible outputs in the
-unpaired setting may not faithfully reproduce the underlying tissue structure.
-We conduct a full-factorial scaling study across six unsupervised image-to-image~(I2I)
-architectures (GAN-based and diffusion-based), three generator capacities, and three
-training data fractions, and evaluate each configuration using perceptual metrics
-and a task-specific CPA mean absolute error~(CPA~MAE).
-Building on this, deep ensembles of $K{=}10$ independently seeded models are trained
-for the best full-data configuration per family,
-yielding spatially resolved uncertainty maps and the first systematic comparison of
-epistemic uncertainty across unsupervised stain-to-stain architectures.
-To support this benchmark, we release a paired H\&E and SR whole-slide image dataset
-from a mouse bile-duct ligation experiment, the first open resource for unsupervised
-H\&E~$\to$~SR translation in mouse liver tissue.
-Our study demonstrates that perceptual metrics correlate only moderately with CPA~MAE
-(Spearman $r_s = 0.55$--$0.64$), and that CPA~MAE itself ranges from $0.008$ to
-$0.171$, a 21-fold span confirming that perceptual metrics alone cannot guide model
-selection.
-Ensemble variance separates families on a second axis beyond CPA~MAE.
-DCLGAN combines low task error with the narrowest inter-seed spread (IQR $0.043$) and
-the most informative variance signal.
-CycleDiffusion records the lowest mean variance ($3.16$) but is uncorrelated with
-cycle-reconstruction error.
+Liver fibrosis, the principal predictor of long-term outcome in chronic liver disease,
+is staged from histological estimates of collagen content. Sirius Red~(SR) provides
+the standard quantitative readout (collagen proportionate area, CPA) but is not
+acquired at every clinical centre and consumes tissue, time, and reagent cost beyond the
+routine Hematoxylin and eosin~(H\&E) stain. AI-based virtual staining can generate
+SR directly from H\&E, yet systematic benchmarks of unsupervised models are scarce and
+their predictive uncertainty has not been quantified, even though visually plausible outputs may
+not faithfully reproduce the underlying tissue structure.
+We therefore benchmark six unsupervised image-to-image architectures (GAN-based and
+diffusion-based) across 54 scaling configurations on a newly released paired
+H\&E to SR mouse liver dataset, the first open resource for this translation task.
+Each configuration is evaluated jointly on perceptual, distributional, and
+task-specific axes plus a blinded expert reader study; the best per family is then
+retrained as a deep ensemble, the first systematic comparison of epistemic uncertainty
+across unsupervised stain-to-stain architectures.
+Across families, perceptual quality, task-specific error, and ensemble agreement
+measure largely independent axes of model fitness: GAN-based methods cluster tightly
+on perceptual metrics yet differ substantially on task error and ensemble agreement,
+while the diffusion-based method (CycleDiffusion) is qualitatively different on all three. No single
+metric captures these differences, so reliable virtual staining requires reporting and
+selecting on all three jointly. The dataset, tiling pipeline, models, and evaluation
+code are released publicly.
+% TODO camera-ready: insert repository URL and dataset DOI in the sentence above.
 \end{abstract}
 
 %-------------------------------------------------------------------------

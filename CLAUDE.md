@@ -81,7 +81,7 @@ Conventions used consistently across the `.tex` files — maintain these when ad
 | Table labels | `\label{tab:name}` |
 | Equation labels | `\label{eq:name}` |
 | Tile dimensions | `$256{\times}256$\,pixel` |
-| Parameter counts | `${\sim}10$M` (curly braces around tilde, math mode) |
+| Parameter counts | `${\sim}10$~million parameters` (avoid `M` for million — collides with M for Medium generator size) |
 
 ## Section Status
 
@@ -127,5 +127,4 @@ Reference PDFs for all six models are in `RelatedWorks/`.
 
 ## Bibliography Known Issues
 
-- **Duplicate key:** `insilicolabeling2023` (`related_work.tex`) and `trustworthy_cell_ensemble2023` (`uncertainty_analysis.tex`) both refer to PMC10663640 (the in silico cell labelling ensemble paper). Both keys are present so the project compiles. Before submission: choose one key, update all `\cite{}` calls, delete the redundant entry.
 - **`[TBC]` entries** in `references.bib` need first-author verification before submission.

@@ -6,43 +6,26 @@
 \section{Conclusion}
 \label{sec:conclusion}
 
-We conduct a full-factorial scaling study across six unsupervised I2I architectures,
-three generator capacities, and three training data fractions, yielding 54
-configurations.
-Each configuration is evaluated on perceptual metrics (Patch-SSIM, LPIPS, FID) and a
-task-specific CPA~MAE grounded in the paired tissue-block structure.
-Building on this study, deep ensembles of ten models per best-performing family
-configuration yield spatially resolved epistemic uncertainty maps, constituting the
-first systematic comparison of epistemic uncertainty across unsupervised stain-to-stain
-architectures.
-To support this benchmark, we release the paired H\&E and Sirius Red WSI dataset from
-the mouse bile-duct ligation experiment of~\cite{ghallab2025asbt}.
+We benchmarked six unsupervised image-to-image architectures across 54 scaling
+configurations on a newly released H\&E~$\to$~Sirius Red mouse liver dataset, jointly
+evaluating each configuration on perceptual, distributional, and task-specific axes and
+on per-tile epistemic uncertainty from deep ensembles, the first systematic comparison
+of epistemic uncertainty across unsupervised stain-to-stain architectures.
 
-The scaling study reveals that perceptual metrics saturate within a narrow band across
-the majority of well-behaved configurations and correlate only moderately with CPA~MAE
-($r_s{=}0.55$--$0.64$), confirming that task-specific evaluation is indispensable for
-model selection.
-CPA~MAE ranges from $0.008$ to $0.171$ across the 54 configurations (a 21-fold span),
-with medium-capacity generators trained on the full dataset performing most reliably
-across families.
-MUNIT is the most stable architecture, maintaining a narrow CPA~MAE range of
-$0.040$--$0.059$ across all nine scaling conditions.
-DCLGAN's large generator collapses at reduced data fractions, while UVCGAN's
-medium and large variants fail across all data fractions; both underscore that
-over-parameterisation can degrade translation as severely as under-training.
-CycleDiffusion produces competitive CPA~MAE despite systematically lower Patch-SSIM
-than GAN-based families, demonstrating that perceptual sharpness and biological
-accuracy are not equivalent objectives.
-Per-family ensemble variance separates the six families along an axis distinct from
-CPA~MAE: DCLGAN pairs low task error with the narrowest inter-seed spread
-(IQR $0.043$) and the most informative variance signal among GAN families, while
-CycleDiffusion records the lowest mean ensemble variance ($3.16$) but the widest spread
-and is uncorrelated with cycle-reconstruction error.
-Uncertainty signals are informative only at tile resolution; pixel-level uncertainty
-does not reliably co-locate with high-error regions within a tile
-(Supplementary Sec.~\ref{sec:supp-unc-results}).
-These findings indicate that perceptual quality, task accuracy, and epistemic
-uncertainty are three independent evaluation axes for unsupervised stain translation.
+For practitioners, the family choice depends on the deployment objective: CycleGAN's
+medium generator at full data offers the lowest task-specific error for fibrosis
+quantification, DCLGAN's small generator offers the best trade-off between task
+accuracy and ensemble agreement when per-tile reliability matters, MUNIT is the safest
+default across variable data budgets, and CycleDiffusion is conditionally consistent
+rather than uniformly more reliable than the GAN alternatives. More broadly,
+task-specific error, perceptual quality, and ensemble uncertainty measure largely
+independent axes of model fitness; reporting any single axis gives an incomplete
+picture, and future virtual-staining benchmarks should report all three jointly, with
+model selection driven by the axis closest to the intended downstream use.
 
-The dataset, model implementations, and evaluation code are released publicly to
-support reproducible benchmarking and future work on virtual histochemical staining.
+% TODO camera-ready: replace the placeholder owner in the URL and add the dataset DOI.
+The dataset, tiling pipeline, models, and evaluation code are released publicly as
+\textit{I2I-Stain-Zoo} (\url{https://github.com/TODO/I2I-Stain-Zoo}); the most pressing
+next step is cross-cohort validation on independent mouse models and human liver
+biopsies.
+

@@ -56,6 +56,19 @@ First sentence of the paragraph continues here...
 ```
 This saves vertical space and keeps the section compact. Use `\paragraph{}` (not `\noindent\textbf{}`) throughout: related work topics, training protocol leads, evaluation sub-topics, etc.
 
+### No self-referential epistemic hedges
+Strip phrases that hedge about the authors' knowledge rather than the claim itself:
+
+| Forbidden | Preferred |
+|-----------|-----------|
+| "to our knowledge, no prior work has X" | "no prior work has X" |
+| "to the best of our knowledge, this is the first Y" | "this is the first Y" |
+| "we believe this is the only Z" | "this is the only Z" |
+| "as far as we know" | (delete entirely) |
+| "we are not aware of" | (delete entirely) |
+
+State the claim directly. These hedges signal uncertainty about the literature search rather than the underlying claim, which weakens the contribution.
+
 ---
 
 ## Blind Review Rules
@@ -81,7 +94,7 @@ These are already established in `CLAUDE.md` but repeated here for completeness:
 | Author list shorthand | `\etal` macro |
 | Stain translation arrow | `H\&E~$\to$~SR` |
 | Tile dimensions | `$256{\times}256$\,pixel` |
-| Parameter counts | `${\sim}10$M` |
+| Parameter counts | `${\sim}10$~million parameters` (avoid `M` for million — collides with M for Medium generator size) |
 | Section labels | `\label{sec:name}` |
 | Unverified citations | `% [TBC]` comment on the `.bib` entry |
 

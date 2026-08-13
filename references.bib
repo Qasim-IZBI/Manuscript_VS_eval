@@ -9,14 +9,6 @@
 %  Entries marked [TBC] require first-author / metadata
 %  verification before final submission.
 %  Organised by topic group; alphabetical within each group.
-%
-%  ⚠  DUPLICATE KEY WARNING
-%     insilicolabeling2023  (related_work.tex)
-%     trustworthy_cell_ensemble2023  (uncertainty_analysis.tex)
-%  both refer to the same paper (PMC10663640).  Both keys are
-%  present here so the project compiles.  Before submission,
-%  choose one key, update every \cite{} accordingly, and delete
-%  the redundant entry.
 % =============================================================
 
 
@@ -271,8 +263,7 @@
                Task-Specific Domain Knowledge for {HER2} Scoring},
   booktitle = {Medical Image Computing and Computer Assisted
                Intervention ({MICCAI})},
-  year      = {2024},
-  url       = {https://papers.miccai.org/miccai-2024/051-Paper3227.html}
+  year      = {2024}
 }
 
 @article{khan2023effect,
@@ -327,6 +318,29 @@
   howpublished = {arXiv:2403.11340},
   year         = {2024},
   eprint       = {2403.11340},
+  archivePrefix = {arXiv}
+}
+
+% [TBC] verify author list before camera-ready
+@misc{yue2024invsr,
+  author       = {Yue, Zongsheng and Liao, Kang and Loy, Chen Change},
+  title        = {Arbitrary-steps Image Super-resolution via Diffusion Inversion},
+  howpublished = {arXiv:2412.09013},
+  year         = {2024},
+  eprint       = {2412.09013},
+  archivePrefix = {arXiv}
+}
+
+% [TBC] verify author list before camera-ready
+@misc{ho2024f2fldm,
+  author       = {Ho, Man M. and Dubey, Shikha and Chong, Yosep and
+                  Knudsen, Beatrice and Tasdizen, Tolga},
+  title        = {{F2FLDM}: Latent Diffusion Models with Histopathology
+                  Pre-Trained Embeddings for Unpaired Frozen Section to
+                  {FFPE} Translation},
+  howpublished = {arXiv:2404.12650},
+  year         = {2024},
+  eprint       = {2404.12650},
   archivePrefix = {arXiv}
 }
 
@@ -528,25 +542,7 @@
   year      = {2016}
 }
 
-% NOTE: this key (insilicolabeling2023) is used in related_work.tex.
-% uncertainty_analysis.tex uses the key trustworthy_cell_ensemble2023
-% for the same paper — see the duplicate entry below and the warning
-% at the top of this file.
 @article{insilicolabeling2023,
-  author  = {Imboden, Sara and Liu, Xuanqing and Payne, Marie C. and
-             Hsieh, Cho-Jui and Lin, Neil Y. C.},
-  title   = {Trustworthy in silico cell labeling via ensemble-based
-             image translation},
-  journal = {Biophysical Reports},
-  volume  = {3},
-  pages   = {100133},
-  year    = {2023},
-  doi     = {10.1016/j.bpr.2023.100133}
-}
-
-% DUPLICATE of insilicolabeling2023 — used in uncertainty_analysis.tex.
-% Consolidate to one key before submission.
-@article{trustworthy_cell_ensemble2023,
   author  = {Imboden, Sara and Liu, Xuanqing and Payne, Marie C. and
              Hsieh, Cho-Jui and Lin, Neil Y. C.},
   title   = {Trustworthy in silico cell labeling via ensemble-based
@@ -841,4 +837,14 @@
   booktitle = {MICCAI},
   year      = {2015},
   doi       = {10.1007/978-3-319-24574-4_28}
+}
+
+@unpublished{deng2026,
+  author       = {Deng, Zhipeng and Friebel, Adrian and Siddiqui, Qasim and
+                  Hobloss, Zaynab and Myllys, Maiju and Hengstler, Jan G. and
+                  Ghallab, Ahmed and Hoehme, Stefan},
+  title        = {{LiKiSeg}: {QuPath}-integrated Segmentation of Liver and Kidney
+                  Whole-Slide Images},
+  year         = {2026},
+  note         = {In submission}
 }

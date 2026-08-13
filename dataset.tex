@@ -5,21 +5,25 @@
 \section{Dataset}
 \label{sec:dataset}
 
-The dataset used in this study comprises whole-slide images of mouse liver tissue from
-a bile-duct ligation experiment of cholestatic liver disease~\cite{ghallab2025asbt},
-covering four post-surgical time points from minimal to advanced hepatic fibrosis.
-For each of 36 C57BL/6N mice, serial sections from the same tissue block were stained
+The dataset comprises 70 whole-slide images of mouse liver tissue
+(35 H\&E and 35 SR sections) obtained in a bile-duct ligation experiment of cholestatic
+liver disease~\cite{ghallab2025asbt}, covering four post-surgical time points
+(days~3, 7, 14, and 28, plus sham controls) from minimal to advanced hepatic fibrosis.
+For each of 35 C57BL/6N mice, serial sections from the same tissue block were stained
 with H\&E and SR. Because the two sections are non-adjacent cuts, the dataset is
 inherently \emph{unpaired}.
-WSIs were acquired at $\times$20 magnification, tiled into non-overlapping
-$512{\times}512$\,pixel patches, and downsampled to $256{\times}256$\,pixels, yielding
-an effective resolution of $0.442\,\mu$m/pixel.
-The final collection comprises 201{,}257 H\&E and 196{,}415 SR training tiles across
-30 WSIs, with 16{,}290 tiles per domain reserved for testing, partitioned at the animal
-level to prevent data leakage.
-To the best of our knowledge, this constitutes the first open resource for unsupervised
-H\&E~$\to$~SR translation in mouse liver tissue; full acquisition, staining, and
-preprocessing details are in Supplementary Sec.~1.
+WSIs were acquired at 20-fold magnification and tiled into non-overlapping
+$512{\times}512$\,pixel patches. The tiles were downsampled to $256{\times}256$\,pixels
+to match the input size of all six evaluated baselines and to lower per-batch GPU
+memory at training time, yielding an effective resolution of $0.442\,\mu$m/pixel.
+30 animals (60 WSIs) contribute 201{,}257 H\&E and 196{,}415 SR training tiles, with
+the remaining 5 animals (10 WSIs, 16{,}290 tiles per domain) reserved for testing;
+the split is partitioned at the animal level to prevent data leakage.
+This constitutes the first open resource for unsupervised H\&E~$\to$~SR translation in
+mouse liver tissue; we release the 70 WSIs together with the tiling
+and preprocessing pipeline used to generate the $256{\times}256$ tiles and the full
+evaluation code (CPA~MAE, FID, LPIPS, patch-SSIM, and ensemble variance). Full
+acquisition, staining, and preprocessing details are in Supplementary Sec.~1.
 % ============================================================
 %  New bibliography entries for this section
 %  (merge with references.bib)

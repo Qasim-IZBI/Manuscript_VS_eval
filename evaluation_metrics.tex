@@ -14,25 +14,37 @@ to both real and virtual images.
 We supplement this with structural, perceptual, and distributional measures that
 characterise the visual quality of the generated stains.
 
-H\&E and SR sections originate from the same tissue block but are physically distinct,
-so direct pixel-level comparison cannot serve as ground truth due to irremovable tissue deformation.
-For evaluation, we loosely co-register the test-set H\&E and SR
-tiles to enable approximate pixel- and feature-level comparison; residual misalignment
-inevitably inflates apparent error. Both sections also share the same underlying
-collagen content, enabling a paired comparison at the level of biological quantity
-(the CPA~MAE described below).
+Because H\&E and SR sections are non-adjacent cuts (Sec.~\ref{sec:dataset}), direct
+pixel-level comparison cannot serve as ground truth.
+We therefore co-register the test-set H\&E and SR WSIs with the VALIS feature-based
+framework~\cite{gatenbee2023virtual}, which reaches tile-scale but not pixel-exact
+correspondence, so residual misalignment inflates apparent error for any pixel-level
+comparison metric.
 
-Specifically, we report patch-based SSIM~\cite{wang2004ssim},
-LPIPS~\cite{zhang2018lpips}, and FID~\cite{heusel2017fid}: patch-based SSIM computes
-structural similarity over local patches to reduce sensitivity to residual
-misregistration; LPIPS measures VGG-based deep feature distance over the
-co-registered tile pairs; and FID compares real and generated SR distributions using
-InceptionV3 features without requiring pairing.
+\noindent\textbf{Perceptual and Distributional Metrics:} Given these constraints, we report patch-based SSIM~\cite{wang2004ssim},
+LPIPS~\cite{zhang2018lpips}, and FID~\cite{heusel2017fid}; each captures a different
+aspect of perceptual or distributional quality and each has known limitations for
+virtual staining.
+Patch-based SSIM computes structural similarity over local patches to reduce
+sensitivity to residual misregistration, and LPIPS measures VGG-based deep-feature
+distance over the co-registered tile pairs without strict pixel pairing.
+FID compares real and generated SR distributions using InceptionV3 features, capturing
+population-level realism but unable to detect localised semantic failure on individual
+tiles.
+Because these InceptionV3 features are trained on natural images rather than histology,
+FID can reward distributional realism while missing collagen-specific structure; we
+therefore treat CPA~MAE, not FID, as the primary metric.
 
-\textbf{Task-Specific Evaluation: Collagen Proportionate Area Agreement:}
-A frozen nnU-Net~v2 collagen segmentation model~\cite{isensee2021nnunet} trained on
-real SR WSIs is applied identically to (i)~the real SR test WSIs and (ii)~the virtual
-SR WSIs produced by each model configuration.
+\noindent\textbf{Task-Specific Evaluation: Collagen Proportionate Area (CPA) Agreement.}
+Although the two sections cannot be compared pixel-by-pixel, they share the same
+underlying collagen content and therefore allow a paired comparison at the level of
+biological quantity. To realise this, a frozen %nnU-Net~v2~\cite{isensee2021nnunet}
+collagen segmentation model~\cite{deng2026} trained on real SR WSIs is applied
+identically to (i)~the real SR test WSIs and (ii)~the virtual SR WSIs produced by each
+model configuration.
+Deep learning segmentation models of this kind reach Dice scores of $0.94$
+on Sirius Red~\cite{deng2026}, demonstrating that automated CPA measurement
+is clinically viable.
 For each WSI, CPA is computed as the fraction of tissue pixels labelled as SR-positive
 collagen (background excluded).
 CPA is the standard quantitative readout for hepatic fibrosis assessment and is
@@ -45,10 +57,19 @@ paired real-SR and virtual-SR CPA values:
   \bigl|\mathrm{CPA}^{\mathrm{virtual}}_{i} - \mathrm{CPA}^{\mathrm{real}}_{i}\bigr|,
   \label{eq:cpa_mae}
 \end{equation}
-where $N$ is the number of test WSIs.
+where $N$ is the number of held-out paired specimens.
 A lower CPA~MAE indicates that the virtual stain supports collagen quantification
 consistent with the real stain, serving as the primary biologically grounded benchmark
 for model evaluation in this study.
+
+\noindent\textbf{Expert Reader Study.}
+Automated metrics are complemented by a blinded reader study with three expert readers,
+two clinical liver experts and one reader experienced with histological images, conducted on the
+held-out set for the study-best and study-worst configurations.
+Readers first decided whether each SR tile was real or generated, then rated whether the
+collagen in a generated tile is biologically plausible given its matched H\&E input on a
+forced-choice four-point scale.
+The full protocol is given in Supplementary Sec.~6.
 
 
 % ============================================================

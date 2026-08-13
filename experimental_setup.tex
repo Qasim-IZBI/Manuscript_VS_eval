@@ -3,49 +3,50 @@
 %  H&E to Sirius Red Virtual Staining Paper
 % ============================================================
 
-\subsection{Training and Inference}
-\label{sec:training_inference}
+%\subsection{Training and Inference}
+%\label{sec:training_inference}
 
-\textbf{Training Protocol:}
+\textbf{Training Protocol.}
 All models are trained with the Adam optimiser~\cite{kingma2015adam} (full hyperparameters
-in Supplementary Sec.~8). We count training in optimiser steps rather than epochs,
+in Supplementary Sec.~3). We count training in optimiser steps rather than epochs,
 ensuring fair comparison across data-fraction configurations with different tile counts.
 CycleGAN, UNIT, MUNIT, DCLGAN, and CycleDiffusion are each trained for $750{,}000$~steps.
 UVCGAN follows a two-stage schedule: $250{,}000$~steps of masked-image pretraining
 followed by $500{,}000$~steps of cycle-consistent finetuning initialised from the
 Stage~1 checkpoint.
 
-\textbf{Scaling Study Design:}
+\noindent\textbf{Scaling Study Design.}
 We conduct a full factorial experiment over the six architectures of
 Section~\ref{sec:models}, three generator capacity scales, and three training data
 fractions.
 
-\textbf{Generator capacity:}
-Each model is trained at three generator sizes, Small~(${\sim}10$M),
-Medium~(${\sim}50$M), and Large~(${\sim}100$M) parameters, by adjusting the
-base channel width $n_{gf}$ and depth $n_{\text{blocks}}$ (or equivalent per model
-family; see Supplementary Sec.~2).
+\noindent\textbf{Generator capacity.}
+Each model is trained at three generator sizes: Small~(S, ${\sim}10$~million parameters),
+Medium~(M, ${\sim}50$~million), and Large~(L, ${\sim}100$~million), by adjusting the
+base channel width and depth (or equivalent per model family; see Supplementary
+Sec.~2).
 All size variants within a family share the same training protocol, data, and random
 seed, so any difference reflects capacity alone.
 
-\textbf{Training data fraction:}
+\noindent\textbf{Training data fraction.}
 The training set is partitioned into three nested subsets comprising 25\%, 50\%, and
-100\% of the 30 training WSIs, constructed via contiguous WSI ranges to avoid data leakage.
+100\% of the 30 training paired specimens (60 WSIs), constructed via contiguous WSI ranges
+to avoid data leakage.
 Smaller subsets are strict subsets of larger ones, so differences across data fractions
 are not confounded by variation in which slides are included.
-The same fixed test set of $N{=}5$ held-out WSIs is used for evaluation across all configurations.
+The same fixed test set of $N{=}5$ held-out paired specimens (10 WSIs) is used for
+evaluation across all configurations.
 Together, these axes yield $6\text{ models} \times 3\text{ sizes} \times 3\text{ data
 fractions} = \mathbf{54}$ experimental configurations, each trained and evaluated
 independently.
 
-\textbf{Inference:}
+\noindent\textbf{Inference.}
 At test time, all GAN-based models perform a single forward pass through the trained
 $G_{A \to B}$ generator per tile.
-CycleDiffusion requires two sequential DDIM passes per tile~\cite{song2021ddim}:
-$\mathcal{M}_A$ encodes the source tile into the shared noise latent via DDIM inversion
-over $T_{\text{encode}}{=}$200~steps, and $\mathcal{M}_B$ then
-decodes it into the target domain via DDIM sampling over
-$T_{\text{sample}}{=}$200~steps.
+CycleDiffusion requires two sequential DDIM passes per tile~\cite{song2021ddim}: the
+source-domain DDPM encodes the source tile into the shared noise latent via DDIM
+inversion over $T_{\text{encode}}{=}$200~steps, and the target-domain DDPM then decodes
+it into the target domain via DDIM sampling over $T_{\text{sample}}{=}$200~steps.
 
 % ============================================================
 %  New bibliography entries for this section

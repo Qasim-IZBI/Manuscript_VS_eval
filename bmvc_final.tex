@@ -6,18 +6,43 @@
 \title{Towards Reliable AI-Based Histological Staining: 
 A Systematic Study of Scaling and Uncertainty in Unpaired Generative Models}
 
-% TODO: Replace with actual author names, emails, and institution codes.
-\addauthor{Author One}{author1@institution.edu}{1}
-\addauthor{Author Two}{author2@institution.edu}{1}
+\addauthor{Qasim Siddiqui}{qasim.siddiqui@uni-leipzig.de}{1,2,3}
+\addauthor{Adrian Friebel}{friebel@izbi.uni-leipzig.de}{1,2,3}
+\addauthor{Maiju Myllys}{myllys@ifado.de}{4}
+\addauthor{Zaynab Hobloss}{hobloss@ifado.de}{4}
+\addauthor{Daniela González}{gonzalez@ifado.de}{4}
+\addauthor{Ahmed Ghallab}{ghallab@ifado.de}{4}
+\addauthor{Stefan Hoehme}{hoehme@uni-leipzig.de}{1,2,3}
 
 \addinstitution{
-  Department\\          % TODO: fill in
-  University\\
-  City, Country
+  Interdisciplinary Centre of Bioinformatics (IZBI) \\         
+  Universität Leipzig \\
+  Leipzig, Germany
 }
 
-\runninghead{Author One and Author Two}{Towards Reliable AI-Based Histological Staining}
+\addinstitution{
+  Center for Scalable Data Analytics and Artificial Intelligence (ScaDS.AI) \\       
+  University of Leipzig \\
+  Leipzig, Germany
+}
 
+\addinstitution{
+  Saxon Incubator for Clinical Translation (SIKT) \\      
+  University of Leipzig \\
+  Leipzig, Germany
+}
+
+\addinstitution{
+  Department of Toxicology \\         
+  Technical University Dortmund \\
+  Dortmund, Germany
+}
+
+\runninghead{Siddiqui \etal}{Towards Reliable AI-Based Histological Staining}
+
+% Prevent floats from crossing section boundaries
+\usepackage[section]{placeins}
+\usepackage{amssymb}
 \usepackage{booktabs}
 
 % Standard BMVC macros (not in the class file to avoid name collisions)
@@ -28,10 +53,36 @@ A Systematic Study of Scaling and Uncertainty in Unpaired Generative Models}
 %-------------------------------------------------------------------------
 \begin{document}
 
+% Let short pages end short instead of stretching the inter-section glue,
+% which otherwise opens a visible gap before Sec. 3.
+\raggedbottom
+
 \maketitle
 
 \begin{abstract}
-% TODO (~250 words). See bmvc_review.tex for the required outline.
+Liver fibrosis, the principal predictor of long-term outcome in chronic liver disease,
+is staged from histological estimates of collagen content. Sirius Red~(SR) provides
+the standard quantitative readout (collagen proportionate area, CPA) but is not
+acquired at every clinical centre and consumes tissue, time, and reagent cost beyond the
+routine Hematoxylin and eosin~(H\&E) stain. AI-based virtual staining can generate
+SR directly from H\&E, yet systematic benchmarks of unsupervised models are scarce and
+their predictive uncertainty has not been quantified, even though visually plausible outputs may
+not faithfully reproduce the underlying tissue structure.
+We therefore benchmark six unsupervised image-to-image architectures (GAN-based and
+diffusion-based) across 54 scaling configurations on a newly released paired
+H\&E to SR mouse liver dataset, the first open resource for this translation task.
+Each configuration is evaluated jointly on perceptual, distributional, and
+task-specific axes plus a blinded expert reader study; the best per family is then
+retrained as a deep ensemble, the first systematic comparison of epistemic uncertainty
+across unsupervised stain-to-stain architectures.
+Across families, perceptual quality, task-specific error, and ensemble agreement
+measure largely independent axes of model fitness: GAN-based methods cluster tightly
+on perceptual metrics yet differ substantially on task error and ensemble agreement,
+while the diffusion-based method (CycleDiffusion) is qualitatively different on all three. No single
+metric captures these differences, so reliable virtual staining requires reporting and
+selecting on all three jointly. The dataset, tiling pipeline, models, and evaluation
+code are released publicly.
+% TODO camera-ready: insert repository URL and dataset DOI in the sentence above.
 \end{abstract}
 
 %-------------------------------------------------------------------------
@@ -44,9 +95,17 @@ A Systematic Study of Scaling and Uncertainty in Unpaired Generative Models}
 \input{discussion}             % Section 9
 \input{conclusion}             % Section 10
 
-% Acknowledgements go here (omit in the review copy)
-% \section*{Acknowledgements}
-% TODO
+\section*{Acknowledgements}
+
+This work was supported by the German Federal Ministry of Education and Research (BMBF)
+under grants 031L0257J, 031L0256C, 031L0314I, and 031L0313C; by the Deutsche
+Forschungsgemeinschaft (DFG) under grant HO4772/5-2; by the European Union under
+ARTEMIS (101136299); and by Deutsche Krebshilfe under ARCTIC (70115992).
+We further thank Madlen Matz-Soja (Clinic and Polyclinic for Oncology,
+Gastroenterology, Hepatology, Pneumology and Infectiology, University Hospital Leipzig)
+and Georg Damm (Clinic and Polyclinic for Visceral, Transplantation, Thoracic and
+Vascular Surgery, University Hospital Leipzig), the two external expert readers in the
+blinded reader study.
 
 \bibliography{references}
 

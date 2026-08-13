@@ -6,36 +6,30 @@
 \section{Models}
 \label{sec:models}
 
-\begin{figure*}[t!]
-  \centering
-  \includegraphics[width=0.82\linewidth]{images/models.png}
-  \caption{%
-    Schematic encoder--decoder architectures of the six evaluated unsupervised I2I models.
-    \textit{CycleGAN} and \textit{DCLGAN} share a plain ResNet generator backbone;
-    DCLGAN additionally enforces a dual patch-level contrastive loss between domains.
-    \textit{UNIT} couples the two directions through a shared VAE bottleneck.
-    \textit{MUNIT} adds a per-domain style encoder that injects style codes via
-    Adaptive Instance Normalisation, enabling multimodal generation.
-    \textit{UVCGAN} replaces the ResNet bottleneck with a Vision Transformer block
-    preceded by masked-image pretraining.
-    \textit{CycleDiffusion} departs from the GAN paradigm: each domain has a
-    dedicated DDPM whose shared noise space mediates the cycle, with translation
-    performed via DDIM inversion and sampling rather than a deterministic forward pass.%
-  }
-  \label{fig:model_architectures}
-\end{figure*}
-
-We evaluate six unsupervised I2I architectures (Figure~\ref{fig:model_architectures}):
-five GAN-based families (CycleGAN~\cite{zhu2017unpaired},
-UNIT~\cite{liu2017unsupervised}, MUNIT~\cite{huang2018multimodal},
-DCLGAN~\cite{han2021dual}, UVCGAN~\cite{torbunov2022uvcgan}) that share a
-cycle-consistency objective and differ in latent-space structure, contrastive objectives,
-and generator backbone, and the diffusion-based
-CycleDiffusion~\cite{wu2022cyclediffusion}, which enforces cycle consistency in a shared
-diffusion noise space via DDIM~\cite{song2021ddim} inversion and sampling.
-Each is trained at three capacity scales (${\sim}10$M, ${\sim}50$M, and ${\sim}100$M
-parameters); full architectural details and loss formulations are in Supplementary
-Sec.~2.
+We evaluate six unsupervised I2I architectures (schematic in Supplementary Sec.~2):
+CycleGAN~\cite{zhu2017unpaired}, the foundational unpaired translation framework,
+together with five widely cited methods that each extend it along a distinct
+methodological direction.
+DCLGAN~\cite{han2021dual} adds a dual patch-level contrastive loss between domains for
+finer-grained content alignment.
+UNIT~\cite{liu2017unsupervised} and MUNIT~\cite{huang2018multimodal} both share a latent
+space across domains but realise it differently: UNIT through a shared VAE bottleneck between
+the domain generators, while MUNIT injects per-domain content and style codes (style via
+Adaptive Instance Normalisation) into the same latent space.
+UVCGAN~\cite{torbunov2022uvcgan} retains the cycle objective but replaces the ResNet
+bottleneck with a Vision Transformer block preceded by masked-image pretraining, aiming
+for improved stability at higher capacity.
+CycleDiffusion~\cite{wu2022cyclediffusion} departs from the GAN paradigm entirely by
+coupling the domains in a shared diffusion noise space accessed via DDIM~\cite{song2021ddim}
+inversion and sampling, replacing adversarial training with a deterministic generative
+process.
+Each model is trained at three generator capacities (${\sim}10$, ${\sim}50$, and
+${\sim}100$~million parameters) to measure how translation quality responds to added
+capacity within each architecture family.
+Although pre-trained priors and noise-inversion methods can improve fidelity, we train
+all models from scratch under a fixed data and compute budget so that capacity and data
+effects are compared fairly across families.
+Full architectural details and loss formulations are in Supplementary Sec.~2.
 
 % ============================================================
 %  New bibliography entries for this section

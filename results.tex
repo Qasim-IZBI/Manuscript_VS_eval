@@ -11,13 +11,12 @@ Figure~\ref{fig:results_overview}, which plots all four metrics jointly across t
 full experiment.
 Each point corresponds to one configuration; colour encodes data fraction and marker
 shape encodes generator size.
-Four high-level patterns emerge: (i)~CPA~MAE spans over an order of magnitude
-($0.008$--$0.171$) and is far more discriminative than the perceptual metrics, which
-saturate within a narrow band for well-behaved GAN configurations; (ii)~CycleDiffusion
-attains systematically lower Patch-SSIM ($0.200$--$0.293$) than GAN-based methods
-($0.298$--$0.349$), irrespective of scale; (iii)~two model families exhibit training
-instability under specific scaling conditions; and (iv)~perceptual metric rankings
-correlate only moderately with the CPA~MAE ranking.
+Four high-level patterns emerge: CPA~MAE spans over an order of magnitude
+($0.008$--$0.171$) while the perceptual metrics saturate within a narrow band for
+well-behaved GAN configurations; CycleDiffusion attains systematically lower Patch-SSIM
+irrespective of scale; two model families exhibit training instability under specific
+scaling conditions; and perceptual metric rankings correlate only moderately with the
+CPA~MAE ranking.
 
 \begin{figure*}[t!]
   \centering
@@ -26,12 +25,12 @@ correlate only moderately with the CPA~MAE ranking.
     All four evaluation metrics across the 54 scaling configurations
     ($6~\text{models} \times 3~\text{sizes} \times 3~\text{data fractions}$).
     Colour encodes training data fraction (blue: 25\%, orange: 50\%, green: 100\%);
-    marker shape encodes generator size (circle: small, square: medium, triangle: large).
+    marker shape encodes generator size (circle: small~S, square: medium~M, triangle: large~L).
     Large star markers indicate the best-performing model size at the 100\% data fraction
     per model family, selected for ensemble uncertainty estimation in
     Section~\ref{sec:uncertainty}.
-    Error bars on Patch-SSIM, LPIPS, and CPA~MAE denote $\pm$\,std over $N{=}5$ test
-    WSIs; FID is a set-level statistic with no per-sample variance.
+    Error bars on Patch-SSIM, LPIPS, and CPA~MAE denote $\pm$\,std over $N{=}5$ held-out
+    paired specimens (10 WSIs); FID is a set-level statistic with no per-sample variance.
     Vertical axis directions: Patch-SSIM higher is better; LPIPS, FID, CPA~MAE lower
     is better.%
   }
@@ -40,46 +39,70 @@ correlate only moderately with the CPA~MAE ranking.
 
 % -------------------------------------------------------
 
-Per-family results across the full size~$\times$~data-fraction grid are summarised
-below; complete metric tables for all 54 configurations are in Supplementary Sec.~6.
+\begin{table}[t]
+\centering
+\caption{Best configuration per model family at 100\% training data, selected on
+lowest CPA~MAE (the rule also used for ensemble uncertainty estimation in
+Section~\ref{sec:uncertainty}). \textbf{Bold} marks the best value per metric
+across families. Patch-SSIM higher is better; LPIPS, FID, and CPA~MAE lower is
+better. Patch-SSIM, LPIPS, and CPA~MAE are mean~$\pm$~std over the $N{=}5$
+held-out paired specimens; FID is a set-level statistic.}
+\label{tab:best_per_family}
+\small
+\begin{tabular}{llcccc}
+\toprule
+Family & Size & Patch-SSIM~$\uparrow$ & LPIPS~$\downarrow$ & FID~$\downarrow$ & CPA~MAE~$\downarrow$ \\
+\midrule
+CycleGAN       & M & $0.334 \pm 0.041$         & $\mathbf{0.038} \pm 0.001$ & $201.8$           & $\mathbf{0.008} \pm 0.007$ \\
+UNIT           & M & $0.333 \pm 0.041$         & $\mathbf{0.038} \pm 0.002$ & $\mathbf{195.2}$  & $0.037 \pm 0.033$ \\
+MUNIT          & M & $0.310 \pm 0.022$         & $0.040 \pm 0.001$         & $209.5$           & $0.043 \pm 0.014$ \\
+DCLGAN         & S & $\mathbf{0.339} \pm 0.040$ & $0.039 \pm 0.001$         & $207.4$           & $0.028 \pm 0.037$ \\
+UVCGAN         & S & $0.311 \pm 0.032$         & $0.039 \pm 0.001$         & $242.5$           & $0.035 \pm 0.021$ \\
+CycleDiffusion & S & $0.217 \pm 0.009$         & $0.044 \pm 0.000$         & $210.4$           & $0.051 \pm 0.029$ \\
+\bottomrule
+\end{tabular}
+\end{table}
 
-\textbf{CycleGAN:}
+Table~\ref{tab:best_per_family} reports the best configuration per family at 100\%
+training data; the per-family results across the full size~$\times$~data-fraction
+grid are summarised below, and complete metric tables for all 54 configurations are
+in Supplementary Sec.~4.
+
+\paragraph{CycleGAN.}
 Patch-SSIM ($0.312$--$0.342$) and LPIPS ($0.038$--$0.040$) are near-invariant across
 all nine configurations; FID ($193$--$245$) shows no monotonic size trend.
 CPA~MAE is the most discriminative axis: at 100\% data, small/medium/large yield
 $0.049$/$0.008$/$0.085$, with the medium generator achieving the lowest CPA~MAE in the
-entire study ($0.008 \pm 0.007$).
+entire study ($0.008$).
 Across data fractions, perceptual metrics are insensitive to data volume while CPA~MAE
 shows no consistent trend for any generator size.
 
-\textbf{UNIT:}
-Perceptual metrics (Patch-SSIM $0.298$--$0.338$, LPIPS $0.037$--$0.040$, FID
-$195$--$211$) are stable across the full grid.
+\noindent\textbf{UNIT.}
+Perceptual metrics are stable across the full grid.
 CPA~MAE at 100\% data is $0.046$/$0.037$/$0.043$ (S/M/L), with no consistent size
 advantage; the small generator achieves its best CPA~MAE at 50\% data ($0.017$) rather
 than 100\%.
 
-\textbf{MUNIT:}
-The most stable family: all four metrics span narrow ranges across all nine cells
-(Patch-SSIM $0.305$--$0.331$, LPIPS $0.039$--$0.040$, FID $193$--$210$, CPA~MAE
-$0.040$--$0.059$), with no generator size or data fraction yielding a systematic
-advantage.
+\noindent\textbf{MUNIT.}
+The most stable family: all four metrics span narrow ranges across all nine cells, with
+CPA~MAE confined to $0.040$--$0.059$ and no generator size or data fraction yielding a
+systematic advantage.
 
-\textbf{DCLGAN:}
+\noindent\textbf{DCLGAN.}
 At 100\% data all three sizes are stable (CPA~MAE $0.028$--$0.042$, FID $190$--$212$);
 the large generator achieves the study-best FID ($190.0$).
 At 50\% and 25\% data, the large generator collapses~(Patch-SSIM $0.126$--$0.143$, FID
 $327$--$363$, CPA~MAE $0.082$--$0.091$), while small and medium sizes remain stable
 (CPA~MAE $0.019$--$0.049$) at all data fractions.
 
-\textbf{UVCGAN:}
+\noindent\textbf{UVCGAN.}
 The small generator is stable across all data fractions (Patch-SSIM $0.311$--$0.337$,
 CPA~MAE $0.035$--$0.077$).
 Medium and large variants are degraded across all data fractions (Patch-SSIM
 $0.142$--$0.222$, FID $286$--$395$, CPA~MAE $0.063$--$0.118$), with the medium
 generator reaching its highest CPA~MAE at 100\% data ($0.118 \pm 0.053$).
 
-\textbf{CycleDiffusion:}
+\noindent\textbf{CycleDiffusion.}
 Consistently lower Patch-SSIM ($0.200$--$0.293$) and higher LPIPS ($0.041$--$0.048$)
 than all GAN-based families, reflecting the DDIM inversion inductive bias.
 At 100\% data, CPA~MAE is $0.051$/$0.082$/$0.055$ (S/M/L); the small generator's
@@ -87,14 +110,19 @@ CPA~MAE rises sharply with data reduction (exceeding $0.15$ at both 50\% and 25\
 reaching $0.171$ at 25\%), while the medium generator achieves its lowest CPA~MAE at
 25\% data ($0.035$) rather than at 100\% ($0.082$).
 
+Figure~\ref{fig:qualitative_examples} shows representative tiles from the study-best
+(CycleGAN-M, 100\%~data) and study-worst (CycleDiffusion-S, 25\%~data) configurations
+to make these perceptual and task-error contrasts visible.
+
 
 % -------------------------------------------------------
 
 \begin{table}[h!]
   \centering
   \caption{Spearman rank correlation ($r_s$) between the four metric orderings over
-    all 54 configurations (rank~1 = best per metric). All off-diagonal values
-    significant at $p{<}0.001$.}
+    all 54 configurations (rank~1 = best per metric, so each metric is oriented in its
+    own better-is-first direction and no $\uparrow$/$\downarrow$ applies). All
+    off-diagonal values significant at $p{<}0.001$.}
   \label{tab:ranking_correlation}
   \begin{tabular}{lcccc}
     \toprule
@@ -108,12 +136,26 @@ reaching $0.171$ at 25\%), while the medium generator achieves its lowest CPA~MA
   \end{tabular}
 \end{table}
 
-\textbf{Metric agreement:}
+\noindent\textbf{Metric agreement.}
 Table~\ref{tab:ranking_correlation} shows Spearman rank correlations between the four
 metric orderings over all 54 configurations (rank~1 assigned to the best-performing
 configuration per metric; all pairs significant at $p{<}0.001$).
 Patch-SSIM and LPIPS rankings agree most strongly with each other ($r_s{=}0.82$).
-FID shows only moderate agreement with both Patch-SSIM ($r_s{=}0.60$) and LPIPS
+FID shows only moderate agreement with Patch-SSIM ($r_s{=}0.60$) and weak agreement with LPIPS
 ($r_s{=}0.49$).
 CPA~MAE likewise shows only moderate agreement with all three perceptual metrics:
 $r_s{=}0.63$ with Patch-SSIM, $r_s{=}0.64$ with LPIPS, and $r_s{=}0.55$ with FID.
+
+\noindent\textbf{Expert reader study.}
+The blinded reader study (Section~\ref{sec:metrics}) separates the same two
+configurations that bracket the CPA~MAE range.
+In the detection task the three readers correctly identified only $38\%$ of
+best-configuration tiles as generated, against $62\%$ for the worst configuration, so
+the best configuration is not reliably distinguishable from real SR while the worst is.
+In the plausibility task all three readers independently rated the best configuration as
+plausible ($2.7$, $3.2$, and $3.7$ of $4$) and the worst as implausible ($1.1$, $1.4$,
+and $1.7$).
+The separation tracks the CPA~MAE ranking ($0.008$ vs.\ $0.171$) rather than the
+perceptual scores, which place the two configurations far closer together.
+Full protocol and per-reader results are in Supplementary Sec.~6.
+
