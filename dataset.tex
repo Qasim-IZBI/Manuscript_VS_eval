@@ -7,8 +7,8 @@
 
 The dataset comprises 70 whole-slide images of mouse liver tissue
 (35 H\&E and 35 SR sections) obtained in a bile-duct ligation experiment of cholestatic
-liver disease~\cite{ghallab2025asbt}, covering four post-surgical time points
-(days~3, 7, 14, and 28, plus sham controls) from minimal to advanced hepatic fibrosis.
+liver disease~\cite{ghallab2025asbt}, covering four post-surgical disease stages
+(days~3, 21, 42, and 63, plus sham controls) from minimal to advanced hepatic fibrosis.
 For each of 35 C57BL/6N mice, serial sections from the same tissue block were stained
 with H\&E and SR. Because the two sections are non-adjacent cuts, the dataset is
 inherently \emph{unpaired}.
@@ -22,7 +22,9 @@ the split is partitioned at the animal level to prevent data leakage.
 This constitutes the first open resource for unsupervised H\&E~$\to$~SR translation in
 mouse liver tissue; we release the 70 WSIs together with the tiling
 and preprocessing pipeline used to generate the $256{\times}256$ tiles and the full
-evaluation code (CPA~MAE, FID, LPIPS, patch-SSIM, and ensemble variance). Full
+evaluation code (CPA~MAE, FID, LPIPS, patch-SSIM, and ensemble variance).
+Animal experiments were approved by LANUV, North Rhine-Westphalia, Germany
+(application 81-02.04.2022.A286)~\cite{ghallab2025asbt}. Full
 acquisition, staining, and preprocessing details are in Supplementary Sec.~1.
 % ============================================================
 %  New bibliography entries for this section

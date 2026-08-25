@@ -12,8 +12,9 @@ from perceptual metrics alone, and that ensemble agreement separates the six fam
 along an axis different from CPA~MAE.
 
 \noindent\textbf{Perceptual saturation and the case for task-specific evaluation.}
-For the stable GAN configurations, perceptual metrics saturate within a narrow band
-(Patch-SSIM $0.30$--$0.35$, LPIPS $0.037$--$0.040$, FID $190$--$215$), with Spearman
+Across the $37$ stable GAN configurations, excluding UVCGAN's degraded medium and
+large variants, perceptual metrics saturate within a narrow band
+(Patch-SSIM $0.298$--$0.349$, LPIPS $0.038$--$0.040$, FID $190$--$253$), with Spearman
 rank correlations against CPA~MAE of only $r_s{=}0.63$, $0.64$, and $0.55$.
 As a concrete illustration, CycleGAN's medium and large generators at 100\% data are
 nearly indistinguishable by Patch-SSIM ($0.334$ vs.\ $0.342$), yet their CPA~MAE

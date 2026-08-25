@@ -10,8 +10,11 @@
 The dataset originates from the bile-duct ligation cohort
 of~\cite{ghallab2025asbt}. Briefly, obstructive cholestasis was induced in male
 C57BL/6N mice by ligation of the extrahepatic common bile duct~(BDL); sham-operated
-controls underwent the identical surgical procedure without ligation. The cohort
-spans four post-surgical time points (day~3, 21, 42, 63) representing early,
+controls underwent the identical surgical procedure without ligation. All animal
+experiments were approved by the local committee (LANUV, North Rhine-Westphalia,
+Germany; application number 81-02.04.2022.A286), as reported
+in~\cite{ghallab2025asbt}. The cohort
+spans four post-surgical disease stages (day~3, 21, 42, 63) representing early,
 intermediate, established, and advanced hepatic fibrosis~\cite{bataller2005liver}.
 Both BDL and sham arms received vehicle as part of a larger pharmacological trial;
 the pharmacologically treated arms are excluded here to avoid intervention-driven
@@ -20,8 +23,9 @@ disease-progression continuum driven solely by BDL severity.
 This work uses only the vehicle-treated liver sections stained with H\&E and
 Sirius Red, the diagnostic gold standard for hepatic
 fibrosis~\cite{huang2013sirius}.
-In total, 36 animals contribute liver sections, spanning the four time points and
-both treatment conditions, with four to five animals per cohort.
+In total, 35 animals contribute the liver sections used in this work, spanning the
+four disease stages and both treatment conditions, with four to five animals per
+stage and condition.
 
 \paragraph{Histology.}
 \label{sec:supp-staining}
@@ -48,14 +52,19 @@ of the section) were excluded prior to tiling.
 
 Tissue masks were generated for each WSI using a pixel classifier in
 QuPath~\cite{bankhead2017qupath}: tissue regions were identified by applying an
-intensity threshold on the Eosin channel for H\&E slides and on the DAB channel
-for SR slides.
+intensity threshold on the Eosin channel for H\&E slides and on the second channel
+of QuPath's default H-DAB deconvolution vectors for SR slides.
+No DAB is present on the Sirius Red sections; the H-DAB vector is used only as a
+convenient optical-density channel that separates stained tissue from background.
 The masked WSI was tiled into non-overlapping $512{\times}512$\,pixel patches
 using a stride equal to the tile size; each patch was subsequently downsampled to
 $256{\times}256$\,pixels by bilinear interpolation, yielding an effective pixel
 resolution of $0.442\,\mu$m/pixel.
 Tiles in which less than 50\% of pixels fell within the tissue mask were discarded
 from the training set; no tissue filtering was applied to the test set.
+The test specimens are co-registered, so their H\&E and SR sections are tiled on a
+single shared grid; with no tissue filtering applied, both domains therefore yield
+identical test tile counts by construction.
 All retained tiles were normalised channel-wise to $[-1,\,1]$ by subtracting
 $0.5$ and dividing by $0.5$ per channel.
 This preprocessing was applied identically to both the H\&E~(domain~A) and
@@ -65,12 +74,13 @@ Table~\ref{tab:supp-tile_counts} reports the resulting tile counts per domain an
 
 \begin{table}[h]
 \centering
-\caption{Tile counts after tissue filtering. Training subsets (25\%, 50\%) are
+\caption{Tile counts after tissue filtering. Each paired specimen contributes two
+WSIs, one H\&E and one SR. Training subsets (25\%, 50\%) are
 strict subsets of the full 100\% training set.}
 \label{tab:supp-tile_counts}
 \begin{tabular}{lcccc}
 \toprule
-\textbf{Split} & \textbf{WSIs} & \textbf{H\&E tiles} & \textbf{SR tiles} & \textbf{Data fraction} \\
+\textbf{Split} & \textbf{Paired specimens} & \textbf{H\&E tiles} & \textbf{SR tiles} & \textbf{Data fraction} \\
 \midrule
 Train (100\%) & 30 & 201{,}257 & 196{,}415 & 100\% \\
 Train (50\%)  & 15 & 109{,}049 &  96{,}292 & 50\%  \\
@@ -85,9 +95,12 @@ Test          &  5 &  16{,}290 &  16{,}290 & ---   \\
 
 The dataset was partitioned at the \textit{animal level} to prevent data leakage:
 no WSI from the same animal appears in more than one split.
-Splits were stratified by time point and treatment group to ensure that all
-disease stages and both conditions~(BDL, sham) are represented in every
-training subset and in the test set.
+Splits were stratified by disease stage and treatment group, so that all four
+stages and both conditions~(BDL, sham) are represented in every training subset.
+The test set is the one exception: the sole day-63 BDL specimen eligible for
+holding out could not be co-registered across its H\&E and SR sections and was
+therefore excluded, leaving the most advanced fibrosis stage unrepresented among
+the held-out BDL specimens (Table~\ref{tab:supp-split_stats}).
 The training set comprises 30 paired specimens (60 WSIs) organised into sequentially
 numbered per-specimen subdirectories for each domain, enabling reproducible
 data-fraction subsets via contiguous folder ranges:
@@ -104,18 +117,21 @@ distribution.
 
 \begin{table}[h]
 \centering
-\caption{Dataset split summary. BDL stage indicates post-ligation day at which
-tissue was harvested; sham = control mice without bile-duct ligation.}
+\caption{Dataset split summary. BDL stage indicates the post-ligation day defining
+the disease stage; sham = control mice without bile-duct ligation. Each animal
+contributes one paired specimen, and each paired specimen contributes two WSIs,
+one H\&E and one SR, so the stage columns sum to the specimen count rather than
+the WSI count.}
 \label{tab:supp-split_stats}
 \begin{tabular}{lccccccc}
 \toprule
-\textbf{Split} & \textbf{Animals} & \textbf{WSIs} &
-\multicolumn{5}{c}{\textbf{BDL stage (WSIs)}} \\
+\textbf{Split} & \textbf{Specimens} & \textbf{WSIs} &
+\multicolumn{5}{c}{\textbf{BDL stage (specimens)}} \\
 \cmidrule(lr){4-8}
 & & & Sham & Day 3 & Day 21 & Day 42 & Day 63 \\
 \midrule
-Train & 30 & 30 & 13 & 4 & 4 & 4 & 5 \\
-Test  &  5 &  5 & 2 & 1 & 1 & 1 & 0 \\
+Train & 30 & 60 & 13 & 4 & 4 & 4 & 5 \\
+Test  &  5 & 10 & 2 & 1 & 1 & 1 & 0 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -129,9 +145,9 @@ The full release, comprising tissue masks, tile-level metadata, data-split
 assignments, tiled image patches, pretrained model checkpoints, and all training
 scripts, is distributed under the Creative Commons Attribution~4.0 International
 licence (CC~BY~4.0), subject to the data-sharing terms of the cited source study.
-% TODO camera-ready: replace the placeholder owner in the URL and add the dataset DOI.
+% TODO camera-ready: add the dataset DOI once minted.
 The release is hosted as \textit{I2I-Stain-Zoo},
-\url{https://github.com/TODO/I2I-Stain-Zoo}.
+\url{https://github.com/HoehmeLab/I2I-Stain-Zoo}.
 
 % -------------------------------------------------------
 
@@ -448,9 +464,9 @@ original tile identifiers to enable downstream metric computation.
 Tables~\ref{tab:supp-scaling-a} and~\ref{tab:supp-scaling-b} report all four
 evaluation metrics for each of the 54 experimental configurations
 ($6~\text{models} \times 3~\text{sizes} \times 3~\text{data fractions}$).
-CPA~MAE is reported as mean~$\pm$~std over $N{=}5$ held-out paired specimens;
-FID is a set-level statistic with no per-sample variance; Patch-SSIM and LPIPS are reported
-as mean~$\pm$~std over test tiles.
+Patch-SSIM, LPIPS, and CPA~MAE are reported as mean~$\pm$~std over the $N{=}5$
+held-out paired specimens, matching the main paper; FID is a set-level statistic
+with no per-sample variance.
 Configurations where the model collapsed (FID~$>300$ and Patch-SSIM~$<0.20$)
 are flagged with an asterisk.
 
@@ -458,9 +474,11 @@ are flagged with an asterisk.
 \centering
 \caption{Scaling configurations, part~1 of~2: CycleGAN, UNIT, MUNIT. S/M/L =
 Small/Medium/Large generator. Data fraction is the percentage of training
-WSIs used. Configurations meeting FID~$>300$ and Patch-SSIM~$<0.20$ are flagged
-as collapsed (asterisk). $\downarrow$ = lower is better; $\uparrow$ = higher is
-better.}
+specimens used. FID is rounded to the nearest integer here and reported to one
+decimal in the main paper. Configurations meeting FID~$>300$ \emph{and}
+Patch-SSIM~$<0.20$ are flagged
+as collapsed (asterisk); a high FID alone is not sufficient. $\downarrow$ = lower
+is better; $\uparrow$ = higher is better.}
 \label{tab:supp-scaling-a}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{llccccc}
@@ -703,7 +721,10 @@ irreducible noise floor to ECE that no model can overcome.
 \label{sec:supp-unc-results}
 
 Tile-level calibration of the per-pixel uncertainty maps against cycle-reconstruction
-error, evaluated on $N{=}9{,}365$ tiles from 5 test WSIs.
+error, evaluated on the 5 held-out H\&E WSIs. Of their $16{,}290$ test tiles,
+$N{=}9{,}365$ contain at least $0.1\%$ tissue-mask coverage and enter the
+calibration analysis; the remainder are background and carry no meaningful
+uncertainty or reconstruction signal.
 Table~\ref{tab:calibration} summarises within-tile Spearman, across-tile Pearson and
 Spearman, and ECE for the six selected configurations;
 Figure~\ref{fig:calibration_reliability} shows the corresponding reliability diagrams.
@@ -714,10 +735,12 @@ Figure~\ref{fig:calibration_reliability} shows the corresponding reliability dia
   per-tile Spearman rank correlation between pixel-level uncertainty $U$ and
   cycle-reconstruction error $E$ over tissue pixels.
   Across-tile Pearson and Spearman: correlations between tile-mean $\overline{U}$
-  and tile-mean $\overline{E}$.
+  and tile-mean $\overline{E}$, both on the logarithmic scale of
+  Figure~\ref{fig:calibration_across_tile}; being monotone, the rescaling leaves
+  the correlations unchanged.
   ECE: tile-level expected calibration error after joint $p_1$--$p_{99}$ normalisation.
   $\uparrow$ = higher is better; $\downarrow$ = lower is better.
-  All results on $N{=}9{,}365$ tiles from 5 test WSIs.}
+  All results on $N{=}9{,}365$ tiles from the 5 held-out H\&E WSIs.}
 \label{tab:calibration}
 \resizebox{\linewidth}{!}{%
 \begin{tabular}{llcccc}
@@ -838,12 +861,18 @@ uncertainty screening alone.
 \begin{figure}[t!]
   \centering
   \includegraphics[width=\linewidth]{calibration_combined/combined_across_tile}
+% TODO camera-ready: confirm the exact log aggregation used by the plotting script;
+% regenerating these panels on the linear scale would remove the need for this note.
   \caption{Across-tile scatter plots of tile-mean uncertainty $\overline{U}$ ($x$-axis)
     versus tile-mean cycle-reconstruction error $\overline{E}$ ($y$-axis) for each
     model family (top row: CycleGAN, UNIT, MUNIT; bottom row: DCLGAN, UVCGAN,
     CycleDiffusion).
+    The $x$-axis is on a natural-logarithmic uncertainty scale and is therefore not
+    directly comparable with the linear per-tile $\bar{\sigma}$ of main-paper
+    Figure~4, which is reported in $0$--$255$ intensity units; correlations are
+    unaffected by the monotone rescaling.
     Pearson~$\rho$ and Spearman~$r_s$ are annotated per panel.
-    GAN-based families show moderate Pearson correlations ($0.42$--$0.60$) driven by
+    GAN-based families show moderate Pearson correlations ($0.42$--$0.61$) driven by
     high-leverage tiles at large uncertainty values; Spearman correlations are
     substantially weaker, indicating the relationship is non-monotonic.
     CycleDiffusion (bottom right) shows no meaningful correlation in either metric.}
