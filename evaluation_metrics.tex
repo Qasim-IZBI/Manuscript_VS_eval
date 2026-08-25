@@ -38,13 +38,13 @@ therefore treat CPA~MAE, not FID, as the primary metric.
 \noindent\textbf{Task-Specific Evaluation: Collagen Proportionate Area (CPA) Agreement.}
 Although the two sections cannot be compared pixel-by-pixel, they share the same
 underlying collagen content and therefore allow a paired comparison at the level of
-biological quantity. To realise this, a frozen %nnU-Net~v2~\cite{isensee2021nnunet}
+biological quantity. To realise this, a frozen nnU-Net~v2~\cite{isensee2021nnunet}
 collagen segmentation model~\cite{deng2026} trained on real SR WSIs is applied
 identically to (i)~the real SR test WSIs and (ii)~the virtual SR WSIs produced by each
 model configuration.
-Deep learning segmentation models of this kind reach Dice scores of $0.94$
-on Sirius Red~\cite{deng2026}, demonstrating that automated CPA measurement
-is clinically viable.
+Deep learning segmentation models of this kind reach Dice scores of $0.83$--$0.94$
+on Sirius Red~\cite{liverfibrosis2025, deng2026}, demonstrating that automated CPA
+measurement is clinically viable.
 For each WSI, CPA is computed as the fraction of tissue pixels labelled as SR-positive
 collagen (background excluded).
 CPA is the standard quantitative readout for hepatic fibrosis assessment and is

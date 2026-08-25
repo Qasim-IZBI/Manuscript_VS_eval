@@ -55,6 +55,11 @@ A Systematic Study of Scaling and Uncertainty in Unpaired Generative Models}
 %-------------------------------------------------------------------------
 \begin{document}
 
+% Supplementary floats carry an S prefix so that "Figure S1" / "Table S1" are
+% never confused with the main paper's own Figure 1 / Table 1.
+\renewcommand{\thefigure}{S\arabic{figure}}
+\renewcommand{\thetable}{S\arabic{table}}
+
 \maketitle
 
 \input{supplementary}

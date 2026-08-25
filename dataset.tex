@@ -19,6 +19,9 @@ memory at training time, yielding an effective resolution of $0.442\,\mu$m/pixel
 30 animals (60 WSIs) contribute 201{,}257 H\&E and 196{,}415 SR training tiles, with
 the remaining 5 animals (10 WSIs, 16{,}290 tiles per domain) reserved for testing;
 the split is partitioned at the animal level to prevent data leakage.
+The held-out animals cover sham controls and days~3, 21, and 42; the one day-63
+specimen could not be co-registered across its two stains and was excluded, so the
+most advanced fibrosis stage is absent from the test set.
 This constitutes the first open resource for unsupervised H\&E~$\to$~SR translation in
 mouse liver tissue; we release the 70 WSIs together with the tiling
 and preprocessing pipeline used to generate the $256{\times}256$ tiles and the full

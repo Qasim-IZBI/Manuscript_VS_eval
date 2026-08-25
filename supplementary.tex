@@ -121,7 +121,8 @@ distribution.
 the disease stage; sham = control mice without bile-duct ligation. Each animal
 contributes one paired specimen, and each paired specimen contributes two WSIs,
 one H\&E and one SR, so the stage columns sum to the specimen count rather than
-the WSI count.}
+the WSI count. The test row carries no day-63 specimen: the only candidate could not
+be co-registered across its H\&E and SR sections and was excluded.}
 \label{tab:supp-split_stats}
 \begin{tabular}{lccccccc}
 \toprule
@@ -785,11 +786,14 @@ strongest, though MUNIT's large standard deviation reflects marked tile-to-tile
 inconsistency.
 UVCGAN ($r_s = 0.069$) and CycleDiffusion ($r_s = 0.058$) show near-zero spatial
 calibration.
+Figure~\ref{fig:calibration_spearman} shows the full per-tile $r_s$ distributions
+behind these means.
 These values rule out pixel-level uncertainty as a reliable quality gate.
 
 \textbf{Across-tile calibration.}
 GAN-based families exhibit moderate across-tile Pearson correlations between tile-mean
-uncertainty and tile-mean error ($\rho = 0.50$--$0.66$), with DCLGAN and MUNIT ranking
+uncertainty and tile-mean error ($\rho = 0.50$--$0.66$;
+Figure~\ref{fig:calibration_across_tile}), with DCLGAN and MUNIT ranking
 highest.
 The across-tile Spearman correlations are substantially weaker and inconsistent
 ($r_s = {-}0.18$--$0.21$), revealing that the linear covariation is driven by a
@@ -865,7 +869,7 @@ uncertainty screening alone.
     model family (top row: CycleGAN, UNIT, MUNIT; bottom row: DCLGAN, UVCGAN,
     CycleDiffusion).
     Uncertainty is on the same linear $0$--$255$ intensity scale as the per-tile
-    $\bar{\sigma}$ of main-paper Figure~4.
+    $\bar{\sigma}$ of Figure~4 in the main paper.
     Pearson~$\rho$ and Spearman~$r_s$ are annotated per panel.
     GAN-based families show moderate Pearson correlations ($0.50$--$0.66$) driven by
     high-leverage tiles at large uncertainty values; Spearman correlations are
@@ -947,7 +951,7 @@ Task~2: plausibility, reader~1 $\uparrow$ & $2.7$ & $1.1$ \\
 Task~2: plausibility, reader~2 $\uparrow$ & $3.2$ & $1.4$ \\
 Task~2: plausibility, reader~3 $\uparrow$ & $3.7$ & $1.7$ \\
 \midrule
-CPA~MAE (from Sec.~4) $\downarrow$ & $0.008$ & $0.171$ \\
+CPA~MAE (Tables~\ref{tab:supp-scaling-a},~\ref{tab:supp-scaling-b}) $\downarrow$ & $0.008$ & $0.171$ \\
 \bottomrule
 \end{tabular}
 \end{table}
