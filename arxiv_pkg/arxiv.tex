@@ -1,11 +1,16 @@
+% ============================================================
+%  arXiv build: main paper and supplementary material in one document.
+%  Reuses the same section files as bmvc_final.tex / bmvc_supp_final.tex,
+%  so there is no duplicated prose to keep in sync.
+%
+%  Build:  latexmk -pdf arxiv
+% ============================================================
 \documentclass{bmvc2k}
 
-%% Remove or comment out \bmvcreviewcopy for the camera-ready submission.
-%% \bmvcreviewcopy{??}
-
-\title{Towards Reliable AI-Based Histological Staining: 
+\title{Towards Reliable AI-Based Histological Staining:
 A Systematic Study of Scaling and Uncertainty in Unpaired Generative Models}
 
+% Mirrors the author and institution list in bmvc_final.tex; keep the three in sync.
 \addauthor{Qasim Siddiqui}{qasim.siddiqui@uni-leipzig.de}{1,2}
 \addauthor{Adrian Friebel}{friebel@izbi.uni-leipzig.de}{1,2}
 \addauthor{Maiju Myllys}{myllys@ifado.de}{3}
@@ -15,25 +20,25 @@ A Systematic Study of Scaling and Uncertainty in Unpaired Generative Models}
 \addauthor{Stefan Hoehme}{hoehme@uni-leipzig.de}{1,2}
 
 \addinstitution{
-  Interdisciplinary Centre of Bioinformatics (IZBI) \\         
+  Interdisciplinary Centre of Bioinformatics (IZBI) \\
   Universität Leipzig \\
   Leipzig, Germany
 }
 
 \addinstitution{
-  Center for Scalable Data Analytics and Artificial Intelligence (ScaDS.AI) \\       
+  Center for Scalable Data Analytics and Artificial Intelligence (ScaDS.AI) \\
   University of Leipzig \\
   Leipzig, Germany
 }
 
 \addinstitution{
-  Department of Toxicology \\         
+  Department of Toxicology \\
   Technical University Dortmund \\
   Dortmund, Germany
 }
 
 \addinstitution{
-  Faculty of Veterinary Medicine \\      
+  Faculty of Veterinary Medicine \\
   Qena University \\
   Qena, Egypt
 }
@@ -42,18 +47,34 @@ A Systematic Study of Scaling and Uncertainty in Unpaired Generative Models}
 
 % Prevent floats from crossing section boundaries
 \usepackage[section]{placeins}
+
+% Union of the packages required by the main paper and the supplementary
 \usepackage{amssymb}
 \usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{stmaryrd}
 
 % Standard BMVC macros (not in the class file to avoid name collisions)
 \def\eg{\emph{e.g}\bmvaOneDot}
 \def\Eg{\emph{E.g}\bmvaOneDot}
 \def\etal{\emph{et al}\bmvaOneDot}
 
-% Pointer to a supplementary section. The BMVC build ships the supplementary as a
-% separate document, so it renders as "Supplementary Sec. N"; the combined arXiv
-% build redefines it to point at its own appendix section SN.
-\newcommand{\suppsec}[1]{Supplementary Sec.~#1}
+% Here the supplementary is an appendix of this same document, numbered S1--S6,
+% so a pointer resolves to a section the reader can jump to directly.
+\newcommand{\suppsec}[1]{Sec.~S#1}
+
+% arXiv prints its rotated stamp in the left margin of page 1. The BMVC page
+% leaves only about 20pt there, so the stamp lands on top of the author block.
+% Widen the paper and shift the text block right by the same amount: the text
+% block keeps its width, so line breaks, float placement, and pagination are
+% all unchanged, and the extra space appears only as a left gutter.
+% BMVC-only builds (bmvc_final.tex) must NOT do this: the camera-ready has to
+% keep the exact page geometry the class defines.
+\newlength{\arxivgutter}
+\setlength{\arxivgutter}{32pt}
+\addtolength{\paperwidth}{\arxivgutter}
+\addtolength{\pdfpagewidth}{\arxivgutter}
+\addtolength{\hoffset}{\arxivgutter}
 
 %-------------------------------------------------------------------------
 \begin{document}
@@ -114,5 +135,26 @@ blinded reader study.
 \par
 
 \bibliography{references}
+
+%-------------------------------------------------------------------------
+%  Supplementary material, carried as an appendix of this document.
+%  Sections, figures, and tables all restart with an S prefix so that
+%  "Table S1" is never confused with the main paper's Table 1.
+%-------------------------------------------------------------------------
+\clearpage
+
+\setcounter{section}{0}
+\setcounter{figure}{0}
+\setcounter{table}{0}
+\setcounter{equation}{0}
+\renewcommand{\thesection}{S\arabic{section}}
+\renewcommand{\thesubsection}{S\arabic{section}.\arabic{subsection}}
+\renewcommand{\thefigure}{S\arabic{figure}}
+\renewcommand{\thetable}{S\arabic{table}}
+\renewcommand{\theequation}{S\arabic{equation}}
+
+\section*{Supplementary Material}
+
+\input{supplementary}
 
 \end{document}

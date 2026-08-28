@@ -1,0 +1,316 @@
+% ============================================================
+%  Related Work — H&E to Sirius Red Virtual Staining Paper
+%  Compile with: pdflatex + bibtex (or biblatex/biber)
+%  NOTE: entries marked % [TBC] need first-author verification
+% ============================================================
+\section{Related Work}
+\label{sec:related_work}
+
+\noindent\textbf{AI-based Histological Staining.}
+In liver histopathology specifically, an unsupervised GAN validated on $n{=}574$ NASH
+WSIs~\cite{kieffer2020largescale} produced virtual H\&E~$\to$~trichrome translations
+that pathologists could not reliably distinguish from real images, and a prior-guided
+GAN~\cite{li2023unpaired} reached a Spearman correlation of $r_s{=}0.82$ between virtual
+and real fibrosis scores on the same task.
+Recent benchmarks covering a broader set of models and stains~\cite{visgab2025,
+staindiffuser2024, klockner2025he} consistently find that quantitative rankings disagree
+with pathologists' visual assessments.
+
+\noindent\textbf{Evaluation Frameworks for Virtual Staining.}
+Khan~\etal~\cite{khan2023effect} showed directly that standard image quality metrics do
+not reliably reflect whether virtually stained H\&E images retain the histological structures
+and cellular morphology necessary for pathological assessment, a finding that
+motivates the evaluation design adopted here and the broader argument for
+pathology-aware evaluation.
+A growing body of work therefore argues for \textit{task-specific evaluation}: applying
+downstream clinical tasks to virtual images to verify that diagnostically relevant
+content is preserved~\cite{renal_seg2025, her2task2024}.
+Task-specific evaluation, however, only verifies aggregate WSI-level translation quality and
+cannot flag where individual tile outputs fail; pairing it with model-level uncertainty
+estimation would complete the picture, yet no comparable uncertainty framework exists
+for unpaired stain translation.
+
+\noindent\textbf{Epistemic Uncertainty in Virtual Staining and I2I Translation.}
+Epistemic uncertainty captures the component of predictive uncertainty attributable to
+limited training data or model capacity. It is most commonly quantified via Monte
+Carlo~(MC) dropout~\cite{gal2016dropout}, which approximates Bayesian posterior sampling
+through repeated stochastic forward passes, or via deep
+ensembles~\cite{lakshminarayanan2017simple}, which measure disagreement across
+independently trained models.
+In digital histopathology, both approaches have been applied to H\&E classification and
+segmentation, enabling high-confidence predictions and automatic rejection of ambiguous
+cases~\cite{uncertainty_informed_hist2022}.
+Yet within the I2I translation literature, uncertainty-awareness in the \textit{unpaired}
+setting remains underexplored.
+The closest prior work is UGAC~\cite{ugac2021}, which extended CycleGAN with a
+generalised Gaussian cycle-consistency loss to produce per-pixel epistemic uncertainty
+estimates for MRI modality translation; UGAC reported that the resulting per-pixel
+variance correlates with translation error and stabilises training under noisy
+supervision.
+That setting differs from ours in two ways: the target domain is MRI rather than
+histology, and uncertainty is encoded into the loss as a Gaussian likelihood rather than
+measured ex post via ensemble disagreement.
+In supervised virtual cell staining, ensemble-based translation produced uncertainty
+estimates with Pearson $\rho{\approx}0.83$ against per-tile translation
+error~\cite{insilicolabeling2023}.
+No prior study has applied MC~dropout or deep ensembles to quantify epistemic
+uncertainty in unpaired GAN- or diffusion-based \textit{histological stain} translation,
+leaving open which image regions are most uncertain and how informative the resulting
+ensemble disagreement is in practice.
+% ============================================================
+%  Bibliography  (place in your .bib file)
+% ============================================================
+%
+% \bibliographystyle{unsrt}   % or ieeetr, apalike, etc.
+% \bibliography{references}
+%
+% ---- Paste the entries below into references.bib ----
+%
+% @article{rivenson2020emerging,
+%   author    = {Rivenson, Yair and de Haan, Kevin and Wallace, W. Dean and Ozcan, Aydogan},
+%   title     = {Emerging Advances to Transform Histopathology Using Virtual Staining},
+%   journal   = {BME Frontiers},
+%   year      = {2020},
+%   doi       = {10.34133/2020/9647163}
+% }
+%
+% @article{latonen2024virtual,
+%   author    = {Latonen, Leena and others},
+%   title     = {Virtual staining for histology by deep learning},
+%   journal   = {Trends in Biotechnology},
+%   volume    = {42},
+%   number    = {6},
+%   year      = {2024},
+%   doi       = {10.1016/j.tibtech.2024.02.003}
+% }
+%
+% @inproceedings{isola2017image,
+%   author    = {Isola, Phillip and Zhu, Jun-Yan and Zhou, Tinghui and Efros, Alexei A.},
+%   title     = {Image-to-Image Translation with Conditional Adversarial Networks},
+%   booktitle = {CVPR},
+%   year      = {2017}
+% }
+%
+% @article{aatresh2024virtual,      % [TBC] -- BMC Medical Imaging 2024 systematic review
+%   author    = {Aatresh, Akash A. and others},
+%   title     = {Virtual histopathology methods in medical imaging: a systematic review},
+%   journal   = {BMC Medical Imaging},
+%   year      = {2024},
+%   doi       = {10.1186/s12880-024-01498-9}
+% }
+%
+% @article{chen2025challenges,
+%   author    = {Chen and others},    % [TBC] -- Intelligent Oncology 2025
+%   title     = {Virtual staining for pathology: Challenges, limitations and perspectives},
+%   journal   = {Intelligent Oncology},
+%   year      = {2025},
+%   doi       = {10.1016/j.iotech.2025.100022}
+% }
+%
+% @inproceedings{zhu2017unpaired,
+%   author    = {Zhu, Jun-Yan and Park, Taesung and Isola, Phillip and Efros, Alexei A.},
+%   title     = {Unpaired Image-to-Image Translation using Cycle-Consistent Adversarial Networks},
+%   booktitle = {ICCV},
+%   year      = {2017},
+%   eprint    = {1703.10593}
+% }
+%
+% @inproceedings{liu2017unsupervised,
+%   author    = {Liu, Ming-Yu and Breuel, Thomas and Kautz, Jan},
+%   title     = {Unsupervised Image-to-Image Translation Networks},
+%   booktitle = {NeurIPS},
+%   year      = {2017},
+%   eprint    = {1703.00848}
+% }
+%
+% @inproceedings{huang2018multimodal,
+%   author    = {Huang, Xun and Liu, Ming-Yu and Belongie, Serge and Kautz, Jan},
+%   title     = {Multimodal Unsupervised Image-to-Image Translation},
+%   booktitle = {ECCV},
+%   year      = {2018},
+%   eprint    = {1804.04732}
+% }
+%
+% @inproceedings{han2021dual,
+%   author    = {Han, Junlin and Shoeiby, Mehrdad and Petersson, Lars and Armin, Mohammad Ali},
+%   title     = {Dual Contrastive Learning for Unsupervised Image-to-Image Translation},
+%   booktitle = {CVPR Workshops},
+%   year      = {2021},
+%   eprint    = {2104.07689}
+% }
+%
+% @inproceedings{torbunov2022uvcgan,
+%   author    = {Torbunov, Dmitrii and Huang, Yi and Yu, Haiwang and Huang, Jin and Yoo, Shinjae and Tricoli, Utku and Tsang, Raymond and Viren, Brett and Ren, Yihui},
+%   title     = {{UVCGAN}: {UNet} Vision Transformer Cycle-Consistent {GAN} for Unpaired Image-to-Image Translation},
+%   booktitle = {WACV},
+%   year      = {2023},
+%   eprint    = {2203.02557}
+% }
+%
+% @article{wu2022cyclediffusion,
+%   author    = {Wu, Chen Henry and De la Torre, Fernando},
+%   title     = {Unifying Diffusion Models' Latent Space, with Applications to {CycleDiffusion} and Guidance},
+%   journal   = {arXiv preprint},
+%   year      = {2022},
+%   eprint    = {2210.05559}
+% }
+%
+% @article{liu2021virtual,
+%   author    = {Liu and others},
+%   title     = {Virtual Immunohistochemistry for Breast Cancer Biomarker Prediction From {H\&E}-Stained Images Using Generative Network},
+%   journal   = {Image Analysis \& Stereology},
+%   year      = {2021}
+% }
+%
+% @article{chen2022mvfstain,
+%   author    = {Chen and others},   % [TBC]
+%   title     = {{MVFStain}: Multiple virtual functional stain histopathology images generation based on specific domain mapping},
+%   journal   = {Medical Image Analysis},
+%   year      = {2022},
+%   doi       = {10.1016/j.media.2022.102550}
+% }
+%
+% @article{kieffer2020largescale,
+%   author    = {Kieffer and others},   % [TBC] -- Modern Pathology 2020
+%   title     = {A large-scale internal validation study of unsupervised virtual trichrome staining technologies on nonalcoholic steatohepatitis liver biopsies},
+%   journal   = {Modern Pathology},
+%   year      = {2020},
+%   doi       = {10.1038/s41379-020-00718-1}
+% }
+%
+% @article{li2023unpaired,
+%   author    = {Li and others},   % [TBC] -- Medical Image Analysis 2023
+%   title     = {Unpaired virtual histological staining using prior-guided generative adversarial networks},
+%   journal   = {Computerized Medical Imaging and Graphics},
+%   year      = {2023},
+%   doi       = {10.1016/j.compmedimag.2023.102228}
+% }
+%
+% @article{adib2024dual,
+%   author    = {Adib, Erfan and others},
+%   title     = {Dual contrastive learning based image-to-image translation of unstained skin tissue into virtually stained {H\&E} images},
+%   journal   = {Scientific Reports},
+%   volume    = {14},
+%   pages     = {2335},
+%   year      = {2024},
+%   doi       = {10.1038/s41598-024-52833-7}
+% }
+%
+% @misc{vifit2025,
+%   author    = {others},   % [TBC]
+%   title     = {{ViFIT}-assisted Histopathology: From {H\&E} Style Standardization to Virtual Fiber Image Transformation},
+%   howpublished = {bioRxiv},
+%   year      = {2025},
+%   doi       = {10.1101/2025.01.24.634654}
+% }
+%
+% @article{khan2023effect,
+%   author    = {Khan, Amirreza and Koivukoski, Sonja and Valkonen, Mira and Latonen, Leena and Ruusuvuori, Pekka},
+%   title     = {The effect of neural network architecture on virtual {H\&E} staining: Systematic assessment of histological feasibility},
+%   journal   = {Patterns},
+%   volume    = {4},
+%   number    = {5},
+%   year      = {2023},
+%   doi       = {10.1016/j.patter.2023.100730}
+% }
+%
+% @article{visgab2025,
+%   author    = {others},   % [TBC]
+%   title     = {{VISGAB}: Virtual staining-driven {GAN} benchmarking for optimizing skin tissue histology},
+%   journal   = {Scientific Reports},
+%   year      = {2025},
+%   doi       = {10.1038/s41598-025-26493-0}
+% }
+%
+% @article{klockner2025he,
+%   author    = {Kl{\"o}ckner and others},
+%   title     = {{H\&E} to {IHC} virtual staining methods in breast cancer: an overview and benchmarking},
+%   journal   = {npj Digital Medicine},
+%   year      = {2025},
+%   doi       = {10.1038/s41746-025-01741-9}
+% }
+%
+% @misc{staindiffuser2024,
+%   author    = {others},   % [TBC]
+%   title     = {{StainDiffuser}: {MultiTask} Dual Diffusion Model for Virtual Staining},
+%   howpublished = {arXiv:2403.11340},
+%   year      = {2024}
+% }
+%
+% @article{renal_seg2025,
+%   author    = {others},   % [TBC] -- verify first author from PubMed ID 40712735
+%   title     = {Virtual Histological Staining as a Tool for Extending Renal Segmentation Across Stains},
+%   journal   = {Computerized Medical Imaging and Graphics},
+%   year      = {2025},
+%   doi       = {10.1016/j.compmedimag.2025.102395}
+% }
+%
+% @inproceedings{her2task2024,
+%   author    = {others},   % [TBC] -- verify from MICCAI 2024 proceedings
+%   title     = {Advancing {H\&E}-to-{IHC} Virtual Staining with Task-Specific Domain Knowledge for {HER2} Scoring},
+%   booktitle = {MICCAI},
+%   year      = {2024},
+%   url       = {https://papers.miccai.org/miccai-2024/051-Paper3227.html}
+% }
+%
+% @article{sirius_fibrosis2024,
+%   author    = {others},   % [TBC] -- verify from Cambridge Biological Imaging 2024
+%   title     = {Fibrosis severity scoring on {Sirius} red histology with multiple-instance deep learning},
+%   journal   = {Biological Imaging},
+%   year      = {2024},
+%   doi       = {10.1017/S2633903X24000023}
+% }
+%
+% @article{liverfibrosis2025,
+%   author    = {others},   % [TBC] -- verify from ScienceDirect 2025
+%   title     = {Enhancing liver fibrosis measurement: Deep learning and uncertainty analysis across multi-center cohorts},
+%   journal   = {Journal of Pathology Informatics},
+%   year      = {2025},
+%   doi       = {10.1016/j.jpi.2026.100411}
+% }
+%
+% ---- Uncertainty quantification entries ----
+%
+% @inproceedings{gal2016dropout,
+%   author    = {Gal, Yarin and Ghahramani, Zoubin},
+%   title     = {Dropout as a {Bayesian} Approximation: Representing Model Uncertainty in Deep Learning},
+%   booktitle = {ICML},
+%   year      = {2016}
+% }
+%
+% @inproceedings{lakshminarayanan2017simple,
+%   author    = {Lakshminarayanan, Balaji and Pritzel, Alexander and Blundell, Charles},
+%   title     = {Simple and Scalable Predictive Uncertainty Estimation using Deep Ensembles},
+%   booktitle = {NeurIPS},
+%   year      = {2017}
+% }
+%
+% @article{uncertainty_informed_hist2022,
+%   author    = {Ghoshal, Biraja and Tucker, Allan},
+%   title     = {Uncertainty-informed deep learning models enable high-confidence predictions for digital histopathology},
+%   journal   = {Nature Communications},
+%   year      = {2022},
+%   doi       = {10.1038/s41467-022-34025-x}
+% }
+%
+% @inproceedings{ugac2021,
+%   author    = {Upadhyay, Uddeshya and Chen, Yanbei and Akata, Zeynep},
+%   title     = {Robustness via Uncertainty-aware Cycle Consistency},
+%   booktitle = {NeurIPS},
+%   year      = {2021},
+%   eprint    = {2110.12467}
+% }
+%
+% @misc{trustworthy_i2i2025,
+%   author    = {others},   % [TBC] -- verify from arXiv:2501.17570
+%   title     = {Trustworthy image-to-image translation: evaluating uncertainty calibration in unpaired training scenarios},
+%   howpublished = {arXiv:2501.17570},
+%   year      = {2025}
+% }
+%
+% @article{insilicolabeling2023,
+%   author    = {others},   % [TBC] -- verify from PMC10663640
+%   title     = {Trustworthy in silico cell labeling via ensemble-based image translation},
+%   year      = {2023},
+%   url       = {https://pmc.ncbi.nlm.nih.gov/articles/PMC10663640/}
+% }

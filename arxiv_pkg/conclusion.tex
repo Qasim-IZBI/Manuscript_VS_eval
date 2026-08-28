@@ -1,0 +1,30 @@
+% ============================================================
+%  Section 8: Conclusion
+%  H&E to Sirius Red Virtual Staining Paper
+% ============================================================
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+We benchmarked six unsupervised image-to-image architectures across 54 scaling
+configurations on a newly released H\&E~$\to$~Sirius Red mouse liver dataset, jointly
+evaluating each configuration on perceptual, distributional, and task-specific axes and
+on per-tile epistemic uncertainty from deep ensembles, the first systematic comparison
+of epistemic uncertainty across unsupervised stain-to-stain architectures.
+
+For practitioners, the family choice depends on the deployment objective: CycleGAN's
+medium generator at full data offers the lowest task-specific error for fibrosis
+quantification, DCLGAN's small generator offers the best trade-off between task
+accuracy and ensemble agreement when per-tile reliability matters, MUNIT is the safest
+default across variable data budgets, and CycleDiffusion is conditionally consistent
+rather than uniformly more reliable than the GAN alternatives. More broadly,
+task-specific error, perceptual quality, and ensemble uncertainty measure largely
+independent axes of model fitness; reporting any single axis gives an incomplete
+picture, and future virtual-staining benchmarks should report all three jointly, with
+model selection driven by the axis closest to the intended downstream use.
+
+The dataset, tiling pipeline, models, and evaluation code are released as
+\textit{I2I-Stain-Zoo} (\url{https://github.com/HoehmeLab/I2I-Stain-Zoo}); the most pressing
+next step is cross-cohort validation on independent mouse models and human liver
+biopsies.
+
